@@ -11,11 +11,15 @@ namespace Apps.Slack
         [Action]
         public void PostMessage(AuthenticationCredentialsProvider authenticationCredentialsProvider, [ActionParameter] MessageParameters input)
         {
-            var client = new RestClient("https://slack.com/api");
+            var client = new SlackClient();
             var request = new RestRequest("/chat.postMessage", Method.Post);
             request.AddHeader("Authorization", $"Bearer {authenticationCredentialsProvider.Value}");
             request.AddJsonBody(new MessageRequest { Channel = input.ChannelId, Text = input.Text });
-            client.Post(request);
+            var response = client.Post(request);
+            if (!response.IsSuccessful)
+            {
+                throw new Exception($"{response.StatusCode}: {response.ErrorMessage}")
+            }
         }
     }
 }
