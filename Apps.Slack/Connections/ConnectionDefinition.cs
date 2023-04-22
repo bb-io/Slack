@@ -27,11 +27,11 @@ namespace Apps.Slack.Connections
 
         public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
         {
-            var apiKey = values.First(v => v.Key == "token");
+            var token = values.First(v => v.Key == "token");
             yield return new AuthenticationCredentialsProvider(
                 AuthenticationCredentialsRequestLocation.None,
-                apiKey.Key,
-                apiKey.Value
+                token.Key,
+                token.Value
             );
         }
     }

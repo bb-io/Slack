@@ -14,10 +14,7 @@ namespace Apps.Slack
         public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] MessageParameters input)
         {
             var client = new SlackClient();
-            var request = new RestRequest("/chat.postMessage", Method.Post);
-            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
-
-            request.AddHeader("Authorization", $"Bearer {authenticationCredentialsProvider.Value}");
+            var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
             request.AddJsonBody(new MessageRequest { Channel = input.ChannelId, Text = input.Text });
             client.Post(request);
         }
@@ -26,19 +23,11 @@ namespace Apps.Slack
         public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
             var client = new SlackClient();
-            var request = new RestRequest("/files.upload", Method.Post);
-            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
-
-            request.AddHeader("Authorization", $"Bearer {authenticationCredentialsProvider.Value}");
+            var request = new SlackRequest("/files.upload", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("channels", input.ChannelId);
             request.AddParameter("filename", input.FileName);
             request.AddFile("file", input.File, input.FileName, input.FileType);
             client.Post(request);
-        }
-
-        private AuthenticationCredentialsProvider GetAuthenticationCredentialsProvider(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
-        {
-            return authenticationCredentialsProviders.First(p => p.KeyName == "token");
         }
     }
 }
