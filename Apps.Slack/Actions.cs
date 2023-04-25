@@ -10,7 +10,7 @@ namespace Apps.Slack
     public class Actions
     {
       
-        [Action( "Post message to slack", Description = "Post message to slack")]
+        [Action( "Post a message to Slack", Description = "Post a message to slack")]
         public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] MessageParameters input)
         {
             var client = new SlackClient();
@@ -19,7 +19,7 @@ namespace Apps.Slack
             client.Post(request);
         }
         
-        [Action("Upload file", Description = "Upload file to channel")]
+        [Action("Upload a file", Description = "Upload a file to channel")]
         public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
             var client = new SlackClient();
