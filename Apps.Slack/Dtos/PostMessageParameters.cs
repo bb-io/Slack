@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apps.Slack
 {
-    public class MessageParameters
+    public class PostMessageParameters
     {
         public string ChannelId { get; set; }
         public string Text { get; set; }

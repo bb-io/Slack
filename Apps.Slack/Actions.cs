@@ -1,4 +1,5 @@
-﻿using Apps.Slack.Models;
+﻿using Apps.Slack.Dtos;
+using Apps.Slack.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -11,14 +12,23 @@ namespace Apps.Slack
     {
       
         [Action( "Post a message to Slack", Description = "Post a message to slack")]
-        public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] MessageParameters input)
+        public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
-            request.AddJsonBody(new MessageRequest { Channel = input.ChannelId, Text = input.Text });
+            request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
             client.Post(request);
         }
-        
+
+        [Action("Delete a message from Slack", Description = "Delete a message from Slack")]
+        public void DeleteMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteMessageParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/chat.delete", Method.Post, authenticationCredentialsProviders);
+            request.AddJsonBody(new DeleteMessageRequest { Channel = input.ChannelId, Ts = input.Ts });
+            client.Post(request);
+        }
+
         [Action("Upload a file", Description = "Upload a file to channel")]
         public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
