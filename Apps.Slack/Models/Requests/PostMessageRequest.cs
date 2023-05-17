@@ -1,4 +1,4 @@
-﻿namespace Apps.Slack.Models
+﻿namespace Apps.Slack.Models.Requests
 {
     public class PostMessageRequest
     {
