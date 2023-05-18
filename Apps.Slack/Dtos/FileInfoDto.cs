@@ -79,6 +79,9 @@ namespace Apps.Slack.Dtos
         public string Pjpeg { get; set; }
         public string Permalink { get; set; }
 
+        [JsonPropertyName("edit_link")]
+        public string EditLink { get; set; }
+
         [JsonPropertyName("permalink_public")]
         public string PublicPermalink { get; set; }
 
