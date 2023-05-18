@@ -1,6 +1,7 @@
 ﻿using Apps.Slack.Dtos;
 using Apps.Slack.Models;
 using Apps.Slack.Models.Requests;
+using Apps.Slack.Models.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -41,14 +42,14 @@ namespace Apps.Slack
             client.Post(request);
         }
 
-        //[Action("Get a file info", Description = "Get information about a file")]
-        //public void GetFileInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetFileInfoParameters input)
-        //{
-        //    var client = new SlackClient();
-        //    var request = new SlackRequest("/files.info", Method.Get, authenticationCredentialsProviders);
-        //    request.AddParameter("file", input.FileId);
-        //    client.Get(request);
-        //}
+        [Action("Get a file info", Description = "Get information about a file")]
+        public GetFileInfoResponse? GetFileInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetFileInfoParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/files.info", Method.Get, authenticationCredentialsProviders);
+            request.AddParameter("file", input.FileId);
+            return client.Get<GetFileInfoResponse>(request);
+        }
 
         [Action("Delete a file", Description = "Delete a file")]
         public void DeleteFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteFileParameters input)

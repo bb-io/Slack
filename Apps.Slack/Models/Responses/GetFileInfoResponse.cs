@@ -1,9 +1,14 @@
 ﻿using Apps.Slack.Dtos;
+using System.Text.Json.Serialization;
 
 namespace Apps.Slack.Models.Responses
 {
     public class GetFileInfoResponse
     {
         public FileInfoDto File { get; set; }
+        public string[] Comments { get; set; }
+
+        [JsonPropertyName("response_metadata")]
+        public FileMetadata ResponseMetadata { get; set; }
     }
 }
