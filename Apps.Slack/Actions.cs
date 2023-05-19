@@ -31,6 +31,15 @@ namespace Apps.Slack
             client.Post(request);
         }
 
+        [Action("Add a reaction to a message", Description = "Add a reaction to a message")]
+        public void AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reactions.add", Method.Post, authenticationCredentialsProviders);
+            request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
+            client.Post(request);
+        }
+
         [Action("Upload a file", Description = "Upload a file to channel")]
         public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
@@ -48,7 +57,7 @@ namespace Apps.Slack
             var client = new SlackClient();
             var request = new SlackRequest("/files.info", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("file", input.FileId);
-            return client.Get<GetFileInfoResponse>(request);
+            return client.Get<ResponseWrapper<GetFileInfoResponse>>(request)?.Data;
         }
 
         [Action("Delete a file", Description = "Delete a file")]
