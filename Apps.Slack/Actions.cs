@@ -64,13 +64,13 @@ namespace Apps.Slack
         }
 
         [Action("Get reactions for a message", Description = "Get reactions for a message")]
-        public GetReactionsResponse? GetReactions(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetReactionsParameters input)
+        public Message? GetReactions(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetReactionsParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reactions.get", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("channel", input.ChannelId);
             request.AddParameter("timestamp", input.Timestamp);
-            return client.Get<GetReactionsResponse>(request);
+            return client.Get<GetReactionsResponse>(request)?.Message;
         }
 
         [Action("Upload a file", Description = "Upload a file to channel")]
@@ -85,12 +85,12 @@ namespace Apps.Slack
         }
 
         [Action("Get a file info", Description = "Get information about a file")]
-        public GetFileInfoResponse? GetFileInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetFileInfoParameters input)
+        public FileInfoDto? GetFileInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetFileInfoParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/files.info", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("file", input.FileId);
-            return client.Get<GetFileInfoResponse>(request);
+            return client.Get<GetFileInfoResponse>(request)?.File;
         }
 
         [Action("Delete a file", Description = "Delete a file")]

@@ -5,7 +5,6 @@ namespace Apps.Slack.Models.Responses
 {
     public class GetFileInfoResponse
     {
-        [JsonPropertyName("file")]
         public FileInfoDto File { get; set; }
         public string Content { get; set; }
         public string[] Comments { get; set; }
