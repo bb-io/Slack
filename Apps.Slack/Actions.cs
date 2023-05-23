@@ -101,5 +101,58 @@ namespace Apps.Slack
             request.AddParameter("file", input.FileId);
             client.Post(request);
         }
+
+        [Action("Create a reminder", Description = "Create a reminder")]
+        public void AddReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReminderParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reminders.add", Method.Post, authenticationCredentialsProviders);
+            request.AddJsonBody(
+                new AddReminderRequest
+                {
+                    Text = input.Text,
+                    Time = input.Time,
+                    User = input.UserId
+                });
+
+            client.Post(request);
+        }
+
+        [Action("Mark a reminder as complete", Description = "Mark a reminder as complete")]
+        public void CompleteReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] CompleteReminderParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reminders.complete", Method.Post, authenticationCredentialsProviders);
+            request.AddParameter("reminder", input.ReminderId);
+            client.Post(request);
+        }
+
+        [Action("Delete a reminder", Description = "Delete a reminder")]
+        public void DeleteReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteReminderParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reminders.delete", Method.Post, authenticationCredentialsProviders);
+            request.AddParameter("reminder", input.ReminderId);
+            client.Post(request);
+        }
+
+        [Action("Get information about a reminder", Description = "Get information about a reminder")]
+        public ReminderInfoDto? GetReminderInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetReminderInfoParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reminders.info", Method.Get, authenticationCredentialsProviders);
+            request.AddParameter("reminder", input.ReminderId);
+            return client.Get<GetReminderInfoResponse>(request)?.Reminder;
+        }
+
+        [Action("Get all reminders created by or for a given user", Description = "Get all reminders created by or for a given user")]
+        public ReminderInfoDto[]? GetReminders(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/reminders.list", Method.Get, authenticationCredentialsProviders);
+            return client.Get<GetRemindersResponse>(request)?.Reminders;
+        }
+
+        
     }
 }
