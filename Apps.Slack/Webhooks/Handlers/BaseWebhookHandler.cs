@@ -5,12 +5,7 @@ namespace Apps.Slack.Webhooks.Handlers
 {
     public class BaseWebhookHandler : IWebhookEventHandler
     {
-        private string _event;
-
-        public BaseWebhookHandler(string @event)
-        {
-            _event = @event;
-        }
+        public BaseWebhookHandler() { }
 
         public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
