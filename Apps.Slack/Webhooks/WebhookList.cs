@@ -1,7 +1,5 @@
-﻿using Apps.Slack.Webhooks.Handlers;
-using Apps.Slack.Webhooks.Payload;
+﻿using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using System.Text.Json;
 
 namespace Apps.Slack.Webhooks
 {
