@@ -13,7 +13,7 @@ namespace Apps.Slack
     public class Actions
     {
       
-        [Action( "Post a message to Slack", Description = "Post a message to slack")]
+        [Action( "Post a message", Description = "Post a message to a Slack channel")]
         public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
             var client = new SlackClient();
@@ -22,7 +22,7 @@ namespace Apps.Slack
             client.Post(request);
         }
 
-        [Action("Delete a message from Slack", Description = "Delete a message from Slack")]
+        [Action("Delete a message", Description = "Delete a message from Slack a Slack channel")]
         public void DeleteMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteMessageParameters input)
         {
             var client = new SlackClient();

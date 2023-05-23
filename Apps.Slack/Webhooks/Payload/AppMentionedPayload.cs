@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Apps.Slack.Webhooks.Payload
 {
@@ -6,23 +7,24 @@ namespace Apps.Slack.Webhooks.Payload
     {
         public string Token { get; set; }
 
-        [JsonPropertyName("team_id")]
+        [JsonProperty("team_id")]
         public string TeamId { get; set; }
 
-        [JsonPropertyName("api_app_id")]
+        [JsonProperty("api_app_id")]
         public string ApiAppId { get; set; }
 
         public Event Event { get; set; }
         public string Type { get; set; }
 
-        [JsonPropertyName("event_id")]
+        [JsonProperty("event_id")]
         public string EventId { get; set; }
 
-        [JsonPropertyName("event_time")]
+        [JsonProperty("event_time")]
         public long EventTime { get; set; }
 
-        [JsonPropertyName("authed_users")]
+        [JsonProperty("authed_users")]
         public string AuthedUsers { get; set; }
+        public string Challenge { get; set; }
     }
 
     public class Event
@@ -33,7 +35,7 @@ namespace Apps.Slack.Webhooks.Payload
         public string Ts { get; set; }
         public string Channel { get; set; }
 
-        [JsonPropertyName("event_ts")]
+        [JsonProperty("event_ts")]
         public string EventTs { get; set; }
     }
 }
