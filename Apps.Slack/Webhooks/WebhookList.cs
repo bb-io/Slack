@@ -9,7 +9,7 @@ namespace Apps.Slack.Webhooks
     public class WebhookList
     {
         [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
-        public async Task<WebhookResponse<Event>> FolderContentAdded(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<Event>> AppMentioned(WebhookRequest webhookRequest)
         {
             var payload = JsonSerializer.Deserialize<AppMentionedPayload>(webhookRequest.Body.ToString());
             return new WebhookResponse<Event>
