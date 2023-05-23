@@ -80,7 +80,7 @@ namespace Apps.Slack
             var request = new SlackRequest("/files.upload", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("channels", input.ChannelId);
             request.AddParameter("filename", input.FileName);
-            request.AddFile("file", input.File, input.FileName, input.FileType);
+            request.AddFile("file", input.File, input.FileName);
             client.Post(request);
         }
 
