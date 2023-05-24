@@ -153,6 +153,39 @@ namespace Apps.Slack
             return client.Get<GetRemindersResponse>(request)?.Reminders;
         }
 
-        
+        [Action("Get all users in a Slack team", Description = "Get all users in a Slack team")]
+        public UserInfoDto[]? GetUsers(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/users.list", Method.Get, authenticationCredentialsProviders);
+            return client.Get<GetUsersResponse>(request)?.Members;
+        }
+
+        [Action("Get information about a user", Description = "Get information about a user")]
+        public UserInfoDto? GetUserInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserInfoParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/users.info", Method.Get, authenticationCredentialsProviders);
+            request.AddParameter("user", input.UserId);
+            return client.Get<GetUserInfoResponse>(request)?.User;
+        }
+
+        [Action("Find a user with an email address", Description = "Find a user with an email address")]
+        public UserInfoDto? GetUserByEmail(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserByEmailParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/users.lookupByEmail", Method.Get, authenticationCredentialsProviders);
+            request.AddParameter("email", input.Email);
+            return client.Get<GetUserByEmailResponse>(request)?.User;
+        }
+
+        [Action("Get a user's profile information", Description = "Retrieve a user's profile information, including their custom status")]
+        public UserProfileDto? GetUserProfile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserProfileParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/users.profile.get", Method.Get, authenticationCredentialsProviders);
+            request.AddParameter("user", input.UserId);
+            return client.Get<GetUserProfileResponse>(request)?.Profile;
+        }
     }
 }
