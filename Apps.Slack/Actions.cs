@@ -146,19 +146,19 @@ namespace Apps.Slack
         }
 
         [Action("Get all reminders created by or for a given user", Description = "Get all reminders created by or for a given user")]
-        public ReminderInfoDto[]? GetReminders(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        public GetRemindersResponse? GetReminders(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reminders.list", Method.Get, authenticationCredentialsProviders);
-            return client.Get<GetRemindersResponse>(request)?.Reminders;
+            return client.Get<GetRemindersResponse>(request);
         }
 
         [Action("Get all users in a Slack team", Description = "Get all users in a Slack team")]
-        public UserInfoDto[]? GetUsers(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        public GetUsersResponse? GetUsers(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/users.list", Method.Get, authenticationCredentialsProviders);
-            return client.Get<GetUsersResponse>(request)?.Members;
+            return client.Get<GetUsersResponse>(request);
         }
 
         [Action("Get information about a user", Description = "Get information about a user")]
