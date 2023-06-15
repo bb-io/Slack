@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.Slack.Models
+namespace Apps.Slack.Webhooks.Output
 {
-    public class MessageRequest
-    {
-        public string Text { get; set; }
+    public class AppMentionedEvent
+    {        
+        public string Message { get; set; }
         public string Channel { get; set; }
+        public string User { get; set; }
     }
 }
