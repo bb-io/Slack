@@ -8,11 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="RestSharp" Version="109.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Webhooks\Payload\" />
   </ItemGroup>
 
 </Project>

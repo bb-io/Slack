@@ -15,19 +15,19 @@ namespace Apps.Slack.Connections
         {
             new ConnectionPropertyGroup
             {
-                Name = "Developer token",
-                AuthenticationType = ConnectionAuthenticationType.Undefined,
+                Name = "OAuth2",
+                AuthenticationType = ConnectionAuthenticationType.OAuth2,
                 ConnectionUsage = ConnectionUsage.Actions,
                 ConnectionProperties = new List<ConnectionProperty>()
                 {
-                    new ConnectionProperty("token")
+                    
                 }
             }
         };
 
         public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
         {
-            var token = values.First(v => v.Key == "token");
+            var token = values.First(v => v.Key == "access_token");
             yield return new AuthenticationCredentialsProvider(
                 AuthenticationCredentialsRequestLocation.None,
                 token.Key,

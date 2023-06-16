@@ -12,7 +12,7 @@ namespace Apps.Slack
     {
         public SlackRequest(string endpoint, Method method, IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders) : base(endpoint, method)
         {
-            var token = authenticationCredentialsProviders.First(p => p.KeyName == "token").Value;
+            var token = authenticationCredentialsProviders.First(p => p.KeyName == "access_token").Value;
             this.AddHeader("Authorization", $"Bearer {token}");
         }
     }

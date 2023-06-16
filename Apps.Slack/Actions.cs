@@ -13,25 +13,25 @@ namespace Apps.Slack
     public class Actions
     {
       
-        [Action( "Post a message", Description = "Post a message to a Slack channel")]
+        [Action("Send message", Description = "Send a message to a Slack channel")]
         public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
             request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Delete a message", Description = "Delete a message from Slack a Slack channel")]
+        [Action("Delete message", Description = "Delete a message from Slack a Slack channel")]
         public void DeleteMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteMessageParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/chat.delete", Method.Post, authenticationCredentialsProviders);
             request.AddJsonBody(new DeleteMessageRequest { Channel = input.ChannelId, Ts = input.Ts });
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Add a reaction to a message", Description = "Add a reaction to a message")]
+        [Action("Add reaction", Description = "Add a reaction to a message")]
         public void AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReactionParameters input)
         {
             var client = new SlackClient();
@@ -44,10 +44,10 @@ namespace Apps.Slack
                     Name = input.Name
                 });
 
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Remove a reaction from a message", Description = "Remove a reaction from a message")]
+        [Action("Remove reaction", Description = "Remove a reaction from a message")]
         public void DeleteReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteReactionParameters input)
         {
             var client = new SlackClient();
@@ -60,20 +60,20 @@ namespace Apps.Slack
                     Name = input.Name
                 });
 
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Get reactions for a message", Description = "Get reactions for a message")]
+        [Action("Get reactions", Description = "Get reactions for a message")]
         public Message? GetReactions(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetReactionsParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reactions.get", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("channel", input.ChannelId);
             request.AddParameter("timestamp", input.Timestamp);
-            return client.Get<GetReactionsResponse>(request)?.Message;
+            return client.ExecuteWithErrorHandling<GetReactionsResponse>(request)?.Message;
         }
 
-        [Action("Upload a file", Description = "Upload a file to channel")]
+        [Action("Upload file", Description = "Upload a file to channel")]
         public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
             var client = new SlackClient();
@@ -81,28 +81,28 @@ namespace Apps.Slack
             request.AddParameter("channels", input.ChannelId);
             request.AddParameter("filename", input.FileName);
             request.AddFile("file", input.File, input.FileName);
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Get a file info", Description = "Get information about a file")]
+        [Action("Get file", Description = "Get information about a file")]
         public FileInfoDto? GetFileInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetFileInfoParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/files.info", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("file", input.FileId);
-            return client.Get<GetFileInfoResponse>(request)?.File;
+            return client.ExecuteWithErrorHandling<GetFileInfoResponse>(request)?.File;
         }
 
-        [Action("Delete a file", Description = "Delete a file")]
+        [Action("Delete file", Description = "Delete a file")]
         public void DeleteFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteFileParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/files.delete", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("file", input.FileId);
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Create a reminder", Description = "Create a reminder")]
+        [Action("Create reminder", Description = "Create a reminder")]
         public void AddReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReminderParameters input)
         {
             var client = new SlackClient();
@@ -115,77 +115,77 @@ namespace Apps.Slack
                     User = input.UserId
                 });
 
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Mark a reminder as complete", Description = "Mark a reminder as complete")]
+        [Action("Mark reminder as complete", Description = "Mark a reminder as complete")]
         public void CompleteReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] CompleteReminderParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reminders.complete", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("reminder", input.ReminderId);
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Delete a reminder", Description = "Delete a reminder")]
+        [Action("Delete reminder", Description = "Delete a reminder")]
         public void DeleteReminder(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteReminderParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reminders.delete", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("reminder", input.ReminderId);
-            client.Post(request);
+            client.ExecuteWithErrorHandling(request);
         }
 
-        [Action("Get information about a reminder", Description = "Get information about a reminder")]
+        [Action("Get reminder information", Description = "Get information about a reminder")]
         public ReminderInfoDto? GetReminderInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetReminderInfoParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reminders.info", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("reminder", input.ReminderId);
-            return client.Get<GetReminderInfoResponse>(request)?.Reminder;
+            return client.ExecuteWithErrorHandling<GetReminderInfoResponse>(request)?.Reminder;
         }
 
-        [Action("Get all reminders created by or for a given user", Description = "Get all reminders created by or for a given user")]
-        public GetRemindersResponse? GetReminders(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
-        {
-            var client = new SlackClient();
-            var request = new SlackRequest("/reminders.list", Method.Get, authenticationCredentialsProviders);
-            return client.Get<GetRemindersResponse>(request);
-        }
+        //[Action("Get user reminders", Description = "Get all reminders created by or for a given user")]
+        //public GetRemindersResponse? GetReminders(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        //{
+        //    var client = new SlackClient();
+        //    var request = new SlackRequest("/reminders.list", Method.Get, authenticationCredentialsProviders);
+        //    return client.Get<GetRemindersResponse>(request);
+        //}
 
-        [Action("Get all users in a Slack team", Description = "Get all users in a Slack team")]
+        [Action("Get all users", Description = "Get all users in a Slack team")]
         public GetUsersResponse? GetUsers(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/users.list", Method.Get, authenticationCredentialsProviders);
-            return client.Get<GetUsersResponse>(request);
+            return client.ExecuteWithErrorHandling<GetUsersResponse>(request);
         }
 
-        [Action("Get information about a user", Description = "Get information about a user")]
+        [Action("Get user information", Description = "Get information about a user")]
         public UserInfoDto? GetUserInfo(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserInfoParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/users.info", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("user", input.UserId);
-            return client.Get<GetUserInfoResponse>(request)?.User;
+            return client.ExecuteWithErrorHandling<GetUserInfoResponse>(request)?.User;
         }
 
-        [Action("Find a user with an email address", Description = "Find a user with an email address")]
+        [Action("Get user by email", Description = "Find a user with an email address")]
         public UserInfoDto? GetUserByEmail(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserByEmailParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/users.lookupByEmail", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("email", input.Email);
-            return client.Get<GetUserByEmailResponse>(request)?.User;
+            return client.ExecuteWithErrorHandling<GetUserByEmailResponse>(request)?.User;
         }
 
-        [Action("Get a user's profile information", Description = "Retrieve a user's profile information, including their custom status")]
+        [Action("Get user profile", Description = "Retrieve a user's profile information, including their custom status")]
         public UserProfileDto? GetUserProfile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetUserProfileParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/users.profile.get", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("user", input.UserId);
-            return client.Get<GetUserProfileResponse>(request)?.Profile;
+            return client.ExecuteWithErrorHandling<GetUserProfileResponse>(request)?.Profile;
         }
     }
 }
