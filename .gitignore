@@ -386,3 +386,4 @@ FodyWeavers.xsd
 /Apps.Slack/ApplicationConstants.cs
 .DS_Store
 .editorconfig
+/Apps.Slack/Dev.cs
