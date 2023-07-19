@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Apps.Slack.Webhooks.Payload
 {
-    public class MessageReactionEvent
+    public class FileMessageReactionEvent
     {
         [JsonPropertyName("type")]
         public string Type { get; set; }
@@ -28,18 +28,18 @@ namespace Apps.Slack.Webhooks.Payload
         public string EventTs { get; set; }
 
         [JsonPropertyName("item")]
-        public MessageItem Item { get; set; }
+        public EmbeddedFileInfo Item { get; set; }
     }
 
-    public class MessageItem
+    public class EmbeddedFileInfo
     {
+
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
         [JsonPropertyName("channel")]
         public string Channel { get; set; }
 
-        [Display("Message timestamp")]
         [JsonPropertyName("ts")]
         public string Ts { get; set; }
     }

@@ -106,7 +106,7 @@ namespace Apps.Slack.Webhooks
             };
         }
 
-        [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On message reaction")]
+        [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On any message reaction")]
         public async Task<WebhookResponse<MessageReactionEvent>> MessageReaction(WebhookRequest webhookRequest)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
