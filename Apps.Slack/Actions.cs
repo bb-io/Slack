@@ -93,6 +93,16 @@ namespace Apps.Slack
             return client.ExecuteWithErrorHandling<GetFileInfoResponse>(request)?.File;
         }
 
+        [Action("Download file", Description = "Download file by url")]
+        public DownloadFileResponse DownloadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DownloadFileRequest input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest(input.Url, Method.Get, authenticationCredentialsProviders);
+            return new DownloadFileResponse() {
+                File = client.Get(request).RawBytes
+            };
+        }
+
         [Action("Delete file", Description = "Delete a file")]
         public void DeleteFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] DeleteFileParameters input)
         {
