@@ -1,4 +1,5 @@
 ﻿using Apps.Slack.Dtos;
+using Blackbird.Applications.Sdk.Common;
 using System.Text.Json.Serialization;
 
 namespace Apps.Slack.Models.Responses
@@ -9,6 +10,7 @@ namespace Apps.Slack.Models.Responses
         public string Content { get; set; }
         public string[] Comments { get; set; }
 
+        [Display("Response metadata")]
         [JsonPropertyName("response_metadata")]
         public FileMetadata ResponseMetadata { get; set; }
     }

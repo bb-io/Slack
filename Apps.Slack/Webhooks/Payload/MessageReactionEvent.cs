@@ -36,6 +36,7 @@ namespace Apps.Slack.Webhooks.Payload
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
+        [Display("Channel ID")]
         [JsonPropertyName("channel")]
         public string Channel { get; set; }
 
