@@ -22,7 +22,7 @@ namespace Apps.Slack.Webhooks
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
 
-            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+            if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
                 return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
@@ -48,7 +48,7 @@ namespace Apps.Slack.Webhooks
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
 
-            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+            if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
                 return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             return new WebhookResponse<ChannelMessage>
@@ -73,7 +73,7 @@ namespace Apps.Slack.Webhooks
                 throw new Exception("No serializable payload was found in inocming request.");
             if (payload.Event.Files is null)
                 return new WebhookResponse<ChannelFilesMessage>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
-            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+            if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
                 return new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
             return new WebhookResponse<ChannelFilesMessage>
             {
@@ -117,7 +117,7 @@ namespace Apps.Slack.Webhooks
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
-            if (input.ChannelId == null || payload.Event.Item.Channel != input.ChannelId)
+            if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
                 return new WebhookResponse<MessageReactionEvent> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             return new WebhookResponse<MessageReactionEvent>
