@@ -15,12 +15,15 @@ namespace Apps.Slack.Webhooks
     public class WebhookList
     {
         [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
-        public async Task<WebhookResponse<ChannelMessage>> AppMentioned(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<ChannelMessage>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
+
+            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+                return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
@@ -38,12 +41,15 @@ namespace Apps.Slack.Webhooks
         }
 
         [Webhook("On channel message", typeof(ChannelMessageHandler), Description = "On channel message")]
-        public async Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
+
+            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+                return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             return new WebhookResponse<ChannelMessage>
             {
@@ -59,18 +65,16 @@ namespace Apps.Slack.Webhooks
         }
 
         [Webhook("On channel files message", typeof(ChannelMessageHandler), Description = "On channel files message")]
-        public async Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
             if (payload.Event.Files is null)
-                return new WebhookResponse<ChannelFilesMessage>() { 
-                    HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-                    ReceivedWebhookRequestType = WebhookRequestType.Preflight
-                };
-
+                return new WebhookResponse<ChannelFilesMessage>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            if (input.ChannelId == null || payload.Event.Channel != input.ChannelId)
+                return new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
             return new WebhookResponse<ChannelFilesMessage>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -107,12 +111,14 @@ namespace Apps.Slack.Webhooks
         }
 
         [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On any message reaction")]
-        public async Task<WebhookResponse<MessageReactionEvent>> MessageReaction(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<MessageReactionEvent>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
+            if (input.ChannelId == null || payload.Event.Item.Channel != input.ChannelId)
+                return new WebhookResponse<MessageReactionEvent> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             return new WebhookResponse<MessageReactionEvent>
             {
