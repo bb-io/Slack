@@ -15,6 +15,7 @@ namespace Apps.Slack.Webhooks.Payload
         [JsonPropertyName("user")]
         public string User { get; set; }
 
+        [Display("Channel ID")]
         [JsonPropertyName("channel")]
         public string Channel { get; set; }
         [Display("Channel Type")]
