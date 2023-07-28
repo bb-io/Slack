@@ -15,12 +15,12 @@ namespace Apps.Slack
     {
       
         [Action("Send message", Description = "Send a message to a Slack channel")]
-        public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
+        public PostMessageResponse PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
             request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
-            client.ExecuteWithErrorHandling(request);
+            return client.ExecuteWithErrorHandling<PostMessageResponse>(request);
         }
 
         [Action("Get message files", Description = "Get message files by timestamp")]
@@ -90,14 +90,14 @@ namespace Apps.Slack
         }
 
         [Action("Upload file", Description = "Upload a file to channel")]
-        public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
+        public FileInfoDto UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/files.upload", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("channels", input.ChannelId);
             request.AddParameter("filename", input.FileName);
             request.AddFile("file", input.File, input.FileName);
-            client.ExecuteWithErrorHandling(request);
+            return client.ExecuteWithErrorHandling<UploadFileResponse>(request).File;
         }
 
         [Action("Get file info", Description = "Get information about a file")]
