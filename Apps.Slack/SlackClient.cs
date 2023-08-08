@@ -16,7 +16,10 @@ namespace Apps.Slack
         public void ExecuteWithErrorHandling(SlackRequest request)
         {
             var response = this.Execute(request);
-            var genericResponse = JsonSerializer.Deserialize<GenericResponse>(response.Content);
+            var genericResponse = JsonSerializer.Deserialize<GenericResponse>(response.Content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             if (!string.IsNullOrEmpty(genericResponse?.Error))
             {
                 throw new Exception($"Error: {genericResponse.Error}");
@@ -26,7 +29,10 @@ namespace Apps.Slack
         public T ExecuteWithErrorHandling<T>(SlackRequest request)
         {
             var response = this.Execute(request);
-            var genericResponse = JsonSerializer.Deserialize<GenericResponse>(response.Content);
+            var genericResponse = JsonSerializer.Deserialize<GenericResponse>(response.Content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
             if (!string.IsNullOrEmpty(genericResponse?.Error))
             {
                 throw new Exception($"Error: {genericResponse.Error}");

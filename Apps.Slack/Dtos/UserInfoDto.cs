@@ -5,16 +5,20 @@ namespace Apps.Slack.Dtos
 {
     public class UserInfoDto
     {
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         [Display("Team ID")]
         [JsonPropertyName("team_id")]
         public string TeamId { get; set; }
 
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        [JsonPropertyName("deleted")]
         public bool Deleted { get; set; }
 
+        [JsonPropertyName("color")]
         public string Color { get; set; }
 
         [Display("Real name")]
@@ -32,7 +36,8 @@ namespace Apps.Slack.Dtos
         [Display("Time zone offset")]
         [JsonPropertyName("tz_offset")]
         public int TimeZoneOffset { get; set; }
-        
+
+        [JsonPropertyName("profile")]
         public Profile Profile { get; set; }
 
         [Display("Is admin")]
@@ -59,6 +64,7 @@ namespace Apps.Slack.Dtos
         [JsonPropertyName("is_bot")]
         public bool IsBot { get; set; }
 
+        [JsonPropertyName("updated")]
         public long Updated { get; set; }
 
         [Display("Is app user")]
@@ -100,7 +106,10 @@ namespace Apps.Slack.Dtos
         [JsonPropertyName("display_name_normalized")]
         public string DisplayNameNormalized { get; set; }
 
+        [JsonPropertyName("email")]
         public string Email { get; set; }
+
+        [JsonPropertyName("team")]
         public string Team { get; set; }
 
         [Display("Original image")]
