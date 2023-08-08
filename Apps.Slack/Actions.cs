@@ -162,5 +162,13 @@ namespace Apps.Slack
             request.AddParameter("user", input.UserId);
             return client.ExecuteWithErrorHandling<GetUserProfileResponse>(request)?.Profile;
         }
+
+        [Action("Get all channels", Description = "Get all channels in a Slack team")]
+        public GetChannelsResponse? GetChannels(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/conversations.list", Method.Get, authenticationCredentialsProviders);
+            return client.ExecuteWithErrorHandling<GetChannelsResponse>(request);
+        }
     }
 }
