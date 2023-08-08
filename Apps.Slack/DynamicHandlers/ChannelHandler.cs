@@ -19,7 +19,7 @@ namespace Apps.Slack.DynamicHandlers
         {
             var contextInv = InvocationContext;
             var channels = new Actions().GetChannels(contextInv.AuthenticationCredentialsProviders);
-            return channels.Channels.ToDictionary(k => k.Id, v => v.Name);
+            return channels.Channels.Where(el => el.Name.Contains(context.SearchString)).ToDictionary(k => k.Id, v => v.Name);
         }
     }
 }
