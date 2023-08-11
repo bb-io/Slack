@@ -48,7 +48,7 @@ namespace Apps.Slack
         }
 
         [Action("Add reaction", Description = "Add a reaction to a message")]
-        public string AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReactionParameters input)
+        public void AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReactionParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reactions.add", Method.Post, authenticationCredentialsProviders);
@@ -59,8 +59,7 @@ namespace Apps.Slack
                     Timestamp = input.Timestamp,
                     Name = input.Name
                 });
-
-            return client.ExecuteWithErrorHandling<string>(request);
+            client.ExecuteWithErrorHandling<StatusDto>(request);
         }
 
         [Action("Remove reaction", Description = "Remove a reaction from a message")]
