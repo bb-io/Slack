@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Apps.Slack.Models.Responses
 {
     public class DownloadFileResponse
     {
-        public byte[] File { get; set; }
+        [Display("File")]
+        public File File { get; set; }
     }
 }

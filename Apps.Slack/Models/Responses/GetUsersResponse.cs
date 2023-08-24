@@ -1,9 +1,11 @@
 ﻿using Apps.Slack.Dtos;
+using System.Text.Json.Serialization;
 
 namespace Apps.Slack.Models.Responses
 {
     public class GetUsersResponse
     {
-        public UserInfoDto[] Members { get; set; }
+        [JsonPropertyName("members")]
+        public IEnumerable<UserInfoDto> Members { get; set; }
     }
 }

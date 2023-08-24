@@ -6,7 +6,8 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using RestSharp;
-using System.Collections.Generic;
+using System.Net.Mime;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Apps.Slack
 {
@@ -15,12 +16,12 @@ namespace Apps.Slack
     {
       
         [Action("Send message", Description = "Send a message to a Slack channel")]
-        public void PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
+        public PostMessageResponse PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
             request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
-            client.ExecuteWithErrorHandling(request);
+            return client.ExecuteWithErrorHandling<PostMessageResponse>(request);
         }
 
         [Action("Get message files", Description = "Get message files by timestamp")]
@@ -48,7 +49,7 @@ namespace Apps.Slack
         }
 
         [Action("Add reaction", Description = "Add a reaction to a message")]
-        public string AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReactionParameters input)
+        public void AddReaction(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] AddReactionParameters input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/reactions.add", Method.Post, authenticationCredentialsProviders);
@@ -59,8 +60,7 @@ namespace Apps.Slack
                     Timestamp = input.Timestamp,
                     Name = input.Name
                 });
-
-            return client.ExecuteWithErrorHandling<string>(request);
+            client.ExecuteWithErrorHandling<StatusDto>(request);
         }
 
         [Action("Remove reaction", Description = "Remove a reaction from a message")]
@@ -90,14 +90,14 @@ namespace Apps.Slack
         }
 
         [Action("Upload file", Description = "Upload a file to channel")]
-        public void UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
+        public FileInfoDto UploadFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] UploadFileDto input)
         {
             var client = new SlackClient();
             var request = new SlackRequest("/files.upload", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("channels", input.ChannelId);
-            request.AddParameter("filename", input.FileName);
-            request.AddFile("file", input.File, input.FileName);
-            client.ExecuteWithErrorHandling(request);
+            request.AddParameter("filename", input.File.Name);
+            request.AddFile("file", input.File.Bytes, input.File.Name);
+            return client.ExecuteWithErrorHandling<UploadFileResponse>(request).File;
         }
 
         [Action("Get file info", Description = "Get information about a file")]
@@ -115,7 +115,11 @@ namespace Apps.Slack
             var client = new SlackClient();
             var request = new SlackRequest(input.Url, Method.Get, authenticationCredentialsProviders);
             return new DownloadFileResponse() {
-                File = client.Get(request).RawBytes
+                File = new File(client.Get(request).RawBytes)
+                {
+                    Name = new Uri(input.Url).Segments.Last().ToString(),
+                    ContentType = MediaTypeNames.Application.Octet
+                }
             };
         }
 
@@ -161,6 +165,14 @@ namespace Apps.Slack
             var request = new SlackRequest("/users.profile.get", Method.Get, authenticationCredentialsProviders);
             request.AddParameter("user", input.UserId);
             return client.ExecuteWithErrorHandling<GetUserProfileResponse>(request)?.Profile;
+        }
+
+        [Action("Get all channels", Description = "Get all channels in a Slack team")]
+        public GetChannelsResponse? GetChannels(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/conversations.list", Method.Get, authenticationCredentialsProviders);
+            return client.ExecuteWithErrorHandling<GetChannelsResponse>(request);
         }
     }
 }
