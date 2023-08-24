@@ -6,7 +6,8 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using RestSharp;
-using System.Collections.Generic;
+using System.Net.Mime;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Apps.Slack
 {
@@ -94,8 +95,8 @@ namespace Apps.Slack
             var client = new SlackClient();
             var request = new SlackRequest("/files.upload", Method.Post, authenticationCredentialsProviders);
             request.AddParameter("channels", input.ChannelId);
-            request.AddParameter("filename", input.FileName);
-            request.AddFile("file", input.File, input.FileName);
+            request.AddParameter("filename", input.File.Name);
+            request.AddFile("file", input.File.Bytes, input.File.Name);
             return client.ExecuteWithErrorHandling<UploadFileResponse>(request).File;
         }
 
@@ -114,7 +115,11 @@ namespace Apps.Slack
             var client = new SlackClient();
             var request = new SlackRequest(input.Url, Method.Get, authenticationCredentialsProviders);
             return new DownloadFileResponse() {
-                File = client.Get(request).RawBytes
+                File = new File(client.Get(request).RawBytes)
+                {
+                    Name = new Uri(input.Url).Segments.Last().ToString(),
+                    ContentType = MediaTypeNames.Application.Octet
+                }
             };
         }
 
