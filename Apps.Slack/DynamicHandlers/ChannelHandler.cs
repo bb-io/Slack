@@ -18,7 +18,7 @@ namespace Apps.Slack.DynamicHandlers
         public Dictionary<string, string> GetData(DataSourceContext context)
         {
             var contextInv = InvocationContext;
-            var channels = new Actions().GetChannels(contextInv.AuthenticationCredentialsProviders);
+            var channels = new Actions(new InvocationContext()).GetChannels(contextInv.AuthenticationCredentialsProviders);
             return channels.Channels.Where(el => el.Name.Contains(context.SearchString)).ToDictionary(k => k.Id, v => v.Name);
         }
     }
