@@ -5,6 +5,7 @@ using Apps.Slack.Models.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 using System.Net.Mime;
 using File = Blackbird.Applications.Sdk.Common.Files.File;
@@ -12,9 +13,12 @@ using File = Blackbird.Applications.Sdk.Common.Files.File;
 namespace Apps.Slack
 {
     [ActionList]
-    public class Actions
+    public class Actions : BaseInvocable
     {
-      
+        public Actions(InvocationContext invocationContext) : base(invocationContext)
+        {
+        }
+
         [Action("Send message", Description = "Send a message to a Slack channel")]
         public PostMessageResponse PostMessage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageParameters input)
         {
