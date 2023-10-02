@@ -1,10 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Microsoft.AspNetCore.WebUtilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Apps.Slack.Connections.OAuth2
 {

@@ -178,5 +178,14 @@ namespace Apps.Slack
             var request = new SlackRequest("/conversations.list", Method.Get, authenticationCredentialsProviders);
             return client.ExecuteWithErrorHandling<GetChannelsResponse>(request);
         }
+        
+        [Action("Get team", Description = "Get user team info")]
+        public TeamInfoResponse GetTeam(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            var client = new SlackClient();
+            
+            var request = new SlackRequest("/team.info", Method.Get, authenticationCredentialsProviders);
+            return client.ExecuteWithErrorHandling<TeamInfoResponse>(request);
+        }
     }
 }

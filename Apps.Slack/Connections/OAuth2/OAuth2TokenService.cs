@@ -1,12 +1,6 @@
-﻿using Apps.Slack.Models.Responses;
-using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
+﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Apps.Slack.Connections.OAuth2
 {

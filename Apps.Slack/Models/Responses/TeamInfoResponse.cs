@@ -1,20 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Slack.Models.Responses
 {
     public class Team
     {
+        [Display("Team ID")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
-        public string Name { get; set; }
+
+        [JsonPropertyName("name")] public string Name { get; set; }
+
+        [Display("Team URL")]
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
     }
 
     public class TeamInfoResponse
     {
-        public bool Ok { get; set; }
-        public Team Team { get; set; }
+        [JsonPropertyName("team")] public Team Team { get; set; }
     }
 }

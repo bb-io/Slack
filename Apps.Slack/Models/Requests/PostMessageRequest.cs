@@ -1,6 +1,4 @@
-﻿using Apps.Slack.DynamicHandlers;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Slack.Models.Requests
 {
