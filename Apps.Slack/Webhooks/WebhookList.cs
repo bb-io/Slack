@@ -3,10 +3,8 @@ using Apps.Slack.Webhooks.Output;
 using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using RestSharp;
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Apps.Slack.Webhooks
@@ -117,6 +115,7 @@ namespace Apps.Slack.Webhooks
 
             if (payload == null)
                 throw new Exception("No serializable payload was found in inocming request.");
+            
             if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
                 return new WebhookResponse<MessageReactionEvent> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 

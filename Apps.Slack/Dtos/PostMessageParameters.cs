@@ -2,7 +2,7 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.Slack
+namespace Apps.Slack.Dtos
 {
     public class PostMessageParameters
     {
