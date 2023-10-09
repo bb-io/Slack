@@ -43,6 +43,10 @@ namespace Apps.Slack.Webhooks.Payload
         [Display("Channel type")]
         [JsonPropertyName("channel_type")]
         public string ChannelType { get; set; }
+        
+        [JsonPropertyName("thread_ts")]
+        [Display("Thread timestamp")]
+        public string? ThreadTs { get; set; }
     }
 
     public class MessageFile

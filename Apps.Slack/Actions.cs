@@ -27,6 +27,16 @@ namespace Apps.Slack
             request.AddJsonBody(new PostMessageRequest { Channel = input.ChannelId, Text = input.Text });
             return client.ExecuteWithErrorHandling<PostMessageResponse>(request);
         }
+        
+        [Action("Send message in thread", Description = "Send a message in the thread")]
+        public PostMessageResponse PostMessageInThread(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] PostMessageInThreadParameters input)
+        {
+            var client = new SlackClient();
+            var request = new SlackRequest("/chat.postMessage", Method.Post, authenticationCredentialsProviders);
+            request.AddJsonBody(new PostMessageInThreadRequest
+                { Channel = input.ChannelId, Text = input.Text, Timestamp = input.Timestamp });
+            return client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+        }
 
         [Action("Get message files", Description = "Get message files by timestamp")]
         public GetMessageFilesResponse GetMessageFiles(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, [ActionParameter] GetMessageParameters input)

@@ -2,10 +2,10 @@
 using Apps.Slack.Webhooks.Output;
 using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using RestSharp;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Slack.Webhooks
 {
@@ -18,7 +18,7 @@ namespace Apps.Slack.Webhooks
             var payload = JsonSerializer.Deserialize<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
-                throw new Exception("No serializable payload was found in inocming request.");
+                throw new Exception("No serializable payload was found in incoming request.");
 
             if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
                 return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
@@ -39,14 +39,18 @@ namespace Apps.Slack.Webhooks
         }
 
         [Webhook("On channel message", typeof(ChannelMessageHandler), Description = "On channel message")]
-        public async Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+        public async Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
+            [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
-                throw new Exception("No serializable payload was found in inocming request.");
+                throw new Exception("No serializable payload was found in incoming request.");
 
             if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
+                return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            
+            if (payload.Event.ThreadTs != null && !triggerOnMessageReplies)
                 return new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
             return new WebhookResponse<ChannelMessage>
@@ -63,16 +67,23 @@ namespace Apps.Slack.Webhooks
         }
 
         [Webhook("On channel files message", typeof(ChannelMessageHandler), Description = "On channel files message")]
-        public async Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+        public async Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input,
+            [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
         {
             var payload = JsonSerializer.Deserialize<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
-                throw new Exception("No serializable payload was found in inocming request.");
+                throw new Exception("No serializable payload was found in incoming request.");
+            
             if (payload.Event.Files is null)
                 return new WebhookResponse<ChannelFilesMessage>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            
             if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
                 return new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            
+            if (payload.Event.ThreadTs != null && !triggerOnMessageReplies)
+                return new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            
             return new WebhookResponse<ChannelFilesMessage>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -99,7 +110,7 @@ namespace Apps.Slack.Webhooks
             var payload = JsonSerializer.Deserialize<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
-                throw new Exception("No serializable payload was found in inocming request.");
+                throw new Exception("No serializable payload was found in incoming request.");
 
             return new WebhookResponse<MemberJoinedEvent>
             {
@@ -114,7 +125,7 @@ namespace Apps.Slack.Webhooks
             var payload = JsonSerializer.Deserialize<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
             if (payload == null)
-                throw new Exception("No serializable payload was found in inocming request.");
+                throw new Exception("No serializable payload was found in incoming request.");
             
             if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
                 return new WebhookResponse<MessageReactionEvent> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
@@ -124,13 +135,6 @@ namespace Apps.Slack.Webhooks
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
                 Result = payload.Event,
             };
-        }
-
-        private byte[] DownloadFileByUrl(string url)
-        {
-            var client = new RestClient();
-            var request = new RestRequest(url, Method.Get);
-            return client.Get(request).RawBytes;
         }
     }
 }
