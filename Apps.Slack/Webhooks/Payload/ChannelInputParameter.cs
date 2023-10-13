@@ -1,13 +1,12 @@
-﻿using Apps.Slack.DynamicHandlers;
+﻿using Apps.Slack.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.Slack.Webhooks.Payload
+namespace Apps.Slack.Webhooks.Payload;
+
+public class ChannelInputParameter
 {
-    public class ChannelInputParameter
-    {
-        [Display("Channel ID")]
-        [DataSource(typeof(ChannelHandler))]
-        public string? ChannelId { get; set; }
-    }
+    [Display("Channel ID")]
+    [DataSource(typeof(ChannelHandler))]
+    public string? ChannelId { get; set; }
 }
