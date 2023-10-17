@@ -14,6 +14,7 @@ using RestSharp;
 
 namespace Apps.Slack.Actions;
 
+[ActionList]
 public class FileActions : SlackInvocable
 {
     public FileActions(InvocationContext invocationContext) : base(invocationContext)

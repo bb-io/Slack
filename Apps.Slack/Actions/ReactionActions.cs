@@ -9,6 +9,7 @@ using RestSharp;
 
 namespace Apps.Slack.Actions;
 
+[ActionList]
 public class ReactionActions : SlackInvocable
 {
     public ReactionActions(InvocationContext invocationContext) : base(invocationContext)
