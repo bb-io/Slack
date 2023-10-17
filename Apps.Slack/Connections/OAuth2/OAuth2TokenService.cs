@@ -35,6 +35,7 @@ public class OAuth2TokenService : IOAuth2TokenService
             { "redirect_uri", ApplicationConstants.RedirectUri },
             { "code", code }
         };
+        
         return RequestToken(bodyParameters, cancellationToken);
     }
 
@@ -49,7 +50,7 @@ public class OAuth2TokenService : IOAuth2TokenService
     private async Task<Dictionary<string, string>> RequestToken(Dictionary<string, string> bodyParameters,
         CancellationToken cancellationToken)
     {
-        using HttpClient httpClient = new HttpClient();
+        using var httpClient = new HttpClient();
 
         using var httpContent = new FormUrlEncodedContent(bodyParameters);
         using var response = await httpClient.PostAsync(Urls.Token, httpContent, cancellationToken);
@@ -57,7 +58,7 @@ public class OAuth2TokenService : IOAuth2TokenService
         var responseContent = await response.Content.ReadAsStringAsync();
 
         return JsonSerializer.Deserialize<Dictionary<string, object>>(responseContent)
-                   ?.ToDictionary(r => r.Key, r => r.Value.ToString() ?? string.Empty)
+                   ?.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty)
                ?? throw new InvalidOperationException($"Invalid response content: {responseContent}");
     }
 }

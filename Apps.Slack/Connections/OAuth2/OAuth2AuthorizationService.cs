@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
 namespace Apps.Slack.Connections.OAuth2;
 
-public class OAuth2AuthorizationSerivce : IOAuth2AuthorizeService
+public class OAuth2AuthorizationService : IOAuth2AuthorizeService
 {
     public string GetAuthorizationUrl(Dictionary<string, string> values)
     {
