@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.Slack.Webhooks.Handlers.Base;
 
-namespace Apps.Slack.Webhooks.Handlers
+namespace Apps.Slack.Webhooks.Handlers;
+
+public class ChannelMessageHandler : BaseWebhookHandler
 {
-    public class ChannelMessageHandler : BaseWebhookHandler
-    {
-        const string SubscriptionEvent = "message.channels";
+    const string SubscriptionEvent = "message.channels";
 
-        public ChannelMessageHandler() : base(SubscriptionEvent) { }
-    }
+    public ChannelMessageHandler() : base(SubscriptionEvent) { }
 }

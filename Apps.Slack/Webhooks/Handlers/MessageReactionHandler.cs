@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.Slack.Webhooks.Handlers.Base;
 
-namespace Apps.Slack.Webhooks.Handlers
+namespace Apps.Slack.Webhooks.Handlers;
+
+public class MessageReactionHandler : BaseWebhookHandler
 {
-    public class MessageReactionHandler : BaseWebhookHandler
-    {
-        const string SubscriptionEvent = "reaction_added";
+    const string SubscriptionEvent = "reaction_added";
 
-        public MessageReactionHandler() : base(SubscriptionEvent) { }
-    }
+    public MessageReactionHandler() : base(SubscriptionEvent) { }
 }
