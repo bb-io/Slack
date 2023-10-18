@@ -1,6 +1,7 @@
 ﻿using Apps.Slack.Api;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Requests.Message;
+using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -27,6 +28,31 @@ public class MessageActions : SlackInvocable
             });
 
         return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+    }
+
+    [Action("Get message", Description = "Get message content and file URLs by timestamp")]
+    public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] GetMessageParameters input)
+    {
+        var endpoint =
+            $"/conversations.history?channel={input.ChannelId}&latest={input.Timestamp}&limit=1&inclusive=true";
+        var request = new SlackRequest(endpoint, Method.Get, Creds);
+
+        var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
+        var message = response.Messages.First();
+
+        var files = new List<SlackFileDto>();
+        if (message.Files != null)
+            files = message.Files.Select(f => new SlackFileDto()
+            {
+                Url = f.PrivateUrl,
+                Filename = f.Name
+            }).ToList();
+
+        return new()
+        {
+            MessageText = message.Text,
+            FilesUrls = files
+        };
     }
 
     [Action("Send message in thread", Description = "Send a message in the thread")]

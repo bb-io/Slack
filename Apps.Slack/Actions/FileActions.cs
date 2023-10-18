@@ -21,30 +21,6 @@ public class FileActions : SlackInvocable
     {
     }
 
-    [Action("Get message files", Description = "Get message files by timestamp")]
-    public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] GetMessageParameters input)
-    {
-        var endpoint =
-            $"/conversations.history?channel={input.ChannelId}&latest={input.Timestamp}&limit=1&inclusive=true";
-        var request = new SlackRequest(endpoint, Method.Get, Creds);
-
-        var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
-        var message = response.Messages.First();
-
-        var files = new List<SlackFileDto>();
-        if (message.Files != null)
-            files = message.Files.Select(f => new SlackFileDto()
-            {
-                Url = f.PrivateUrl, Filename = f.Name
-            }).ToList();
-
-        return new()
-        {
-            MessageText = message.Text, FilesUrls = files
-        };
-    }
-
-
     [Action("Upload file", Description = "Upload a file to channel")]
     public async Task<FileEntity> UploadFile([ActionParameter] UploadFileRequest input)
     {
