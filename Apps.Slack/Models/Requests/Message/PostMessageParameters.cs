@@ -9,5 +9,6 @@ public class PostMessageParameters
     [Display("Channel ID")]
     [DataSource(typeof(ChannelHandler))]
     public string ChannelId { get; set; }
+    
     public string Text { get; set; }
 }

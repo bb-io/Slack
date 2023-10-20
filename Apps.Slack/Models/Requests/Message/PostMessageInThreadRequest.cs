@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Requests.Message;
 
@@ -8,6 +8,6 @@ public class PostMessageInThreadRequest
     
     public string Channel { get; set; }
     
-    [JsonPropertyName("thread_ts")]
+    [JsonProperty("thread_ts")]
     public string Timestamp { get; set; }
 }

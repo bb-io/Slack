@@ -1,8 +1,8 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using RestSharp;
-using System.Text.Json;
 using Apps.Slack.Api;
 using Apps.Slack.Constants;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Connections.OAuth2;
 
@@ -57,7 +57,7 @@ public class OAuth2TokenService : IOAuth2TokenService
 
         var responseContent = await response.Content.ReadAsStringAsync();
 
-        return JsonSerializer.Deserialize<Dictionary<string, object>>(responseContent)
+        return JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent)
                    ?.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty)
                ?? throw new InvalidOperationException($"Invalid response content: {responseContent}");
     }

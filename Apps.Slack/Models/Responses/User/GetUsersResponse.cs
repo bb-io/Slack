@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
-using Apps.Slack.Models.Entities;
+﻿using Apps.Slack.Models.Entities;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.User;
 
 public class GetUsersResponse
 {
-    [JsonPropertyName("members")]
+    [JsonProperty("members")]
     public IEnumerable<UserEntity> Members { get; set; }
 }

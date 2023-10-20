@@ -1,5 +1,8 @@
 ﻿using Apps.Slack.Api;
+using Apps.Slack.Constants;
+using Apps.Slack.Extensions;
 using Apps.Slack.Invocables;
+using Apps.Slack.Models.Entities;
 using Apps.Slack.Models.Requests.Message;
 using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
@@ -28,6 +31,17 @@ public class MessageActions : SlackInvocable
             });
 
         return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+    }
+
+    [Action("Send scheduled message", Description = "Send a scheduled message to a Slack channel")]
+    public Task<ScheduledMessageResponse> SendScheduledMessage([ActionParameter] PostScheduledMessageParameters input)
+    {
+        var request = new SlackRequest("/chat.scheduleMessage", Method.Post, Creds)
+            .AddParameter("channel", input.ChannelId)
+            .AddParameter("text", input.Text)
+            .AddParameter("post_at", new DateTimeOffset(input.PostAt).ToUnixTimeSeconds());
+
+        return Client.ExecuteWithErrorHandling<ScheduledMessageResponse>(request);
     }
 
     [Action("Get message", Description = "Get message content and file URLs by timestamp")]
@@ -67,6 +81,15 @@ public class MessageActions : SlackInvocable
             });
 
         return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+    }
+
+    [Action("Update message", Description = "Update a specific message in a Slack channel")]
+    public Task<MessageEntity> UpdateMessage([ActionParameter] UpdateMessageParameters input)
+    {
+        var request = new SlackRequest("/chat.update", Method.Post, Creds)
+            .WithJsonBody(input, JsonConfig.Settings);
+
+        return Client.ExecuteWithErrorHandling<MessageEntity>(request);
     }
 
     [Action("Delete message", Description = "Delete a message from Slack a Slack channel")]

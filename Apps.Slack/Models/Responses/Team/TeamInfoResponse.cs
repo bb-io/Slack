@@ -1,22 +1,22 @@
-﻿using System.Text.Json.Serialization;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.Team;
 
 public class Team
 {
     [Display("Team ID")]
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("name")] public string Name { get; set; }
+    [JsonProperty("name")] public string Name { get; set; }
 
     [Display("Team URL")]
-    [JsonPropertyName("url")]
+    [JsonProperty("url")]
     public string Url { get; set; }
 }
 
 public class TeamInfoResponse
 {
-    [JsonPropertyName("team")] public Team Team { get; set; }
+    [JsonProperty("team")] public Team Team { get; set; }
 }

@@ -1,9 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses;
 
 public class GenericResponse
 {
-    [JsonPropertyName("error")]
+    [JsonProperty("error")]
     public string Error { get; set; }
 }

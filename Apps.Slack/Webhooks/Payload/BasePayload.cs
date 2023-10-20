@@ -1,37 +1,37 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Webhooks.Payload;
 
 public class BasePayload<T>
 {
-    [JsonPropertyName("token")]
+    [JsonProperty("token")]
     public string Token { get; set; }
 
     [Display("Team ID")]
-    [JsonPropertyName("team_id")]
+    [JsonProperty("team_id")]
     public string TeamId { get; set; }
 
     [Display("Api app ID")]
-    [JsonPropertyName("api_app_id")]
+    [JsonProperty("api_app_id")]
     public string ApiAppId { get; set; }
 
-    [JsonPropertyName("event")]
+    [JsonProperty("event")]
     public T Event { get; set; }
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
     [Display("Event ID")]
-    [JsonPropertyName("event_id")]
+    [JsonProperty("event_id")]
     public string EventId { get; set; }
 
     [Display("Event time")]
-    [JsonPropertyName("event_time")]
+    [JsonProperty("event_time")]
     public long EventTime { get; set; }
 
     [Display("Authed users")]
-    [JsonPropertyName("authed_users")]
+    [JsonProperty("authed_users")]
     public string AuthedUsers { get; set; }
-    [JsonPropertyName("challenge")]
+    [JsonProperty("challenge")]
     public string Challenge { get; set; }
 }

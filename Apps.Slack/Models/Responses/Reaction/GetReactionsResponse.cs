@@ -1,39 +1,39 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.Reaction;
 
 public class GetReactionsResponse
 {
-    [JsonPropertyName("message")]
+    [JsonProperty("message")]
     public Message Message { get; set; }
 }
 
 public class Message
 {
-    [JsonPropertyName("text")]
+    [JsonProperty("text")]
     public string Text { get; set; }
 
-    [JsonPropertyName("user")]
+    [JsonProperty("user")]
     public string User { get; set; }
 
-    [JsonPropertyName("team")]
+    [JsonProperty("team")]
     public string Team { get; set; }
 
-    [JsonPropertyName("permalink")]
+    [JsonProperty("permalink")]
     public string Permalink { get; set; }
 
-    [JsonPropertyName("reactions")]
+    [JsonProperty("reactions")]
     public Reaction[] Reactions { get; set; }
 }
 
 public class Reaction
 {
-    [JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
-    [JsonPropertyName("users")]
+    [JsonProperty("users")]
     public string[] Users { get; set; }
 
-    [JsonPropertyName("count")]
+    [JsonProperty("count")]
     public int Count { get; set; }
 }

@@ -1,24 +1,24 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Webhooks.Payload;
 
 public class MemberJoinedEvent
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
-    [JsonPropertyName("user")]
+    [JsonProperty("user")]
     public string User { get; set; }
 
     [Display("Channel ID")]
-    [JsonPropertyName("channel")]
+    [JsonProperty("channel")]
     public string Channel { get; set; }
     [Display("Channel Type")]
-    [JsonPropertyName("channel_Type")]
+    [JsonProperty("channel_Type")]
     public string ChannelType { get; set; }
-    [JsonPropertyName("team")]
+    [JsonProperty("team")]
     public string Team { get; set; }
-    [JsonPropertyName("inviter")]
+    [JsonProperty("inviter")]
     public string Inviter { get; set; }
 
 }

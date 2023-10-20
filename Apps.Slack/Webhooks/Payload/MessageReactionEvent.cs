@@ -1,41 +1,41 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Webhooks.Payload;
 
 public class MessageReactionEvent
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
-    [JsonPropertyName("user")]
+    [JsonProperty("user")]
     public string User { get; set; }
 
-    [JsonPropertyName("reaction")]
+    [JsonProperty("reaction")]
     public string Reaction { get; set; }
 
     [Display("Item user")]
-    [JsonPropertyName("item_user")]
+    [JsonProperty("item_user")]
     public string ItemUser { get; set; }
 
     [Display("Event timestamp")]
-    [JsonPropertyName("event_ts")]
+    [JsonProperty("event_ts")]
     public string EventTs { get; set; }
 
-    [JsonPropertyName("item")]
+    [JsonProperty("item")]
     public MessageItem Item { get; set; }
 }
 
 public class MessageItem
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
     [Display("Channel ID")]
-    [JsonPropertyName("channel")]
+    [JsonProperty("channel")]
     public string Channel { get; set; }
 
     [Display("Message timestamp")]
-    [JsonPropertyName("ts")]
+    [JsonProperty("ts")]
     public string Ts { get; set; }
 }

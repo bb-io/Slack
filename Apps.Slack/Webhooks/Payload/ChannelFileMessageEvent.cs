@@ -1,181 +1,181 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Webhooks.Payload;
 
 public class ChannelFileMessageEvent
 {
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
-    [JsonPropertyName("text")]
+    [JsonProperty("text")]
     public string Text { get; set; }
 
-    [JsonPropertyName("files")]
+    [JsonProperty("files")]
     public List<MessageFile> Files { get; set; }
 
-    [JsonPropertyName("user")]
+    [JsonProperty("user")]
     public string User { get; set; }
 
-    [JsonPropertyName("upload")]
+    [JsonProperty("upload")]
     public bool Upload { get; set; }
 
     [Display("Display as bot")]
-    [JsonPropertyName("display_as_bot")]
+    [JsonProperty("display_as_bot")]
     public bool DisplayAsBot { get; set; }
 
     [Display("Bot ID")]
-    [JsonPropertyName("bot_id")]
+    [JsonProperty("bot_id")]
     public object BotId { get; set; }
 
     [Display("Timestamp")]
-    [JsonPropertyName("ts")]
+    [JsonProperty("ts")]
     public string Ts { get; set; }
 
     [Display("Channel ID")]
-    [JsonPropertyName("channel")]
+    [JsonProperty("channel")]
     public string Channel { get; set; }
 
     [Display("Event timestamp")]
-    [JsonPropertyName("event_ts")]
+    [JsonProperty("event_ts")]
     public string EventTs { get; set; }
 
     [Display("Channel type")]
-    [JsonPropertyName("channel_type")]
+    [JsonProperty("channel_type")]
     public string ChannelType { get; set; }
         
-    [JsonPropertyName("thread_ts")]
+    [JsonProperty("thread_ts")]
     [Display("Thread timestamp")]
     public string? ThreadTs { get; set; }
 }
 
 public class MessageFile
 {
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("created")]
+    [JsonProperty("created")]
     public int Created { get; set; }
 
-    [JsonPropertyName("timestamp")]
+    [JsonProperty("timestamp")]
     public int Timestamp { get; set; }
 
-    [JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
-    [JsonPropertyName("title")]
+    [JsonProperty("title")]
     public string Title { get; set; }
 
-    [JsonPropertyName("mimetype")]
+    [JsonProperty("mimetype")]
     public string Mimetype { get; set; }
 
-    [JsonPropertyName("filetype")]
+    [JsonProperty("filetype")]
     public string Filetype { get; set; }
 
-    [JsonPropertyName("pretty_type")]
+    [JsonProperty("pretty_type")]
     public string PrettyType { get; set; }
 
-    [JsonPropertyName("user")]
+    [JsonProperty("user")]
     public string User { get; set; }
 
-    [JsonPropertyName("editable")]
+    [JsonProperty("editable")]
     public bool Editable { get; set; }
 
-    [JsonPropertyName("size")]
+    [JsonProperty("size")]
     public int Size { get; set; }
 
-    [JsonPropertyName("mode")]
+    [JsonProperty("mode")]
     public string Mode { get; set; }
 
     [Display("Is external")]
-    [JsonPropertyName("is_external")]
+    [JsonProperty("is_external")]
     public bool IsExternal { get; set; }
 
     [Display("External type")]
-    [JsonPropertyName("external_type")]
+    [JsonProperty("external_type")]
     public string ExternalType { get; set; }
 
     [Display("Is public")]
-    [JsonPropertyName("is_public")]
+    [JsonProperty("is_public")]
     public bool IsPublic { get; set; }
 
     [Display("Public url shared")]
-    [JsonPropertyName("public_url_shared")]
+    [JsonProperty("public_url_shared")]
     public bool PublicUrlShared { get; set; }
 
     [Display("Display as bot")]
-    [JsonPropertyName("display_as_bot")]
+    [JsonProperty("display_as_bot")]
     public bool DisplayAsBot { get; set; }
 
-    [JsonPropertyName("username")]
+    [JsonProperty("username")]
     public string Username { get; set; }
 
     [Display("Url private")]
-    [JsonPropertyName("url_private")]
+    [JsonProperty("url_private")]
     public string UrlPrivate { get; set; }
 
     [Display("Url private download")]
-    [JsonPropertyName("url_private_download")]
+    [JsonProperty("url_private_download")]
     public string UrlPrivateDownload { get; set; }
 
     [Display("Thumb 64")]
-    [JsonPropertyName("thumb_64")]
+    [JsonProperty("thumb_64")]
     public string Thumb64 { get; set; }
 
     [Display("Thumb 80")]
-    [JsonPropertyName("thumb_80")]
+    [JsonProperty("thumb_80")]
     public string Thumb80 { get; set; }
 
     [Display("Thumb 360")]
-    [JsonPropertyName("thumb_360")]
+    [JsonProperty("thumb_360")]
     public string Thumb360 { get; set; }
 
     [Display("Thumb 360 width")]
-    [JsonPropertyName("thumb_360_w")]
+    [JsonProperty("thumb_360_w")]
     public int Thumb360W { get; set; }
 
     [Display("Thumb 360 height")]
-    [JsonPropertyName("thumb_360_h")]
+    [JsonProperty("thumb_360_h")]
     public int Thumb360H { get; set; }
 
     [Display("Thumb 480")]
-    [JsonPropertyName("thumb_480")]
+    [JsonProperty("thumb_480")]
     public string Thumb480 { get; set; }
 
     [Display("Thumb 480 width")]
-    [JsonPropertyName("thumb_480_w")]
+    [JsonProperty("thumb_480_w")]
     public int Thumb480W { get; set; }
 
     [Display("Thumb 480 height")]
-    [JsonPropertyName("thumb_480_h")]
+    [JsonProperty("thumb_480_h")]
     public int Thumb480H { get; set; }
 
     [Display("Thumb 160")]
-    [JsonPropertyName("thumb_160")]
+    [JsonProperty("thumb_160")]
     public string Thumb160 { get; set; }
 
-    [JsonPropertyName("image_exif_rotation")]
+    [JsonProperty("image_exif_rotation")]
     public int ImageExifRotation { get; set; }
 
     [Display("Original width")]
-    [JsonPropertyName("original_w")]
+    [JsonProperty("original_w")]
     public int OriginalW { get; set; }
 
     [Display("Original height")]
-    [JsonPropertyName("original_h")]
+    [JsonProperty("original_h")]
     public int OriginalH { get; set; }
 
-    [JsonPropertyName("pjpeg")]
+    [JsonProperty("pjpeg")]
     public string Pjpeg { get; set; }
 
-    [JsonPropertyName("permalink")]
+    [JsonProperty("permalink")]
     public string Permalink { get; set; }
 
     [Display("Permalink public")]
-    [JsonPropertyName("permalink_public")]
+    [JsonProperty("permalink_public")]
     public string PermalinkPublic { get; set; }
 
     [Display("Has rich preview")]
-    [JsonPropertyName("has_rich_preview")]
+    [JsonProperty("has_rich_preview")]
     public bool HasRichPreview { get; set; }
 }

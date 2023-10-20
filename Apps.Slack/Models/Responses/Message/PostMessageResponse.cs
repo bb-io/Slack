@@ -1,15 +1,15 @@
-﻿using System.Text.Json.Serialization;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.Message;
 
 public class PostMessageResponse
 {
     [Display("Channel ID")]
-    [JsonPropertyName("channel")]
+    [JsonProperty("channel")]
     public string Channel { get; set; }
 
     [Display("Message timestamp")]
-    [JsonPropertyName("ts")]
+    [JsonProperty("ts")]
     public string Timestamp { get; set; }
 }

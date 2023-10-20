@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Serialization;
-using Apps.Slack.Models.Entities;
+﻿using Apps.Slack.Models.Entities;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.File;
 
 public class UploadFileResponse
 {
-    [JsonPropertyName("file")]
+    [JsonProperty("file")]
     public FileEntity File { get; set; }
 }

@@ -3,9 +3,9 @@ using Apps.Slack.Webhooks.Output;
 using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Net;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using Blackbird.Applications.Sdk.Common;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Webhooks;
 
@@ -15,7 +15,7 @@ public class WebhookList
     [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
     public Task<WebhookResponse<ChannelMessage>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
-        var payload = JsonSerializer.Deserialize<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
+        var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
@@ -42,7 +42,7 @@ public class WebhookList
     public Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
         [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
     {
-        var payload = JsonSerializer.Deserialize<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
+        var payload = JsonConvert.DeserializeObject<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
@@ -70,7 +70,7 @@ public class WebhookList
     public Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input,
         [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
     {
-        var payload = JsonSerializer.Deserialize<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
+        var payload = JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
@@ -107,7 +107,7 @@ public class WebhookList
     [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler), Description = "On member joined channel")]
     public Task<WebhookResponse<MemberJoinedEvent>> MemberJoinedChannel(WebhookRequest webhookRequest)
     {
-        var payload = JsonSerializer.Deserialize<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
+        var payload = JsonConvert.DeserializeObject<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
@@ -122,7 +122,7 @@ public class WebhookList
     [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On any message reaction")]
     public Task<WebhookResponse<MessageReactionEvent>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
-        var payload = JsonSerializer.Deserialize<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
+        var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
