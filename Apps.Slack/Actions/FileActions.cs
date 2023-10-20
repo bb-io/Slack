@@ -9,7 +9,6 @@ using Apps.Slack.Models.Responses.Message;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Slack.Actions;
@@ -52,7 +51,7 @@ public class FileActions : SlackInvocable
         {
             File = new(Client.Get(request).RawBytes!)
             {
-                Name = input.Url.ToUri().Segments.Last(),
+                Name = new Uri(input.Url).Segments.Last(),
                 ContentType = MediaTypeNames.Application.Octet
             }
         };

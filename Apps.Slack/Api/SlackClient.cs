@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Apps.Slack.Constants;
 using Apps.Slack.Models.Responses;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Slack.Api;
@@ -10,7 +9,7 @@ public class SlackClient : RestClient
 {
     public SlackClient() : base(new RestClientOptions()
     {
-        BaseUrl = Urls.Api.ToUri()
+        BaseUrl = new(Urls.Api)
     })
     {
     }
