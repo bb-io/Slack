@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
         <Product>Blackbird Slack</Product>
         <Version>1.0.0</Version>
+        <Description>The messaging app</Description>
+        <AssemblyName>Apps.Slack</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
