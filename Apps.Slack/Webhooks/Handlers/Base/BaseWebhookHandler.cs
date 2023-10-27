@@ -6,21 +6,27 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 
 namespace Apps.Slack.Webhooks.Handlers.Base;
 
-public static class BaseWebhookHandler 
+public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
 {
+    private readonly string _subscriptionEvent;
 
-    public static Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values, string bridgeUrl, string subscriptionEvent)
+    public BaseWebhookHandler(InvocationContext invocationContext, string subEvent) : base(invocationContext)
+    {
+        _subscriptionEvent = subEvent;
+    }
+
+    public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Subscribe(subscriptionEvent, values["payloadUrl"], bridgeUrl);
+        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
       
         return Task.CompletedTask;
     }
 
-    public static Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values, string bridgeUrl, string subscriptionEvent)
+    public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Unsubscribe(subscriptionEvent, values["payloadUrl"], bridgeUrl);
+        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
        
         return Task.CompletedTask;
     }
