@@ -25,7 +25,7 @@ public class BridgeService
 
     public void Subscribe(string @event, string url, string bridgeServiceUrl)
     {
-        var client = new RestClient($"{bridgeServiceUrl}/slack");
+        var client = new RestClient($"{bridgeServiceUrl}/webhooks/slack");
 
         var request = new RestRequest($"/{TeamId}/{@event}", Method.Post)
             .AddHeader("Blackbird-Token", ApplicationConstants.BlackbirdToken)
@@ -36,7 +36,7 @@ public class BridgeService
 
     public void Unsubscribe(string @event, string url, string bridgeServiceUrl)
     {
-        var client = new RestClient($"{bridgeServiceUrl}/slack");
+        var client = new RestClient($"{bridgeServiceUrl}/webhooks/slack");
 
         var requestGet = new RestRequest($"/{TeamId}/{@event}")
             .AddHeader("Blackbird-Token", ApplicationConstants.BlackbirdToken);
