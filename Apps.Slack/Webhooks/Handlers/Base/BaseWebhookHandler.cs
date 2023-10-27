@@ -12,7 +12,7 @@ public static class BaseWebhookHandler
     public static Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values, string bridgeUrl, string subscriptionEvent)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
+        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/slack");
       
         return Task.CompletedTask;
     }
@@ -20,7 +20,7 @@ public static class BaseWebhookHandler
     public static Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values, string bridgeUrl, string subscriptionEvent)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
+        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/slack");
        
         return Task.CompletedTask;
     }
