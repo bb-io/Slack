@@ -77,7 +77,7 @@ public class MessageActions : SlackInvocable
             {
                 Channel = input.ChannelId,
                 Text = input.Text,
-                Timestamp = input.Timestamp
+                Thread_ts = input.Timestamp
             });
 
         return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
