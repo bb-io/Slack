@@ -1,10 +1,11 @@
 ﻿using Apps.Slack.Connections.OAuth2;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Slack;
 
-public class SlackApplication : IApplication
+public class SlackApplication : BaseInvocable, IApplication
 {
     public string Name
     {
@@ -13,7 +14,7 @@ public class SlackApplication : IApplication
     }
     private readonly Dictionary<Type, object> _typesInstances;
 
-    public SlackApplication()
+    public SlackApplication(InvocationContext invocationContext) : base(invocationContext)
     {
         _typesInstances = CreateTypesInstances();
     }
@@ -31,8 +32,8 @@ public class SlackApplication : IApplication
     {
         return new Dictionary<Type, object>
         {
-            { typeof(IOAuth2AuthorizeService), new OAuth2AuthorizationService() },
-            { typeof(IOAuth2TokenService), new OAuth2TokenService() }
+            { typeof(IOAuth2AuthorizeService), new OAuth2AuthorizationService(InvocationContext) },
+            { typeof(IOAuth2TokenService), new OAuth2TokenService(InvocationContext) }
         };
     }
 }

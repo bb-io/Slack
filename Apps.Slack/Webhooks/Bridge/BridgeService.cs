@@ -2,6 +2,7 @@
 using Apps.Slack.Models.Responses.Team;
 using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
 namespace Apps.Slack.Webhooks.Bridge;
@@ -22,9 +23,9 @@ public class BridgeService
         TeamId = team.Team.Id;
     }
 
-    public void Subscribe(string @event, string url)
+    public void Subscribe(string @event, string url, string bridgeServiceUrl)
     {
-        var client = new RestClient(ApplicationConstants.BridgeServiceUrl);
+        var client = new RestClient($"{bridgeServiceUrl}/slack");
 
         var request = new RestRequest($"/{TeamId}/{@event}", Method.Post)
             .AddHeader("Blackbird-Token", ApplicationConstants.BlackbirdToken)
@@ -33,9 +34,9 @@ public class BridgeService
         client.Execute(request);
     }
 
-    public void Unsubscribe(string @event, string url)
+    public void Unsubscribe(string @event, string url, string bridgeServiceUrl)
     {
-        var client = new RestClient(ApplicationConstants.BridgeServiceUrl);
+        var client = new RestClient($"{bridgeServiceUrl}/slack");
 
         var requestGet = new RestRequest($"/{TeamId}/{@event}")
             .AddHeader("Blackbird-Token", ApplicationConstants.BlackbirdToken);

@@ -3,11 +3,17 @@ using RestSharp;
 using Apps.Slack.Api;
 using Apps.Slack.Constants;
 using Newtonsoft.Json;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Slack.Connections.OAuth2;
 
-public class OAuth2TokenService : IOAuth2TokenService
+public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 {
+    public OAuth2TokenService(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+
     public bool IsRefreshToken(Dictionary<string, string> values)
     {
         return false;
@@ -32,7 +38,7 @@ public class OAuth2TokenService : IOAuth2TokenService
             { "grant_type", grantType },
             { "client_id", ApplicationConstants.ClientId },
             { "client_secret", ApplicationConstants.ClientSecret },
-            { "redirect_uri", ApplicationConstants.RedirectUri },
+            { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code }
         };
         
