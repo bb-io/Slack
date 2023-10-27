@@ -18,7 +18,7 @@ public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
     public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/slack");
+        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
       
         return Task.CompletedTask;
     }
@@ -26,7 +26,7 @@ public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
     public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/slack");
+        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
        
         return Task.CompletedTask;
     }
