@@ -44,13 +44,16 @@ public class FileActions : SlackInvocable
     public DownloadFileResponse DownloadFile([ActionParameter] DownloadFileRequest input)
     {
         var request = new SlackRequest(input.Url, Method.Get, Creds);
+        var response = Client.Get(request);
 
         return new()
         {
-            File = new(Client.Get(request).RawBytes!)
+            File = new(response.RawBytes!)
             {
                 Name = new Uri(input.Url).Segments.Last(),
-                ContentType = MediaTypeNames.Application.Octet
+                ContentType = response.ContentType == MediaTypeNames.Text.Plain
+                    ? MediaTypeNames.Application.Octet
+                    : response.ContentType!
             }
         };
     }
