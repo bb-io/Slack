@@ -72,7 +72,7 @@ The second way:
 
 ## Events
 
-- **On channel message** and **On channel files message** are triggered when a new message is sent to a channel and when a new message with attached files is sent to a channel, respectively. This events have a parameter _Trigger on message replies_. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. Otherwise, set it to _False_. If you use one of the **On channel message** or **On channel files message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ to avoid an infinite loop. 
+- **On channel message** and **On channel files message** are triggered when a new message is sent to a channel and when a new message with attached files is sent to a channel, respectively. This events have a parameter _Trigger on message replies_ which is _False_ by default. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. If you use one of the **On channel message** or **On channel files message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ or leave it unspecified to avoid an infinite loop. 
 - **On app mentioned** is triggered when an app is mentioned.
 - **On member joined channel**.
 - **On message reaction**.

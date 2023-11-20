@@ -40,7 +40,7 @@ public class WebhookList
 
     [Webhook("On channel message", typeof(ChannelMessageHandler), Description = "On channel message")]
     public Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
-        [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
+        [WebhookParameter] [Display("Trigger on message replies")] bool? triggerOnMessageReplies)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
 
@@ -50,7 +50,7 @@ public class WebhookList
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
             return Task.FromResult(new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
             
-        if (payload.Event.ThreadTs != null && !triggerOnMessageReplies)
+        if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
             return Task.FromResult(new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
 
         return Task.FromResult(new WebhookResponse<ChannelMessage>
@@ -68,7 +68,7 @@ public class WebhookList
 
     [Webhook("On channel files message", typeof(ChannelMessageHandler), Description = "On channel files message")]
     public Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input,
-        [WebhookParameter] [Display("Trigger on message replies")] bool triggerOnMessageReplies)
+        [WebhookParameter] [Display("Trigger on message replies")] bool? triggerOnMessageReplies)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
@@ -81,7 +81,7 @@ public class WebhookList
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
             return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
             
-        if (payload.Event.ThreadTs != null && !triggerOnMessageReplies)
+        if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
             return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
             
         return Task.FromResult(new WebhookResponse<ChannelFilesMessage>
