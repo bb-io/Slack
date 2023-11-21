@@ -4,12 +4,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Slack</Product>
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
     <Description>The messaging app</Description>
     <AssemblyName>Apps.Slack</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.2.0-alpha4" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="110.0.0" />

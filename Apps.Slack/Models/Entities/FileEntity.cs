@@ -93,8 +93,7 @@ public class FileEntity
 
     [JsonProperty("thumb_160")]
     public string Thumb160 { get; set; }
-
-
+    
     [JsonProperty("thumb_360_gif")]
     public string Thumb360Gif { get; set; }
 
@@ -133,6 +132,9 @@ public class FileEntity
     [Display("Is starred")]
     [JsonProperty("is_starred")]
     public bool IsStarred { get; set; }
+    
+    [JsonProperty("shares")]
+    public FileShares Shares { get; set; }
 
     [JsonProperty("channels")]
     public string[] Channels { get; set; }
@@ -150,4 +152,19 @@ public class FileEntity
     [Display("Alternative text")]
     [JsonProperty("alt_txt")]
     public string AltTxt { get; set; }
+}
+
+public class FileShares
+{
+    [JsonProperty("public")]
+    public Dictionary<string, IEnumerable<FileMessageInfo>>? Public { get; set; }
+}
+
+public class FileMessageInfo
+{
+    [JsonProperty("ts")]
+    public string Ts { get; set; }
+    
+    [JsonProperty("thread_ts")]
+    public string? ThreadTs { get; set; }
 }

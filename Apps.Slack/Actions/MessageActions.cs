@@ -23,14 +23,28 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        var request = new SlackRequest("/chat.postMessage", Method.Post, Creds)
+        if (input.Attachment != null)
+        {
+            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
+                .AddParameter("initial_comment", input.Text)
+                .AddParameter("channels", input.ChannelId);
+            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+            return Task.FromResult(new PostMessageResponse
+            {
+                Channel = input.ChannelId,
+                Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
+            });
+        }
+        
+        var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
             .AddJsonBody(new PostMessageRequest
             {
                 Channel = input.ChannelId,
                 Text = input.Text
             });
 
-        return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+        return Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Send scheduled message", Description = "Send a scheduled message to a Slack channel")]
@@ -72,7 +86,22 @@ public class MessageActions : SlackInvocable
     [Action("Send message in thread", Description = "Send a message in the thread")]
     public Task<PostMessageResponse> PostMessageInThread([ActionParameter] PostMessageInThreadParameters input)
     {
-        var request = new SlackRequest("/chat.postMessage", Method.Post, Creds)
+        if (input.Attachment != null)
+        {
+            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
+                .AddParameter("initial_comment", input.Text)
+                .AddParameter("channels", input.ChannelId)
+                .AddParameter("thread_ts", input.Timestamp);
+            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+            return Task.FromResult(new PostMessageResponse
+            {
+                Channel = input.ChannelId,
+                Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
+            });
+        }
+        
+        var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
             .AddJsonBody(new PostMessageInThreadRequest
             {
                 Channel = input.ChannelId,
@@ -80,7 +109,7 @@ public class MessageActions : SlackInvocable
                 Thread_ts = input.Timestamp
             });
 
-        return Client.ExecuteWithErrorHandling<PostMessageResponse>(request);
+        return Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Update message", Description = "Update a specific message in a Slack channel")]
