@@ -23,12 +23,18 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
+        if (input.Text == null && input.Attachment == null)
+            throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
+        
         if (input.Attachment != null)
         {
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
                 .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
-                .AddParameter("initial_comment", input.Text)
                 .AddParameter("channels", input.ChannelId);
+
+            if (input.Text != null)
+                uploadFileRequest.AddParameter("initial_comment", input.Text);
+            
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
             return Task.FromResult(new PostMessageResponse
             {
@@ -86,13 +92,19 @@ public class MessageActions : SlackInvocable
     [Action("Send message in thread", Description = "Send a message in the thread")]
     public Task<PostMessageResponse> PostMessageInThread([ActionParameter] PostMessageInThreadParameters input)
     {
+        if (input.Text == null && input.Attachment == null)
+            throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
+        
         if (input.Attachment != null)
         {
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
                 .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
-                .AddParameter("initial_comment", input.Text)
                 .AddParameter("channels", input.ChannelId)
                 .AddParameter("thread_ts", input.Timestamp);
+
+            if (input.Text != null)
+                uploadFileRequest.AddParameter("initial_comment", input.Text);
+            
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
             return Task.FromResult(new PostMessageResponse
             {
