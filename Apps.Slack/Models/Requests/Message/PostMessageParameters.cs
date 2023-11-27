@@ -10,7 +10,7 @@ public class PostMessageParameters
     [DataSource(typeof(ChannelHandler))]
     public string ChannelId { get; set; }
     
-    public string Text { get; set; }
+    public string? Text { get; set; }
     
     public Blackbird.Applications.Sdk.Common.Files.File? Attachment { get; set; }
 }
