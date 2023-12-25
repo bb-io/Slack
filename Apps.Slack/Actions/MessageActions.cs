@@ -9,38 +9,47 @@ using Apps.Slack.Models.Responses.Message;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
+using System.IO;
+using System.Net.Mime;
 
 namespace Apps.Slack.Actions;
 
 [ActionList]
 public class MessageActions : SlackInvocable
 {
-    public MessageActions(InvocationContext invocationContext) : base(invocationContext)
+    private IFileManagementClient FileManagementClient { get; set; }
+    public MessageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
     {
+        FileManagementClient = fileManagementClient;
     }
 
     [Action("Send message", Description = "Send a message to a Slack channel")]
-    public Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
+    public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
         if (input.Text == null && input.Attachment == null)
             throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
         
         if (input.Attachment != null)
         {
+            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
+            var fileAttachment = await fileStream.GetByteData();
+
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
+                .AddFile("file", fileAttachment, input.Attachment.Name)
                 .AddParameter("channels", input.ChannelId);
 
             if (input.Text != null)
                 uploadFileRequest.AddParameter("initial_comment", input.Text);
             
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
-            return Task.FromResult(new PostMessageResponse
+            return new PostMessageResponse()
             {
                 Channel = input.ChannelId,
                 Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
-            });
+            };
         }
         
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
@@ -50,7 +59,7 @@ public class MessageActions : SlackInvocable
                 Text = input.Text
             });
 
-        return Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
+        return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Send scheduled message", Description = "Send a scheduled message to a Slack channel")]
@@ -90,15 +99,18 @@ public class MessageActions : SlackInvocable
     }
 
     [Action("Send message in thread", Description = "Send a message in the thread")]
-    public Task<PostMessageResponse> PostMessageInThread([ActionParameter] PostMessageInThreadParameters input)
+    public async Task<PostMessageResponse> PostMessageInThread([ActionParameter] PostMessageInThreadParameters input)
     {
         if (input.Text == null && input.Attachment == null)
             throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
         
         if (input.Attachment != null)
         {
+            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
+            var fileAttachment = await fileStream.GetByteData();
+
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", input.Attachment.Bytes, input.Attachment.Name)
+                .AddFile("file", fileAttachment, input.Attachment.Name)
                 .AddParameter("channels", input.ChannelId)
                 .AddParameter("thread_ts", input.Timestamp);
 
@@ -106,11 +118,11 @@ public class MessageActions : SlackInvocable
                 uploadFileRequest.AddParameter("initial_comment", input.Text);
             
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
-            return Task.FromResult(new PostMessageResponse
+            return new PostMessageResponse()
             {
                 Channel = input.ChannelId,
                 Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
-            });
+            };
         }
         
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
@@ -121,7 +133,7 @@ public class MessageActions : SlackInvocable
                 Thread_ts = input.Timestamp
             });
 
-        return Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
+        return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Update message", Description = "Update a specific message in a Slack channel")]
