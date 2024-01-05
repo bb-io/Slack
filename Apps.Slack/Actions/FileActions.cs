@@ -30,7 +30,7 @@ public class FileActions : SlackInvocable
         FileReference file = null;
         using (var stream = new MemoryStream(response.RawBytes!))
         {
-            file = FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Plain, new Uri(input.Url).Segments.Last()).Result;
+            file = FileManagementClient.UploadAsync(stream, response.ContentType, new Uri(input.Url).Segments.Last()).Result;
         }
         return new() { File = file };
     }
