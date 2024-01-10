@@ -19,7 +19,7 @@ jobs:
           repo: ${{ vars.GH_BUILD_REPOSITORY }}
           token: ${{ secrets.GH_PAT_TOKEN }}
           ref: develop
-          inputs: '{"repository_url": "${{ github.repository }}","ref":"${{ github.ref }}", "sha":"${{ github.sha }}"}'
+          inputs: '{"repository_url": "${{ github.repository }}","ref":"${{ github.ref }}", "sha":"${{ github.sha }}","commit_url":"${{ github.event.head_commit.url }}", "commit_message":"${{ github.event.head_commit.message }}"}'
 
       - name: Invoke Prod Workflow
         if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
