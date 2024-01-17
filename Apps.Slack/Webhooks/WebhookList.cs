@@ -22,7 +22,7 @@ public class WebhookList : BaseInvocable
         MessageActions = new MessageActions(invocationContext, null);
     }
 
-    [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
+    [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "Triggered when the app is mentioned (@Blackbird)")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
@@ -46,7 +46,7 @@ public class WebhookList : BaseInvocable
         };
     }
 
-    [Webhook("On message", typeof(ChannelMessageHandler), Description = "On message")]
+    [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
         [WebhookParameter] [Display("Also trigger on message replies")] bool? triggerOnMessageReplies, [WebhookParameter][Display("Trigger only when message has files")] bool? triggerOnlyOnFiles)
     {
@@ -74,7 +74,7 @@ public class WebhookList : BaseInvocable
         };
     }   
 
-    [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler), Description = "On member joined channel")]
+    [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler), Description = "Triggered when a member joins a channel")]
     public Task<WebhookResponse<MemberJoinedEvent>> MemberJoinedChannel(WebhookRequest webhookRequest)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
@@ -89,7 +89,7 @@ public class WebhookList : BaseInvocable
         });
     }
 
-    [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On any message reaction")]
+    [Webhook("On reaction added", typeof(MessageReactionHandler), Description = "Triggered whenever someone reacts to a message with an emoji")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
@@ -97,6 +97,35 @@ public class WebhookList : BaseInvocable
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
             
+        if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
+            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
+
+        return new WebhookResponse<ChannelMessageWithReaction>
+        {
+            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+            Result = new ChannelMessageWithReaction
+            {
+                ChannelId = completeMessage.ChannelId,
+                Timestamp = completeMessage.Timestamp,
+                User = completeMessage.User,
+                MessageText = completeMessage.MessageText,
+                FilesUrls = completeMessage.FilesUrls,
+                Reaction = payload.Event.Reaction,
+            },
+            ReceivedWebhookRequestType = WebhookRequestType.Default,
+        };
+    }
+
+    [Webhook("On reaction removed", typeof(MessageReactionHandler), Description = "Triggered whenever someone removed a reaction from a message")]
+    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    {
+        var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
+
+        if (payload == null)
+            throw new Exception("No serializable payload was found in incoming request.");
+
         if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
             return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 

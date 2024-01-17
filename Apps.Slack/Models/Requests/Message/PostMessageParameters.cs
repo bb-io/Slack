@@ -16,6 +16,6 @@ public class PostMessageParameters
     
     public FileReference? Attachment { get; set; }
 
-    [Display("Thread message timestamp", Description = "If you are sending a message as part of a thread, set the timestamp of the primary message.")]
+    [Display("Thread timestamp", Description = "If you are sending a message as part of a thread, set the timestamp of the primary message.")]
     public string? Timestamp { get; set; }
 }
