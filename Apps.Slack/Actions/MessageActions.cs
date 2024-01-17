@@ -90,7 +90,10 @@ public class MessageActions : SlackInvocable
         return new()
         {
             MessageText = message.Text,
-            FilesUrls = files
+            FilesUrls = files,
+            ChannelId = input.ChannelId,
+            Timestamp = input.Timestamp,
+            User = message.User,
         };
     }
 

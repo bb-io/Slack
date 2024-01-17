@@ -18,7 +18,7 @@ public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
     public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}"); // ApplicationConstants.TempBridgeUrl for dev env
+        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{ApplicationConstants.TempBridgeUrl.ToString().TrimEnd('/')}"); // ApplicationConstants.TempBridgeUrl for dev env
 
 
         return Task.CompletedTask;
@@ -27,7 +27,7 @@ public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
     public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}"); // ApplicationConstants.TempBridgeUrl for dev env
+        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{ApplicationConstants.TempBridgeUrl.ToString().TrimEnd('/')}"); // ApplicationConstants.TempBridgeUrl for dev env
 
         return Task.CompletedTask;
     }

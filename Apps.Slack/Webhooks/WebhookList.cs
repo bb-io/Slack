@@ -9,14 +9,21 @@ using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Apps.Slack.Actions;
+using Apps.Slack.Models.Responses.File;
 
 namespace Apps.Slack.Webhooks;
 
 [WebhookList]
-public class WebhookList
+public class WebhookList : BaseInvocable
 {
+    private MessageActions MessageActions { get; set; }
+    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
+    {
+        MessageActions = new MessageActions(invocationContext, null);
+    }
+
     [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
-    public Task<WebhookResponse<ChannelMessage>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
@@ -24,21 +31,19 @@ public class WebhookList
             throw new Exception("No serializable payload was found in incoming request.");
 
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return Task.FromResult(new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
+            return new WebhookResponse<GetMessageFilesResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
         var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
-        return Task.FromResult(new WebhookResponse<ChannelMessage>
+        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Channel, Timestamp = payload.Event.Ts });
+        completeMessage.MessageText = messageWithoutMentionedUser;
+
+        return new WebhookResponse<GetMessageFilesResponse>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = new ChannelMessage
-            {
-                User = payload.Event.User,
-                Channel = payload.Event.Channel,
-                Message = messageWithoutMentionedUser,
-                Timestamp = payload.Event.Ts
-            }
-        });
+            Result = completeMessage,
+            ReceivedWebhookRequestType = WebhookRequestType.Default,
+        };
     }
 
     [Webhook("On channel message", typeof(ChannelMessageHandler), Description = "On channel message")]

@@ -8,6 +8,8 @@ public class ChannelMessage
 
     [Display("Channel ID")]
     public string Channel { get; set; }
+
+    [Display("User ID")]
     public string User { get; set; }
     public string Timestamp { get; set; }
 }
