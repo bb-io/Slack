@@ -6,12 +6,21 @@ using System.Net;
 using System.Text.RegularExpressions;
 using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Apps.Slack.Actions;
 
 namespace Apps.Slack.Webhooks;
 
 [WebhookList]
-public class WebhookList
+public class WebhookList : BaseInvocable
 {
+    private IFileManagementClient FileManagementClient { get; set; }
+    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
+    {
+        FileManagementClient = fileManagementClient;
+    }
+
     [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
     public Task<WebhookResponse<ChannelMessage>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
@@ -83,7 +92,17 @@ public class WebhookList
             
         if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
             return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
-            
+
+        FileActions fileActions = new FileActions(InvocationContext, FileManagementClient);
+        var filesData = payload.Event.Files.Select(f => new OutputMessageFile()
+        {
+            Id = f.Id,
+            Name = f.Name,
+            Url = f.UrlPrivate,
+            FileType = f.Filetype,
+            File = fileActions.DownloadFile(new Models.Requests.File.DownloadFileRequest() { Url = f.UrlPrivate }).File,
+        }).ToList();
+
         return Task.FromResult(new WebhookResponse<ChannelFilesMessage>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -93,13 +112,14 @@ public class WebhookList
                 Channel = payload.Event.Channel,
                 Message = payload.Event.Text,
                 Timestamp = payload.Event.Ts,
-                Files = payload.Event.Files.Select(f => new OutputMessageFile() 
-                { 
-                    Id = f.Id,
-                    Name = f.Name,
-                    Url = f.UrlPrivate,
-                    FileType = f.Filetype
-                }).ToList()
+                Files = filesData
+                //Files = payload.Event.Files.Select(f => new OutputMessageFile() 
+                //{ 
+                //    Id = f.Id,
+                //    Name = f.Name,
+                //    Url = f.UrlPrivate,
+                //    FileType = f.Filetype
+                //}).ToList()
             }
         });
     }
