@@ -8,4 +8,6 @@ public class PostMessageRequest
 
     [Display("Channel ID")]
     public string Channel { get; set; }
+
+    public string? Thread_ts { get; set; }
 }
