@@ -1080,8 +1080,6 @@ public class EmojiHandler : IDataSourceHandler
             { "moyai", "🗿 Moyai" },
             { "grinning", "😀 Grinning face" },
             { "grin", "😁 Grinning face with smiling eyes" },
-            { "joy", "😂 Face with tears of joy" },
-            { "smiley", "😃 Smiling face with open mouth" },
             { "smile", "😄 Smiling face with open mouth and smiling eyes" },
             { "sweat_smile", "😅 Smiling face with open mouth and cold sweat" },
             { "laughing", "😆 Smiling face with open mouth and tightly-closed eyes" },
