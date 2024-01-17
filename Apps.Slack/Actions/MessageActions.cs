@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
 using System.IO;
+using System.Net.Mail;
 using System.Net.Mime;
 
 namespace Apps.Slack.Actions;
@@ -29,34 +30,32 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        if (input.Text == null && input.Attachment == null)
-            throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
-        
-        if (input.Attachment != null)
+        if (input.Text == null && input.Attachments == null)
+            throw new Exception("Please provide either a message text, attachments, or both.");
+
+        var attachmentsSuffix = string.Empty;
+        if (input.Attachments != null)
         {
-            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
-            var fileAttachment = await fileStream.GetByteData();
-
-            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name)
-                .AddParameter("channels", input.ChannelId);
-
-            if (input.Text != null)
-                uploadFileRequest.AddParameter("initial_comment", input.Text);
-            
-            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
-            return new PostMessageResponse()
+            foreach(var attachment in input.Attachments)
             {
-                Channel = input.ChannelId,
-                Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
-            };
+                using var fileStream = await FileManagementClient.DownloadAsync(attachment);
+                var fileAttachment = await fileStream.GetByteData();
+
+                var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                    .AddFile("file", fileAttachment, attachment.Name);
+
+                var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+
+                attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+            }
         }
         
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
             .AddJsonBody(new PostMessageRequest
             {
                 Channel = input.ChannelId,
-                Text = input.Text
+                Text = (input.Text ?? string.Empty) + attachmentsSuffix,
+                Thread_ts = input.Timestamp
             });
 
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
@@ -96,44 +95,6 @@ public class MessageActions : SlackInvocable
             MessageText = message.Text,
             FilesUrls = files
         };
-    }
-
-    [Action("Send message in thread", Description = "Send a message in the thread")]
-    public async Task<PostMessageResponse> PostMessageInThread([ActionParameter] PostMessageInThreadParameters input)
-    {
-        if (input.Text == null && input.Attachment == null)
-            throw new Exception("Please provide either a text parameter, an attachment parameter, or both.");
-        
-        if (input.Attachment != null)
-        {
-            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
-            var fileAttachment = await fileStream.GetByteData();
-
-            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name)
-                .AddParameter("channels", input.ChannelId)
-                .AddParameter("thread_ts", input.Timestamp);
-
-            if (input.Text != null)
-                uploadFileRequest.AddParameter("initial_comment", input.Text);
-            
-            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
-            return new PostMessageResponse()
-            {
-                Channel = input.ChannelId,
-                Timestamp = uploadFileResponse.File.Shares.Public!.First(s => s.Key == input.ChannelId).Value.First().Ts
-            };
-        }
-        
-        var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
-            .AddJsonBody(new PostMessageInThreadRequest
-            {
-                Channel = input.ChannelId,
-                Text = input.Text,
-                Thread_ts = input.Timestamp
-            });
-
-        return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Update message", Description = "Update a specific message in a Slack channel")]
