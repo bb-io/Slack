@@ -121,35 +121,37 @@ public class WebhookList : BaseInvocable
         };
     }
 
-    [Webhook("On reaction removed", typeof(ReactionRemovedHandler), Description = "Triggered whenever someone removed a reaction from a message")]
-    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
-    {
-        var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
+    // Todo: For some reason this doesn't trigger
 
-        if (payload == null)
-            throw new Exception("No serializable payload was found in incoming request.");
+    //[Webhook("On reaction removed", typeof(ReactionRemovedHandler), Description = "Triggered whenever someone removed a reaction from a message")]
+    //public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
+    //{
+    //    var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
-        if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
-            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+    //    if (payload == null)
+    //        throw new Exception("No serializable payload was found in incoming request.");
 
-        if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
-            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+    //    if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
+    //        return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
+    //    if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
+    //        return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        return new WebhookResponse<ChannelMessageWithReaction>
-        {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = new ChannelMessageWithReaction
-            {
-                ChannelId = completeMessage.ChannelId,
-                Timestamp = completeMessage.Timestamp,
-                User = completeMessage.User,
-                MessageText = completeMessage.MessageText,
-                FilesUrls = completeMessage.FilesUrls,
-                Reaction = payload.Event.Reaction,
-            },
-            ReceivedWebhookRequestType = WebhookRequestType.Default,
-        };
-    }
+    //    var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
+
+    //    return new WebhookResponse<ChannelMessageWithReaction>
+    //    {
+    //        HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+    //        Result = new ChannelMessageWithReaction
+    //        {
+    //            ChannelId = completeMessage.ChannelId,
+    //            Timestamp = completeMessage.Timestamp,
+    //            User = completeMessage.User,
+    //            MessageText = completeMessage.MessageText,
+    //            FilesUrls = completeMessage.FilesUrls,
+    //            Reaction = payload.Event.Reaction,
+    //        },
+    //        ReceivedWebhookRequestType = WebhookRequestType.Default,
+    //    };
+    //}
 }

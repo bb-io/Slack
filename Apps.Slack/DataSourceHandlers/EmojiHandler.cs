@@ -10,13 +10,13 @@ public class EmojiHandler : IDataSourceHandler
 
     public Dictionary<string, string> GetData(DataSourceContext context)
     {
-        var data = new Dictionary<string, string> {
-            { "black_bird", "🐦‍⬛ Black bird" },
+        var data = new Dictionary<string, string> {            
             { "bird", "🐦 Bird" },
             { "white_check_mark", "✅ White heavy check mark" },
             { "eyes", "👀 Eyes" },
             { "raised_hands", "🙌 Person raising both hands in celebration" },
             { "joy", "😂 Face with tears of joy" },
+            { "slightly_smiling_face", "🙂 Slightly smiling face" },
             { "smiley", "😃 Smiling face with open mouth" },
             { "wave", "👋 Waving hand sign" },
             { "ok_hand", "👌 Ok hand sign" },
@@ -609,6 +609,7 @@ public class EmojiHandler : IDataSourceHandler
             { "goat", "🐐 Goat" },
             { "sheep", "🐑 Sheep" },
             { "monkey", "🐒 Monkey" },
+            { "black_bird", "🐦‍⬛ Black bird" },
             { "rooster", "🐓 Rooster" },
             { "chicken", "🐔 Chicken" },
             { "service_dog", "🐕‍🦺 Service dog" },
