@@ -46,67 +46,33 @@ public class WebhookList : BaseInvocable
         };
     }
 
-    [Webhook("On channel message", typeof(ChannelMessageHandler), Description = "On channel message")]
-    public Task<WebhookResponse<ChannelMessage>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
-        [WebhookParameter] [Display("Trigger on message replies")] bool? triggerOnMessageReplies)
-    {
-        var payload = JsonConvert.DeserializeObject<BasePayload<ChannelMessageEvent>>(webhookRequest.Body.ToString());
-
-        if (payload == null)
-            throw new Exception("No serializable payload was found in incoming request.");
-
-        if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return Task.FromResult(new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
-            
-        if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
-            return Task.FromResult(new WebhookResponse<ChannelMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
-
-        return Task.FromResult(new WebhookResponse<ChannelMessage>
-        {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = new ChannelMessage
-            {
-                User = payload.Event.User,
-                Channel = payload.Event.Channel,
-                Message = payload.Event.Text,
-                Timestamp = payload.Event.Ts
-            }
-        });
-    }
-
-    [Webhook("On channel files message", typeof(ChannelMessageHandler), Description = "On channel files message")]
-    public Task<WebhookResponse<ChannelFilesMessage>> ChannelFilesMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input,
-        [WebhookParameter] [Display("Trigger on message replies")] bool? triggerOnMessageReplies)
+    [Webhook("On message", typeof(ChannelMessageHandler), Description = "On message")]
+    public async Task<WebhookResponse<GetMessageFilesResponse>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
+        [WebhookParameter] [Display("Also trigger on message replies")] bool? triggerOnMessageReplies, [WebhookParameter][Display("Trigger only when message has files")] bool? triggerOnlyOnFiles)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
-            
-        if (payload.Event.Files is null)
-            return Task.FromResult(new WebhookResponse<ChannelFilesMessage>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
-            
+
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
+            return new WebhookResponse<GetMessageFilesResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
             
         if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
-            return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
+            return new WebhookResponse<GetMessageFilesResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        return Task.FromResult(new WebhookResponse<ChannelFilesMessage>
+        if (payload.Event.Files == null && (triggerOnlyOnFiles ?? false))
+            return new WebhookResponse<GetMessageFilesResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Channel, Timestamp = payload.Event.Ts });
+
+        return new WebhookResponse<GetMessageFilesResponse>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = new ChannelFilesMessage
-            {
-                Files = payload.Event.Files.Select(f => new OutputMessageFile()
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Url = f.UrlPrivate,
-                    FileType = f.Filetype
-                }).ToList()
-            }
-        });
-    }
+            Result = completeMessage,
+            ReceivedWebhookRequestType = WebhookRequestType.Default,
+        };
+    }   
 
     [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler), Description = "On member joined channel")]
     public Task<WebhookResponse<MemberJoinedEvent>> MemberJoinedChannel(WebhookRequest webhookRequest)
@@ -124,7 +90,7 @@ public class WebhookList : BaseInvocable
     }
 
     [Webhook("On message reaction", typeof(MessageReactionHandler), Description = "On any message reaction")]
-    public Task<WebhookResponse<MessageReactionEvent>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -132,12 +98,23 @@ public class WebhookList : BaseInvocable
             throw new Exception("No serializable payload was found in incoming request.");
             
         if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
-            return Task.FromResult(new WebhookResponse<MessageReactionEvent> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
+            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        return Task.FromResult(new WebhookResponse<MessageReactionEvent>
+        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
+
+        return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = payload.Event,
-        });
+            Result = new ChannelMessageWithReaction
+            {
+                ChannelId = completeMessage.ChannelId,
+                Timestamp = completeMessage.Timestamp,
+                User = completeMessage.User,
+                MessageText = completeMessage.MessageText,
+                FilesUrls = completeMessage.FilesUrls,
+                Reaction = payload.Event.Reaction,
+            },
+            ReceivedWebhookRequestType = WebhookRequestType.Default,
+        };
     }
 }
