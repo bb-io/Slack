@@ -90,7 +90,7 @@ public class WebhookList : BaseInvocable
     }
 
     [Webhook("On reaction added", typeof(MessageReactionHandler), Description = "Triggered whenever someone reacts to a message with an emoji")]
-    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -98,6 +98,9 @@ public class WebhookList : BaseInvocable
             throw new Exception("No serializable payload was found in incoming request.");
             
         if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
+            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
             return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
         var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
@@ -119,7 +122,7 @@ public class WebhookList : BaseInvocable
     }
 
     [Webhook("On reaction removed", typeof(ReactionRemovedHandler), Description = "Triggered whenever someone removed a reaction from a message")]
-    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -127,6 +130,9 @@ public class WebhookList : BaseInvocable
             throw new Exception("No serializable payload was found in incoming request.");
 
         if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
+            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
             return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
         var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
