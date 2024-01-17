@@ -1,4 +1,6 @@
-﻿namespace Apps.Slack.Webhooks.Output;
+﻿using Blackbird.Applications.Sdk.Common.Files;
+
+namespace Apps.Slack.Webhooks.Output;
 
 public class ChannelFilesMessage
 {
@@ -18,7 +20,7 @@ public class OutputMessageFile
 
     public string Url { get; set; }
 
-    public byte[] File { get; set; }
+    public FileReference File { get; set; }
 
     public string FileType { get; set; }
 }
