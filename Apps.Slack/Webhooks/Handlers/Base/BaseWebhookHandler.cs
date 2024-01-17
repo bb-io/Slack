@@ -18,16 +18,17 @@ public class BaseWebhookHandler : BaseInvocable, IWebhookEventHandler
     public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
-      
+        bridge.Subscribe(_subscriptionEvent, values["payloadUrl"], ApplicationConstants.TempBridgeUrl);//$"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
+
+
         return Task.CompletedTask;
     }
 
     public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
         var bridge = new BridgeService(authenticationCredentialsProviders);
-        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
-       
+        bridge.Unsubscribe(_subscriptionEvent, values["payloadUrl"], ApplicationConstants.TempBridgeUrl);//$"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}");
+
         return Task.CompletedTask;
     }
 
