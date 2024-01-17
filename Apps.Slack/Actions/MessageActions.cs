@@ -30,24 +30,21 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        if (input.Text == null && input.Attachments == null)
+        if (input.Text == null && input.Attachment == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
 
         var attachmentsSuffix = string.Empty;
-        if (input.Attachments != null)
+        if (input.Attachment != null)
         {
-            foreach(var attachment in input.Attachments)
-            {
-                using var fileStream = await FileManagementClient.DownloadAsync(attachment);
-                var fileAttachment = await fileStream.GetByteData();
+            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
+            var fileAttachment = await fileStream.GetByteData();
 
-                var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                    .AddFile("file", fileAttachment, attachment.Name);
+            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                .AddFile("file", fileAttachment, input.Attachment.Name);
 
-                var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
 
-                attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
-            }
+            attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
         }
         
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
