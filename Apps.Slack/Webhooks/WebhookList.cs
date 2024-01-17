@@ -15,10 +15,10 @@ namespace Apps.Slack.Webhooks;
 [WebhookList]
 public class WebhookList : BaseInvocable
 {
-    private IFileManagementClient FileManagementClient { get; set; }
-    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
+    //private IFileManagementClient FileManagementClient { get; set; }
+    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
     {
-        FileManagementClient = fileManagementClient;
+        //FileManagementClient = fileManagementClient;
     }
 
     [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "On app mentioned")]
@@ -93,33 +93,33 @@ public class WebhookList : BaseInvocable
         if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
             return Task.FromResult(new WebhookResponse<ChannelFilesMessage> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight });
 
-        FileActions fileActions = new FileActions(InvocationContext, FileManagementClient);
-        var filesData = payload.Event.Files.Select(f => new OutputMessageFile()
-        {
-            Id = f.Id,
-            Name = f.Name,
-            Url = f.UrlPrivate,
-            FileType = f.Filetype,
-            File = fileActions.DownloadFile(new Models.Requests.File.DownloadFileRequest() { Url = f.UrlPrivate }).File,
-        }).ToList();
+        //FileActions fileActions = new FileActions(InvocationContext, FileManagementClient);
+        //var filesData = payload.Event.Files.Select(f => new OutputMessageFile()
+        //{
+        //    Id = f.Id,
+        //    Name = f.Name,
+        //    Url = f.UrlPrivate,
+        //    FileType = f.Filetype,
+        //    File = fileActions.DownloadFile(new Models.Requests.File.DownloadFileRequest() { Url = f.UrlPrivate }).File,
+        //}).ToList();
 
         return Task.FromResult(new WebhookResponse<ChannelFilesMessage>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
             Result = new ChannelFilesMessage
             {
-                User = payload.Event.User,
-                Channel = payload.Event.Channel,
-                Message = payload.Event.Text,
-                Timestamp = payload.Event.Ts,
-                Files = filesData
-                //Files = payload.Event.Files.Select(f => new OutputMessageFile() 
-                //{ 
-                //    Id = f.Id,
-                //    Name = f.Name,
-                //    Url = f.UrlPrivate,
-                //    FileType = f.Filetype
-                //}).ToList()
+                //User = payload.Event.User,
+                //Channel = payload.Event.Channel,
+                //Message = payload.Event.Text,
+                //Timestamp = payload.Event.Ts,
+                //Files = filesData
+                Files = payload.Event.Files.Select(f => new OutputMessageFile()
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Url = f.UrlPrivate,
+                    FileType = f.Filetype
+                }).ToList()
             }
         });
     }
