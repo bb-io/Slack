@@ -22,6 +22,6 @@ public class ChannelHandler : SlackInvocable, IAsyncDataSourceHandler
         return channels.Where(el =>
                 context.SearchString is null ||
                 el.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(k => k.Id, v => v.Name);
+            .ToDictionary(k => k.Id, v => $"# {v.Name}");
     }
 }

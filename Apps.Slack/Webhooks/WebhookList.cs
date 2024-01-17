@@ -118,7 +118,7 @@ public class WebhookList : BaseInvocable
         };
     }
 
-    [Webhook("On reaction removed", typeof(MessageReactionHandler), Description = "Triggered whenever someone removed a reaction from a message")]
+    [Webhook("On reaction removed", typeof(ReactionRemovedHandler), Description = "Triggered whenever someone removed a reaction from a message")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReactionRemoved(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());

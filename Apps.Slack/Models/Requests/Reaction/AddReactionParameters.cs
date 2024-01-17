@@ -10,5 +10,7 @@ public class AddReactionParameters
     [DataSource(typeof(ChannelHandler))]
     public string ChannelId { get; set; }
     public string Timestamp { get; set; }
-    public string Name { get; set; }
+
+    [DataSource(typeof(EmojiHandler))]
+    public string Reaction { get; set; }
 }
