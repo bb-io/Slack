@@ -1146,7 +1146,6 @@ public class EmojiHandler : IDataSourceHandler
             { "crying_cat_face", "😿 Crying cat face" },
             { "scream_cat", "🙀 Weary cat face" },
             { "slightly_frowning_face", "🙁 Slightly frowning face" },
-            { "slightly_smiling_face", "🙂 Slightly smiling face" },
             { "upside_down_face", "🙃 Upside-down face" },
             { "face_with_rolling_eyes", "🙄 Face with rolling eyes" },
             { "woman-gesturing-no", "🙅‍♀️ Woman gesturing no" },
