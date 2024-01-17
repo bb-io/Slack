@@ -6,6 +6,7 @@ namespace Apps.Slack.Models.Requests.Message;
 
 public class UpdateMessageParameters : DeleteMessageParameters
 {
+    [Display("Message")]
     public string? Text { get; set; }
     
     [Display("Reply broadcast")]

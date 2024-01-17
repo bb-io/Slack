@@ -10,7 +10,8 @@ public class PostMessageParameters
     [Display("Channel ID")]
     [DataSource(typeof(ChannelHandler))]
     public string ChannelId { get; set; }
-    
+
+    [Display("Message")]
     public string? Text { get; set; }
     
     public FileReference? Attachment { get; set; }
