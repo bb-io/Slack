@@ -12,7 +12,7 @@ public class PostMessageParameters
     public string ChannelId { get; set; }
 
     [Display("Message")]
-    public string? Text { get; set; }
+    public string Text { get; set; }
     
     public FileReference? Attachment { get; set; }
 

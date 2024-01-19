@@ -40,7 +40,8 @@ public class MessageActions : SlackInvocable
             var fileAttachment = await fileStream.GetByteData();
 
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name);
+                .AddFile("file", fileAttachment, input.Attachment.Name)
+                .AddParameter("filename", input.Attachment.Name);
 
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
 
@@ -51,7 +52,7 @@ public class MessageActions : SlackInvocable
             .AddJsonBody(new PostMessageRequest
             {
                 Channel = input.ChannelId,
-                Text = (input.Text ?? string.Empty) + attachmentsSuffix,
+                Text = input.Text + attachmentsSuffix,
                 Thread_ts = input.Timestamp
             });
 
