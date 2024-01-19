@@ -40,18 +40,29 @@ public class MessageActions : SlackInvocable
             var fileAttachment = await fileStream.GetByteData();
 
             var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name);
+                .AddFile("file", fileAttachment, input.Attachment.Name)
+                .AddParameter("filename", input.Attachment.Name);
+
+            if (input.Text == null)
+            {
+                uploadFileRequest.AddParameter("channels", input.ChannelId);
+                if (input.Timestamp != null)
+                    uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
+            };
 
             var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
 
             attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
-        }
-        
+
+            if (input.Text == null)
+                return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
+        }       
+
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
             .AddJsonBody(new PostMessageRequest
             {
                 Channel = input.ChannelId,
-                Text = (input.Text ?? string.Empty) + attachmentsSuffix,
+                Text = input.Text + attachmentsSuffix,
                 Thread_ts = input.Timestamp
             });
 
