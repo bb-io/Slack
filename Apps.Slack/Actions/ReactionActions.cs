@@ -25,7 +25,7 @@ public class ReactionActions : SlackInvocable
                 {
                     Channel = input.ChannelId,
                     Timestamp = input.Timestamp,
-                    Name = input.Name
+                    Name = input.Reaction
                 });
 
         return Client.ExecuteWithErrorHandling(request);
@@ -40,7 +40,7 @@ public class ReactionActions : SlackInvocable
                 {
                     Channel = input.ChannelId,
                     Timestamp = input.Timestamp,
-                    Name = input.Name
+                    Name = input.Reaction
                 });
 
         return Client.ExecuteWithErrorHandling(request);
