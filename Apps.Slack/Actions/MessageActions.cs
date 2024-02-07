@@ -84,14 +84,14 @@ public class MessageActions : SlackInvocable
     public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] GetMessageParameters input)
     {
         var endpoint =
-            $"/conversations.history?channel={input.ChannelId}&latest={input.Timestamp}&limit=1&inclusive=true";
+            $"/conversations.replies?channel={input.ChannelId}&ts={input.Timestamp}&limit=1&inclusive=true";
         var request = new SlackRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
         var message = response.Messages.Where(x => x.Ts == input.Timestamp).FirstOrDefault();
 
         var files = new List<SlackFileDto>();
-        if (message.Files != null)
+        if (message?.Files != null)
             files = message.Files.Select(f => new SlackFileDto()
             {
                 Url = f.PrivateUrl,
@@ -100,11 +100,11 @@ public class MessageActions : SlackInvocable
 
         return new()
         {
-            MessageText = message.Text,
+            MessageText = message?.Text,
             FilesUrls = files,
             ChannelId = input.ChannelId,
             Timestamp = input.Timestamp,
-            User = message.User,
+            User = message?.User,
         };
     }
 
