@@ -107,7 +107,7 @@ public class MessageActions : SlackInvocable
             {
                 var httpRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
                 httpRequest.Headers.Add("Authorization", $"Bearer {token}");
-                var file = new FileReference(httpRequest, f.Name, MimeTypes.GetMimeType(f.Name) );
+                var file = new FileReference(httpRequest);
                 fileReferences.Add(file);
             }            
         }
