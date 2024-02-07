@@ -88,7 +88,7 @@ public class MessageActions : SlackInvocable
         var request = new SlackRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
-        var message = response.Messages.First();
+        var message = response.Messages.Where(x => x.Ts == input.Timestamp).FirstOrDefault();
 
         var files = new List<SlackFileDto>();
         if (message.Files != null)
