@@ -1,4 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Slack.Models.Responses.File;
 
@@ -18,6 +19,9 @@ public class GetMessageFilesResponse
 
     [Display("File URLs")]
     public IEnumerable<SlackFileDto> FilesUrls { get; set; }
+
+    [Display("Files")]
+    public IEnumerable<FileReference> Files { get; set; }
 }
 
 public class SlackFileDto

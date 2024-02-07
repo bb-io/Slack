@@ -8,6 +8,7 @@ using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
@@ -91,12 +92,25 @@ public class MessageActions : SlackInvocable
         var message = response.Messages.Where(x => x.Ts == input.Timestamp).FirstOrDefault();
 
         var files = new List<SlackFileDto>();
+        var fileReferences = new List<FileReference>();
         if (message?.Files != null)
             files = message.Files.Select(f => new SlackFileDto()
             {
                 Url = f.PrivateUrl,
                 Filename = f.Name
             }).ToList();
+
+        if (message?.Files != null)
+        {
+            var token = Creds.First(x => x.KeyName == "access_token").Value;
+            foreach (var f in message.Files)
+            {
+                var httpRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
+                httpRequest.Headers.Add("Authorization", $"Bearer {token}");
+                var file = new FileReference(httpRequest, f.Name, MimeTypes.GetMimeType(f.Name) );
+                fileReferences.Add(file);
+            }            
+        }
 
         return new()
         {
