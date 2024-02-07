@@ -119,6 +119,7 @@ public class MessageActions : SlackInvocable
             ChannelId = input.ChannelId,
             Timestamp = input.Timestamp,
             User = message?.User,
+            Files = fileReferences,
         };
     }
 
