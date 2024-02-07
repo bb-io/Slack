@@ -105,10 +105,18 @@ public class MessageActions : SlackInvocable
             var token = Creds.First(x => x.KeyName == "access_token").Value;
             foreach (var f in message.Files)
             {
-                var httpRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
-                httpRequest.Headers.Add("Authorization", $"Bearer {token}");
-                var file = new FileReference(httpRequest);
-                fileReferences.Add(file);
+                //var httpRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
+                //httpRequest.Headers.Add("Authorization", $"Bearer {token}");
+                //var file = new FileReference(httpRequest);
+                //fileReferences.Add(file);
+                var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
+                var fileResponse = Client.Get(fileRequest);
+                FileReference file = null;
+                using (var stream = new MemoryStream(fileResponse.RawBytes!))
+                {
+                    file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                    fileReferences.Add(file);
+                }
             }            
         }
 
