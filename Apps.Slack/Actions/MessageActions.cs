@@ -31,29 +31,33 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        if (input.Text == null && input.Attachment == null)
+        if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
 
         var attachmentsSuffix = string.Empty;
-        if (input.Attachment != null)
+        if (input.Attachments != null)
         {
-            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
-            var fileAttachment = await fileStream.GetByteData();
-
-            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name)
-                .AddParameter("filename", input.Attachment.Name);
-
-            if (input.Text == null)
+            UploadFileResponse uploadFileResponse = null;
+            foreach(var attachment in input.Attachments)
             {
-                uploadFileRequest.AddParameter("channels", input.ChannelId);
-                if (input.Timestamp != null)
-                    uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
-            };
+                using var fileStream = await FileManagementClient.DownloadAsync(attachment);
+                var fileAttachment = await fileStream.GetByteData();
 
-            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+                var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                    .AddFile("file", fileAttachment, attachment.Name)
+                    .AddParameter("filename", attachment.Name);
 
-            attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+                if (input.Text == null)
+                {
+                    uploadFileRequest.AddParameter("channels", input.ChannelId);
+                    if (input.Timestamp != null)
+                        uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
+                };
+
+                uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
+
+                attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+            }            
 
             if (input.Text == null)
                 return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
@@ -102,19 +106,13 @@ public class MessageActions : SlackInvocable
 
         if (message?.Files != null)
         {
-            var token = Creds.First(x => x.KeyName == "access_token").Value;
             foreach (var f in message.Files)
             {
-                //var httpRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
-                //httpRequest.Headers.Add("Authorization", $"Bearer {token}");
-                //var file = new FileReference(httpRequest);
-                //fileReferences.Add(file);
                 var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
                 var fileResponse = Client.Get(fileRequest);
-                FileReference file = null;
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
                 {
-                    file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                    var file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
                     fileReferences.Add(file);
                 }
             }            
