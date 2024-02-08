@@ -11,6 +11,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
 using System.IO;
@@ -104,14 +105,18 @@ public class MessageActions : SlackInvocable
         {
             foreach (var f in message.Files)
             {
-                var reference = new FileReference();
-                var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
-                var fileResponse = Client.Get(fileRequest);
-                using (var stream = new MemoryStream(fileResponse.RawBytes!))
-                {
-                    var file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
-                    fileReferences.Add(file);
-                }
+                var fileRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
+                fileRequest.Headers.Add("Authorization", $"Bearer {Creds.Get("access_token").Value}");
+                var reference = new FileReference(fileRequest, f.Name, MimeTypes.GetMimeType(f.Name));
+                fileReferences.Add(reference);
+
+                //var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
+                //var fileResponse = Client.Get(fileRequest);
+                //using (var stream = new MemoryStream(fileResponse.RawBytes!))
+                //{
+                //    var file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                //    fileReferences.Add(file);
+                //}
             }            
         }
 
