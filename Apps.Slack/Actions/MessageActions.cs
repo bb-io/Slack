@@ -104,6 +104,7 @@ public class MessageActions : SlackInvocable
         {
             foreach (var f in message.Files)
             {
+                var reference = new FileReference();
                 var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
                 var fileResponse = Client.Get(fileRequest);
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
