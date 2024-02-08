@@ -105,6 +105,7 @@ public class MessageActions : SlackInvocable
         {
             foreach (var f in message.Files)
             {
+                // better
                 var fileRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
                 fileRequest.Headers.Add("Authorization", $"Bearer {Creds.Get("access_token").Value}");
                 var reference = new FileReference(fileRequest, f.Name, MimeTypes.GetMimeType(f.Name));
