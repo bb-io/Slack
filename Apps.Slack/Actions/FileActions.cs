@@ -2,9 +2,11 @@
 using Apps.Slack.Api;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Requests.File;
+using Apps.Slack.Models.Responses;
 using Apps.Slack.Models.Responses.File;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
@@ -33,5 +35,16 @@ public class FileActions : SlackInvocable
             file = FileManagementClient.UploadAsync(stream, response.ContentType, new Uri(input.Url).Segments.Last()).Result;
         }
         return new() { File = file };
+    }
+
+    [Action("Return connection properties", Description = "Return connection properties")]
+    public ActionForDifferentVersionResponse ReturnConnectionProperties()
+    {
+        var connectionParams = new List<string>();
+        foreach (var authenticationCredentialsProvider in InvocationContext.AuthenticationCredentialsProviders)
+        {
+            connectionParams.Add($"{authenticationCredentialsProvider.KeyName} : {authenticationCredentialsProvider.Value}");
+        }
+        return new ActionForDifferentVersionResponse() { ConnectionProperties = connectionParams };
     }
 }
