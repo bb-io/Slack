@@ -11,17 +11,18 @@ public class GetMessageFilesResponse
     [Display("User ID")]
     public string User { get; set; }
 
-    [Display("Timestamp")]
+    [Display("Message timestamp")]
     public string Timestamp { get; set; }
+
+    [Display("Thread timestamp")]
+    public string ThreadTimestamp { get; set; }
 
     [Display("Channel ID")]
     public string ChannelId { get; set; }
 
-    [Display("File URLs")]
-    public IEnumerable<SlackFileDto> FilesUrls { get; set; }
-
     [Display("Files")]
     public IEnumerable<FileReference> Files { get; set; }
+
 }
 
 public class SlackFileDto

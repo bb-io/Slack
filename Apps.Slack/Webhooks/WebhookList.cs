@@ -61,7 +61,7 @@ public class WebhookList : BaseInvocable
         if (payload.Event.ThreadTs != null && !(triggerOnMessageReplies ?? false))
             return new WebhookResponse<GetMessageFilesResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        if (payload.Event.Files == null && (triggerOnlyOnFiles ?? false))
+        if ((payload.Event.Files == null || payload.Event.Files.Count == 0 ) && (triggerOnlyOnFiles ?? false))
             return new WebhookResponse<GetMessageFilesResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
         var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Channel, Timestamp = payload.Event.Ts });
@@ -114,7 +114,6 @@ public class WebhookList : BaseInvocable
                 Timestamp = completeMessage.Timestamp,
                 User = completeMessage.User,
                 MessageText = completeMessage.MessageText,
-                FilesUrls = completeMessage.FilesUrls,
                 Reaction = payload.Event.Reaction,
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,

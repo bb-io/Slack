@@ -15,5 +15,7 @@ public class FileMessageDto
     public string User { get; set; }
     public string Ts { get; set; }
 
+    public string Thread_ts { get; set; }
+
     public IEnumerable<FileEntity>? Files { get; set; }
 }
