@@ -32,29 +32,35 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        if (input.Text == null && input.Attachment == null)
+        if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
 
         var attachmentsSuffix = string.Empty;
-        if (input.Attachment != null)
+        
+        if (input.Attachments != null)
         {
-            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
-            var fileAttachment = await fileStream.GetByteData();
+            UploadFileResponse uploadFileResponse = null;
 
-            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name)
-                .AddParameter("filename", input.Attachment.Name);
-
-            if (input.Text == null)
+            foreach (var attachment in input.Attachments)
             {
-                uploadFileRequest.AddParameter("channels", input.ChannelId);
-                if (input.Timestamp != null)
-                    uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
-            };
+                using var fileStream = await FileManagementClient.DownloadAsync(attachment);
+                var fileAttachment = await fileStream.GetByteData();
 
-            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+                var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                    .AddFile("file", fileAttachment, attachment.Name)
+                    .AddParameter("filename", attachment.Name);
 
-            attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+                if (input.Text == null)
+                {
+                    uploadFileRequest.AddParameter("channels", input.ChannelId);
+                    if (input.Timestamp != null)
+                        uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
+                };
+
+                uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+
+                attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+            }
 
             if (input.Text == null)
                 return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
