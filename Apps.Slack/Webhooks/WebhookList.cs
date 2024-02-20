@@ -89,7 +89,7 @@ public class WebhookList : SlackInvocable
 
         if (replyHandling != null)
         {
-            var isReply = completeMessage.Ts != completeMessage.Thread_ts;
+            var isReply = completeMessage.Thread_ts != null;
 
             if (replyHandling == "no_replies" && isReply)
                 return new WebhookResponse<GetMessageResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
