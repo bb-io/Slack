@@ -61,10 +61,6 @@ The second way:
 - **Remove reaction** removes a reaction from a message.
 - **Get reactions** lists all reactions for a single message.
 
-### Files
-
-- **Download file** downloads file by url.
-
 ### Channels
 
 - **Create channel**
