@@ -25,7 +25,7 @@ namespace Apps.Slack.Models.Responses.Message
         public string ChannelId { get; set; }
 
         [Display("Is thread reply?")]
-        public bool IsThreadReply => Timestamp != ThreadTimestamp;
+        public bool IsThreadReply => ThreadTimestamp != null;
 
         [Display("Has attachments?")]
         public bool HasAttachments { get; set; }
