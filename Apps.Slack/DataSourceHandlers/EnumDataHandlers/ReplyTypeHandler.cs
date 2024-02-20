@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Apps.Slack.DataSourceHandlers.EnumDataHandlers
 {
-    public class ReplyTypeHandlerIDataSourceHandler
+    public class ReplyTypeHandlerIDataSourceHandler : IDataSourceHandler
     {
         public Dictionary<string, string> GetData(DataSourceContext context)
         {
