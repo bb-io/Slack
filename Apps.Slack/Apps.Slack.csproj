@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Slack</Product>
-    <Version>1.1.3</Version>
+    <Version>1.2.0</Version>
     <Description>The messaging app</Description>
     <AssemblyName>Apps.Slack</AssemblyName>
   </PropertyGroup>

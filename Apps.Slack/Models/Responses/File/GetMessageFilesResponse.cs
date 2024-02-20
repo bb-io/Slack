@@ -24,12 +24,3 @@ public class GetMessageFilesResponse
     public IEnumerable<FileReference> Files { get; set; }
 
 }
-
-public class SlackFileDto
-{
-    [Display("File name")]
-    public string Filename { get; set; }
-
-    [Display("File URL")]
-    public string Url { get; set; }
-}
