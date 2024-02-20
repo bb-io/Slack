@@ -18,19 +18,19 @@ public class ChannelActions : SlackInvocable
     {
     }
 
-    [Action("Get all channels", Description = "Get all channels in a Slack team")]
-    public Task<GetChannelsResponse> GetChannels()
-    {
-        var request = new SlackRequest("/conversations.list", Method.Get, Creds);
-        return Client.ExecuteWithErrorHandling<GetChannelsResponse>(request);
-    }
-    
+    //[Action("Get all channels", Description = "Get all channels in a Slack team")]
+    //public Task<GetChannelsResponse> GetChannels()
+    //{
+    //    var request = new SlackRequest("/conversations.list", Method.Get, Creds);
+    //    return Client.ExecuteWithErrorHandling<GetChannelsResponse>(request);
+    //}
+
     [Action("Create channel", Description = "Create a new channel in a Slack team")]
     public Task<ChannelResponse> CreateChannel([ActionParameter] CreateChannelRequest input)
     {
         var request = new SlackRequest("/conversations.create", Method.Post, Creds)
             .WithJsonBody(input, JsonConfig.Settings);
-        
+
         return Client.ExecuteWithErrorHandling<ChannelResponse>(request);
     }
 }

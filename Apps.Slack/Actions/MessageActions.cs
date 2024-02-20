@@ -8,8 +8,10 @@ using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
 using System.IO;
@@ -30,29 +32,35 @@ public class MessageActions : SlackInvocable
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
-        if (input.Text == null && input.Attachment == null)
+        if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
 
         var attachmentsSuffix = string.Empty;
-        if (input.Attachment != null)
+        
+        if (input.Attachments != null)
         {
-            using var fileStream = await FileManagementClient.DownloadAsync(input.Attachment);
-            var fileAttachment = await fileStream.GetByteData();
+            UploadFileResponse uploadFileResponse = null;
 
-            var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
-                .AddFile("file", fileAttachment, input.Attachment.Name)
-                .AddParameter("filename", input.Attachment.Name);
-
-            if (input.Text == null)
+            foreach (var attachment in input.Attachments)
             {
-                uploadFileRequest.AddParameter("channels", input.ChannelId);
-                if (input.Timestamp != null)
-                    uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
-            };
+                using var fileStream = await FileManagementClient.DownloadAsync(attachment);
+                var fileAttachment = await fileStream.GetByteData();
 
-            var uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+                var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
+                    .AddFile("file", fileAttachment, attachment.Name)
+                    .AddParameter("filename", attachment.Name);
 
-            attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+                if (input.Text == null)
+                {
+                    uploadFileRequest.AddParameter("channels", input.ChannelId);
+                    if (input.Timestamp != null)
+                        uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
+                };
+
+                uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
+
+                attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
+            }
 
             if (input.Text == null)
                 return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
@@ -84,27 +92,41 @@ public class MessageActions : SlackInvocable
     public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] GetMessageParameters input)
     {
         var endpoint =
-            $"/conversations.history?channel={input.ChannelId}&latest={input.Timestamp}&limit=1&inclusive=true";
+            $"/conversations.replies?channel={input.ChannelId}&ts={input.Timestamp}&limit=1&inclusive=true";
         var request = new SlackRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
-        var message = response.Messages.First();
+        var message = response.Messages.Where(x => x.Ts == input.Timestamp).FirstOrDefault();
 
-        var files = new List<SlackFileDto>();
-        if (message.Files != null)
-            files = message.Files.Select(f => new SlackFileDto()
+        var fileReferences = new List<FileReference>();
+        if (message?.Files != null)
+        {
+            foreach (var f in message.Files)
             {
-                Url = f.PrivateUrl,
-                Filename = f.Name
-            }).ToList();
+                //better but needs debugging
+                //var fileRequest = new HttpRequestMessage(HttpMethod.Get, f.PrivateUrl);
+                //fileRequest.Headers.Add("Authorization", $"Bearer {Creds.Get("access_token").Value}");
+                //var reference = new FileReference(fileRequest, f.Name, MimeTypes.GetMimeType(f.Name));
+                //fileReferences.Add(reference);
+
+                var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
+                var fileResponse = Client.Get(fileRequest);
+                using (var stream = new MemoryStream(fileResponse.RawBytes!))
+                {
+                    var file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                    fileReferences.Add(file);
+                }
+            }            
+        }
 
         return new()
         {
-            MessageText = message.Text,
-            FilesUrls = files,
+            MessageText = message?.Text,
             ChannelId = input.ChannelId,
-            Timestamp = input.Timestamp,
-            User = message.User,
+            Timestamp = message.Ts,
+            ThreadTimestamp = message.Thread_ts,
+            User = message?.User,
+            Files = fileReferences,
         };
     }
 

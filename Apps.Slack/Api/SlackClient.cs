@@ -37,16 +37,19 @@ public class SlackClient : RestClient
         var result = new List<T>();
 
         string? cursor = null;
-        var baseUrl = request.Resource;
 
         do
         {
+            request.AddQueryParameter("limit", 999);   
             if (cursor is not null)
-                request.Resource = baseUrl.SetQueryParameter("cursor", cursor);
-
+            {
+                request.AddQueryParameter("cursor", cursor);
+                Thread.Sleep(1000);
+            }                          
             var response = await ExecuteWithErrorHandling<TV>(request);
             result.AddRange(response.Items);
             cursor = response.ResponseMetadata?.NextCursor;
+            
         } while (!string.IsNullOrWhiteSpace(cursor));
 
         return result;

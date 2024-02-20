@@ -49,9 +49,11 @@ The second way:
 
 ### Messages
 
-- **Send message** sends a message to a Slack channel. Add a text message, an attachment or both. Optionally send the message in a thread
-- **Get message** returns message information
-- **Delete message**.
+- **Send message** sends a message to a Slack channel. Add a text message, attachments or both. Optionally send the message in a thread
+- **Get message** returns message information, including attachments if it has any
+- **Delete message**
+- **Send scheduled message**
+- **Update message**
 
 ### Reactions
 
@@ -59,10 +61,9 @@ The second way:
 - **Remove reaction** removes a reaction from a message.
 - **Get reactions** lists all reactions for a single message.
 
-### Files
+### Channels
 
-- **Download file** downloads file by url.
-- **Get all channels**.
+- **Create channel**
 
 ### Users
 

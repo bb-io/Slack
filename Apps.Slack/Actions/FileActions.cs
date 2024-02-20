@@ -22,16 +22,16 @@ public class FileActions : SlackInvocable
         FileManagementClient = fileManagementClient;
     }
 
-    [Action("Download file", Description = "Download file by url")]
-    public DownloadFileResponse DownloadFile([ActionParameter] DownloadFileRequest input)
-    {
-        var request = new SlackRequest(input.Url, Method.Get, Creds);
-        var response = Client.Get(request);
-        FileReference file = null;
-        using (var stream = new MemoryStream(response.RawBytes!))
-        {
-            file = FileManagementClient.UploadAsync(stream, response.ContentType, new Uri(input.Url).Segments.Last()).Result;
-        }
-        return new() { File = file };
-    }
+    //[Action("Download file", Description = "Download file by url")]
+    //public DownloadFileResponse DownloadFile([ActionParameter] DownloadFileRequest input)
+    //{
+    //    var request = new SlackRequest(input.Url, Method.Get, Creds);
+    //    var response = Client.Get(request);
+    //    FileReference file = null;
+    //    using (var stream = new MemoryStream(response.RawBytes!))
+    //    {
+    //        file = FileManagementClient.UploadAsync(stream, response.ContentType, new Uri(input.Url).Segments.Last()).Result;
+    //    }
+    //    return new() { File = file };
+    //}
 }
