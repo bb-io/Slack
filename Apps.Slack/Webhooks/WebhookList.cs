@@ -25,9 +25,9 @@ namespace Apps.Slack.Webhooks;
 public class WebhookList : SlackInvocable
 {
     private MessageActions MessageActions { get; set; }
-    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
+    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
     {
-        MessageActions = new MessageActions(invocationContext, fileManagementClient);
+        MessageActions = new MessageActions(invocationContext, null);
     }
 
     private async Task<FileMessageDto?> GetMessage(string channel, string timestamp)
@@ -54,7 +54,7 @@ public class WebhookList : SlackInvocable
 
         var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
-        var completeMessage = await GetMessage(input.ChannelId, payload.Event.Ts);
+        var completeMessage = await GetMessage(payload.Event.Channel, payload.Event.Ts);
         completeMessage.Text = messageWithoutMentionedUser;
 
         return new WebhookResponse<GetMessageResponse>
@@ -63,7 +63,7 @@ public class WebhookList : SlackInvocable
             Result = new GetMessageResponse
             {
                 MessageText = completeMessage.Text,
-                ChannelId = input.ChannelId,
+                ChannelId = payload.Event.Channel,
                 Timestamp = completeMessage.Ts,
                 ThreadTimestamp = completeMessage.Thread_ts,
                 User = completeMessage.User,
@@ -85,7 +85,7 @@ public class WebhookList : SlackInvocable
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
             return new WebhookResponse<GetMessageResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        var completeMessage = await GetMessage(input.ChannelId, payload.Event.Ts);
+        var completeMessage = await GetMessage(payload.Event.Channel, payload.Event.Ts);
 
         if (replyHandling != null)
         {
@@ -109,7 +109,7 @@ public class WebhookList : SlackInvocable
             Result = new GetMessageResponse
             {
                 MessageText = completeMessage.Text,
-                ChannelId = input.ChannelId,
+                ChannelId = payload.Event.Channel,
                 Timestamp = completeMessage.Ts,
                 ThreadTimestamp = completeMessage.Thread_ts,
                 User = completeMessage.User,
@@ -148,19 +148,20 @@ public class WebhookList : SlackInvocable
         if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
             return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
-        var completeMessage = await MessageActions.GetMessageFiles(new Models.Requests.Message.GetMessageParameters { ChannelId = payload.Event.Item.Channel, Timestamp = payload.Event.Item.Ts });
+        var completeMessage = await GetMessage(input.ChannelId, payload.Event.Item.Ts);
 
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
             Result = new ChannelMessageWithReaction
             {
-                ChannelId = completeMessage.ChannelId,
-                Timestamp = completeMessage.Timestamp,
+                MessageText = completeMessage.Text,
+                ChannelId = payload.Event.Item.Channel,
+                Timestamp = completeMessage.Ts,
+                ThreadTimestamp = completeMessage.Thread_ts,
                 User = completeMessage.User,
-                MessageText = completeMessage.MessageText,
+                HasAttachments = completeMessage.Files != null && completeMessage.Files.Any(),
                 Reaction = payload.Event.Reaction,
-                Files = completeMessage.Files,
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
