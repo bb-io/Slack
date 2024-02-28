@@ -25,9 +25,9 @@ namespace Apps.Slack.Webhooks;
 public class WebhookList : SlackInvocable
 {
     private MessageActions MessageActions { get; set; }
-    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
+    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
     {
-        MessageActions = new MessageActions(invocationContext, null);
+        MessageActions = new MessageActions(invocationContext, fileManagementClient);
     }
 
     private async Task<FileMessageDto?> GetMessage(string channel, string timestamp)
@@ -160,6 +160,7 @@ public class WebhookList : SlackInvocable
                 User = completeMessage.User,
                 MessageText = completeMessage.MessageText,
                 Reaction = payload.Event.Reaction,
+                Files = completeMessage.Files,
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
