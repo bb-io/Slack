@@ -74,8 +74,7 @@ public class WebhookList : SlackInvocable
     }
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
-    public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, 
-        [WebhookParameter][DataSource(typeof(ReplyTypeHandlerIDataSourceHandler))][Display("Message reply handling")] string? replyHandling, [WebhookParameter][Display("Trigger only when message has files")] bool? triggerOnlyOnFiles)
+    public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] OnMessageWebhookParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
@@ -87,20 +86,25 @@ public class WebhookList : SlackInvocable
 
         var completeMessage = await GetMessage(payload.Event.Channel, payload.Event.Ts);
 
-        if (replyHandling != null)
-        {
-            var isReply = completeMessage.Thread_ts != null;
+        var isReply = completeMessage.Thread_ts != null;
 
-            if (replyHandling == "no_replies" && isReply)
-                return new WebhookResponse<GetMessageResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+        if (input.ReplyHandling == "no_replies" && isReply)
+            return new WebhookResponse<GetMessageResponse>()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
-            if (replyHandling == "only_replies" && !isReply)
-                return new WebhookResponse<GetMessageResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
-        }
+        if (input.ReplyHandling == "only_replies" && !isReply)
+            return new WebhookResponse<GetMessageResponse>()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
         var hasFiles = completeMessage?.Files != null && completeMessage.Files.Any();
 
-        if ((triggerOnlyOnFiles ?? false) && !hasFiles)
+        if (input.TriggerOnlyOnFiles is true && !hasFiles)
             return new WebhookResponse<GetMessageResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
 
         return new WebhookResponse<GetMessageResponse>

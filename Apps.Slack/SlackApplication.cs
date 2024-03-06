@@ -12,6 +12,9 @@ public class SlackApplication : BaseInvocable, IApplication
         get => "Slack";
         set { }
     }
+
+    public IPublicApplicationMetadata? PublicApplicationMetadata { get; }
+    
     private readonly Dictionary<Type, object> _typesInstances;
 
     public SlackApplication(InvocationContext invocationContext) : base(invocationContext)
@@ -25,6 +28,7 @@ public class SlackApplication : BaseInvocable, IApplication
         {
             throw new InvalidOperationException($"Instance of type '{typeof(T)}' not found");
         }
+
         return (T)value;
     }
 
