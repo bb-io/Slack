@@ -2,19 +2,24 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Metadata;
 
 namespace Apps.Slack;
 
-public class SlackApplication : BaseInvocable, IApplication
+public class SlackApplication : BaseInvocable, IApplication, ICategoryProvider
 {
+    public IEnumerable<ApplicationCategory> Categories
+    {
+        get => [ApplicationCategory.Communication, ApplicationCategory.CustomerSupport];
+        set { }
+    }
+    
     public string Name
     {
         get => "Slack";
         set { }
     }
 
-    public IPublicApplicationMetadata? PublicApplicationMetadata { get; }
-    
     private readonly Dictionary<Type, object> _typesInstances;
 
     public SlackApplication(InvocationContext invocationContext) : base(invocationContext)
