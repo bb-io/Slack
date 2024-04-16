@@ -1,27 +1,17 @@
-﻿using Blackbird.Applications.Sdk.Common.Dynamic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Slack.DataSourceHandlers.EnumDataHandlers
 {
-    public class ReplyTypeHandlerIDataSourceHandler : IDataSourceHandler
+    public class ReplyTypeHandlerIDataSourceHandler : IStaticDataSourceHandler
     {
-        public Dictionary<string, string> GetData(DataSourceContext context)
+        public Dictionary<string, string> GetData()
         {
-            var values = new Dictionary<string, string>()
+            return new Dictionary<string, string>()
             {
                 ["only_replies"] = "Only on replies",
                 ["no_replies"] = "Only on regular messages",
                 ["both"] = "Both (default)",               
             };
-
-            return values
-                .Where(x => context.SearchString is null ||
-                            x.Value.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x => x.Key, x => x.Value);
         }
     }
 }

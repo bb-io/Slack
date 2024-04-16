@@ -1,5 +1,6 @@
 ﻿using Apps.Slack.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.Models.Requests.Reaction;
@@ -11,6 +12,6 @@ public class AddReactionParameters
     public string ChannelId { get; set; }
     public string Timestamp { get; set; }
 
-    [DataSource(typeof(EmojiHandler))]
+    [StaticDataSource(typeof(EmojiHandler))]
     public string Reaction { get; set; }
 }

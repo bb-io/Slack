@@ -1,6 +1,6 @@
 using Apps.Slack.DataSourceHandlers.EnumDataHandlers;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Slack.Models.Requests.Message;
 
@@ -18,6 +18,6 @@ public class UpdateMessageParameters : DeleteMessageParameters
     [Display("File IDs")]
     public IEnumerable<string>? FileIds { get; set; }
     
-    [DataSource(typeof(ParseDataSourceHandler))]
+    [StaticDataSource(typeof(ParseDataSourceHandler))]
     public string? Parse { get; set; }
 }
