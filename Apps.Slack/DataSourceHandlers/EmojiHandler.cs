@@ -1,13 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
 
 namespace Apps.Slack.DataSourceHandlers;
 
-public class EmojiHandler : IDataSourceHandler
+public class EmojiHandler : IStaticDataSourceHandler
 {
-
     public Dictionary<string, string> GetData(DataSourceContext context)
     {
         var data = new Dictionary<string, string> {            
@@ -1888,6 +1885,12 @@ public class EmojiHandler : IDataSourceHandler
             { "secret", "㊙️ Circled ideograph secret" },
         };
 
-        return data.Where(x => context.SearchString == null || x.Value.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase)).Take(12).ToDictionary(x => x.Key, x => x.Value); ;
+        return data;
+    }
+
+    public Dictionary<string, string> GetData()
+    {
+        var data = GetData(new DataSourceContext());
+        return data;
     }
 }

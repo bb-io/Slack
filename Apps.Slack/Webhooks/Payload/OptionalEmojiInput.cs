@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Slack.Webhooks.Payload
 {
     public class OptionalEmojiInput
     {
-        [DataSource(typeof(EmojiHandler))]
+        [StaticDataSource(typeof(EmojiHandler))]
         public string? Reaction { get; set; }
     }
 }
