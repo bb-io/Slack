@@ -82,7 +82,7 @@ The second way:
 
 ## Example
 
-![Example](image/README/example.png)
+![Example](image/README/example-1.png)
 
 ![Example-2](image/README/example-2.png)
 
