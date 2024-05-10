@@ -36,7 +36,7 @@ The second way:
 
 ## Connecting
 
-1. Navigate to apps and search for Slack. If you cannot find Slack then click _Add App_ in the top right corner, select Slack and add the app to your Blackbird environment.
+1. Navigate to Apps, and identify the **Slack** app. You can use search to find it.
 2. Click _Add Connection_.
 3. Name your connection for future reference e.g. 'My organization'.
 4. Click _Authorize connection_.
@@ -84,7 +84,9 @@ The second way:
 
 ![Example](image/README/example.png)
 
-Here, whenever a new message with attachments is sent, we download the files, upload them to Google Drive and add new rows to Google Sheets table with information about the uploaded files.
+![Example-2](image/README/example-2.png)
+
+Here, whenever a new message with attachments is sent, we receive files by `Get message` action, iterate over them and send them to **Google Drive** using `Upload file` action.
 
 ## Missing features
 
