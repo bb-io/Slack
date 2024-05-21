@@ -12,4 +12,7 @@ public class PostMessageResponse
     [Display("Message timestamp")]
     [JsonProperty("ts")]
     public string Timestamp { get; set; }
+    
+    [Display("Message timestamp (Datetime)")]
+    public DateTime TimestampDateTime => DateTime.Parse(Timestamp);
 }

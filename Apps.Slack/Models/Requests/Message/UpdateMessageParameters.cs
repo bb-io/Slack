@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Slack.Models.Requests.Message;
 
-public class UpdateMessageParameters : DeleteMessageParameters
+public class UpdateMessageParameters(string channelId, string ts) : DeleteMessageParameters(channelId, ts)
 {
     [Display("Message")]
     public string? Text { get; set; }

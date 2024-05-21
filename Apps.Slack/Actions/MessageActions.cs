@@ -21,13 +21,10 @@ using System.Net.Mime;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class MessageActions : SlackInvocable
+public class MessageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : SlackInvocable(invocationContext)
 {
-    private IFileManagementClient FileManagementClient { get; set; }
-    public MessageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
-    {
-        FileManagementClient = fileManagementClient;
-    }
+    private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
 
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)

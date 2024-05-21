@@ -10,12 +10,8 @@ using RestSharp;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class ReactionActions : SlackInvocable
+public class ReactionActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    public ReactionActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Add reaction", Description = "Add a reaction to a message")]
     public Task AddReaction([ActionParameter] AddReactionParameters input)
     {

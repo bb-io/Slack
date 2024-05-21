@@ -11,12 +11,8 @@ using RestSharp;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class UserActions : SlackInvocable
+public class UserActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    public UserActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Get all users", Description = "Get all users in a Slack team")]
     public Task<GetUsersResponse> GetUsers()
     {
