@@ -12,12 +12,8 @@ using RestSharp;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class ChannelActions : SlackInvocable
+public class ChannelActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    public ChannelActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     //[Action("Get all channels", Description = "Get all channels in a Slack team")]
     //public Task<GetChannelsResponse> GetChannels()
     //{

@@ -8,12 +8,8 @@ using RestSharp;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class TeamActions : SlackInvocable
+public class TeamActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    public TeamActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Get team", Description = "Get user team info")]
     public Task<TeamInfoResponse> GetTeam()
     {

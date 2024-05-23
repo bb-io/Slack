@@ -13,14 +13,10 @@ using RestSharp;
 namespace Apps.Slack.Actions;
 
 [ActionList]
-public class FileActions : SlackInvocable
+public class FileActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : SlackInvocable(invocationContext)
 {
-    private IFileManagementClient FileManagementClient { get; set; }
-
-    public FileActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
-    {
-        FileManagementClient = fileManagementClient;
-    }
+    private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
 
     //[Action("Download file", Description = "Download file by url")]
     //public DownloadFileResponse DownloadFile([ActionParameter] DownloadFileRequest input)
