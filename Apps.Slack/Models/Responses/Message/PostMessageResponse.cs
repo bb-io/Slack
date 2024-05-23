@@ -1,4 +1,5 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Slack.Extensions;
+using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 
 namespace Apps.Slack.Models.Responses.Message;
@@ -14,5 +15,5 @@ public class PostMessageResponse
     public string Timestamp { get; set; }
     
     [Display("Message timestamp (Datetime)")]
-    public DateTime TimestampDateTime => DateTime.Parse(Timestamp);
+    public DateTime TimestampDateTime => Timestamp.ToDateTime();
 }

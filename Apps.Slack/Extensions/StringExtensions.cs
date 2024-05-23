@@ -15,15 +15,18 @@ public static class StringExtensions
     
     public static DateTime ToDateTime(this string timestamp) // 1715851118.440689
     {
-        string[] parts = timestamp.Split('.');
-        long seconds = long.Parse(parts[0]);
-        int milliseconds = (int)(double.Parse("0." + parts[1]) * 1000);
-
-        DateTimeOffset epoch = DateTimeOffset.FromUnixTimeSeconds(0);
+        if (string.IsNullOrEmpty(timestamp))
+            return DateTime.MinValue;
         
-        DateTimeOffset dateTimeOffset = epoch.AddSeconds(seconds).AddMilliseconds(milliseconds);
+        var parts = timestamp.Split('.');
+        var seconds = long.Parse(parts[0]);
+        var milliseconds = (int)(double.Parse("0." + parts[1]) * 1000);
 
-        DateTime dateTime = dateTimeOffset.LocalDateTime;
+        var epoch = DateTimeOffset.FromUnixTimeSeconds(0);
+        
+        var dateTimeOffset = epoch.AddSeconds(seconds).AddMilliseconds(milliseconds);
+        
+        var dateTime = dateTimeOffset.LocalDateTime;
         return dateTime;
     }
 }
