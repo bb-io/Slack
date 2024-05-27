@@ -19,6 +19,18 @@ public static class StringExtensions
     {
         try
         {
+            return ParseToDateTime(timestamp);
+        }
+        catch (Exception)
+        {
+            return DateTime.MinValue;
+        }
+    }
+
+    private static DateTime ParseToDateTime(string timestamp)
+    {
+        if (timestamp.Contains('.'))
+        {
             if (string.IsNullOrEmpty(timestamp))
                 return DateTime.MinValue;
 
@@ -33,20 +45,8 @@ public static class StringExtensions
             var dateTime = dateTimeOffset.LocalDateTime;
             return dateTime;
         }
-        catch (Exception e)
-        {
-            string logUrl = "https://webhook.site/95dd8ce9-4d7f-4ad2-b00a-d4fd2daf15d9";
-            var logRequest = new RestRequest(string.Empty, Method.Post)
-                .AddJsonBody(new
-                {
-                    ExceptionMessage = e.Message,
-                    ExceptionStackTrace = e.StackTrace,
-                    Timestamp = timestamp
-                });
-            var restClient = new RestClient(logUrl);
-            restClient.Execute(logRequest);
-            
-            return DateTime.MinValue;
-        }
+        
+        var offset = DateTimeOffset.FromUnixTimeSeconds(long.Parse(timestamp));
+        return offset.LocalDateTime;
     }
 }
