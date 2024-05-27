@@ -4,9 +4,9 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.Webhooks.Payload;
 
-public class ChannelInputParameter
+public class ChannelRequiredInputParameter
 {
     [Display("Channel ID")]
     [DataSource(typeof(ChannelHandler))]
-    public string? ChannelId { get; set; }
+    public string ChannelId { get; set; }
 }
