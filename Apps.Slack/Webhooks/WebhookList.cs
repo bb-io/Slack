@@ -159,7 +159,7 @@ public class WebhookList : SlackInvocable
     [Webhook("On reaction added", typeof(MessageReactionHandler),
         Description = "Triggered whenever someone reacts to a message with an emoji")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelRequiredInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
+        [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -180,8 +180,7 @@ public class WebhookList : SlackInvocable
                 ReceivedWebhookRequestType = WebhookRequestType.Preflight
             };
 
-        var completeMessage = await GetMessage(input.ChannelId, payload.Event.Item.Ts);
-
+        var completeMessage = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
