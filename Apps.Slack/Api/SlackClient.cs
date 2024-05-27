@@ -8,6 +8,11 @@ namespace Apps.Slack.Api;
 
 public class SlackClient : RestClient
 {
+    private readonly Dictionary<string, string> ErrorMessages = new()
+    {
+        { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." }
+    };
+    
     public SlackClient() : base(new RestClientOptions()
     {
         BaseUrl = new(Urls.Api)
@@ -21,7 +26,14 @@ public class SlackClient : RestClient
         var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
         if (!string.IsNullOrEmpty(genericResponse?.Error))
+        {
+            if(ErrorMessages.TryGetValue(genericResponse.Error, out var message))
+            {
+                throw new Exception(message);
+            }
+            
             throw new Exception($"Error: {genericResponse.Error}");
+        }
 
         return response;
     }

@@ -58,7 +58,7 @@ The second way:
 ### Reactions
 
 - **Add reaction** adds a reaction to a message.
-- **Remove reaction** removes a reaction from a message.
+- **Remove reaction** removes a reaction from a message. Note: The Slack bot can only remove reactions it has added.
 - **Get reactions** lists all reactions for a single message.
 
 ### Channels

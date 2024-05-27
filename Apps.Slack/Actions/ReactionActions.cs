@@ -27,7 +27,7 @@ public class ReactionActions(InvocationContext invocationContext) : SlackInvocab
         return Client.ExecuteWithErrorHandling(request);
     }
 
-    [Action("Remove reaction", Description = "Remove a reaction from a message")]
+    [Action("Remove reaction", Description = "Remove a reaction from a message. Note: The Slack bot can only remove reactions it has added.")]
     public Task DeleteReaction([ActionParameter] DeleteReactionParameters input)
     {
         var request = new SlackRequest("/reactions.remove", Method.Post, Creds)
