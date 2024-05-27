@@ -8,5 +8,5 @@ public class ChannelInputParameter
 {
     [Display("Channel ID")]
     [DataSource(typeof(ChannelHandler))]
-    public string? ChannelId { get; set; }
+    public string ChannelId { get; set; }
 }
