@@ -25,6 +25,7 @@ namespace Apps.Slack.Webhooks;
 public class WebhookList : SlackInvocable
 {
     private MessageActions MessageActions { get; set; }
+
     public WebhookList(InvocationContext invocationContext) : base(invocationContext)
     {
         MessageActions = new MessageActions(invocationContext, null);
@@ -41,8 +42,10 @@ public class WebhookList : SlackInvocable
         return response.Messages.Where(x => x.Ts == timestamp).FirstOrDefault();
     }
 
-    [Webhook("On app mentioned", typeof(AppMentionedHandler), Description = "Triggered when the app is mentioned (@Blackbird)")]
-    public async Task<WebhookResponse<GetMessageResponse>> AppMentioned(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input)
+    [Webhook("On app mentioned", typeof(AppMentionedHandler),
+        Description = "Triggered when the app is mentioned (@Blackbird)")]
+    public async Task<WebhookResponse<GetMessageResponse>> AppMentioned(WebhookRequest webhookRequest,
+        [WebhookParameter] ChannelInputParameter input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
@@ -50,7 +53,11 @@ public class WebhookList : SlackInvocable
             throw new Exception("No serializable payload was found in incoming request.");
 
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return new WebhookResponse<GetMessageResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            return new WebhookResponse<GetMessageResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
         var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
@@ -74,15 +81,21 @@ public class WebhookList : SlackInvocable
     }
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
-    public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest, [WebhookParameter] OnMessageWebhookParameter input)
+    public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest,
+        [WebhookParameter] OnMessageWebhookParameter input)
     {
-        var payload = JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
+        var payload =
+            JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
         if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return new WebhookResponse<GetMessageResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            return new WebhookResponse<GetMessageResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
         var completeMessage = await GetMessage(payload.Event.Channel, payload.Event.Ts);
 
@@ -105,7 +118,11 @@ public class WebhookList : SlackInvocable
         var hasFiles = completeMessage?.Files != null && completeMessage.Files.Any();
 
         if (input.TriggerOnlyOnFiles is true && !hasFiles)
-            return new WebhookResponse<GetMessageResponse>() { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            return new WebhookResponse<GetMessageResponse>()
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
         return new WebhookResponse<GetMessageResponse>
         {
@@ -121,9 +138,10 @@ public class WebhookList : SlackInvocable
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
-    }   
+    }
 
-    [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler), Description = "Triggered when a member joins a channel")]
+    [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler),
+        Description = "Triggered when a member joins a channel")]
     public Task<WebhookResponse<MemberJoinedEvent>> MemberJoinedChannel(WebhookRequest webhookRequest)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
@@ -138,22 +156,31 @@ public class WebhookList : SlackInvocable
         });
     }
 
-    [Webhook("On reaction added", typeof(MessageReactionHandler), Description = "Triggered whenever someone reacts to a message with an emoji")]
-    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest, [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
+    [Webhook("On reaction added", typeof(MessageReactionHandler),
+        Description = "Triggered whenever someone reacts to a message with an emoji")]
+    public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
+        [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
-            
+
         if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
-            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            return new WebhookResponse<ChannelMessageWithReaction>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
         if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
-            return new WebhookResponse<ChannelMessageWithReaction> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+            return new WebhookResponse<ChannelMessageWithReaction>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
-        var completeMessage = await GetMessage(input.ChannelId, payload.Event.Item.Ts);
-
+        var completeMessage = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
