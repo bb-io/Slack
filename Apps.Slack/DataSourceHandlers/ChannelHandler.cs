@@ -19,7 +19,7 @@ public class ChannelHandler : SlackInvocable, IAsyncDataSourceHandler
         var request = new SlackRequest("/conversations.list", Method.Get, Creds);
         request.AddQueryParameter("type", "public_channel,private_channel");
         request.AddQueryParameter("exclude_archived", "true");
-        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(request);
+        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(request, token);
 
         return channels.Where(el =>
                 context.SearchString is null ||
