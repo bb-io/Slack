@@ -53,7 +53,7 @@ public class SlackClient : RestClient
 
         do
         {
-            request.AddQueryParameter("limit", 200);   
+            request.AddQueryParameter("limit", 999);   
             if (cursor is not null)
             {
                 request.AddQueryParameter("cursor", cursor);
