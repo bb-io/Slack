@@ -1,5 +1,3 @@
-using RestSharp;
-
 namespace Apps.Slack.Extensions;
 
 public static class StringExtensions

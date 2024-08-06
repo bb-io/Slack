@@ -15,14 +15,15 @@ public class SlackClient : RestClient
     
     public SlackClient() : base(new RestClientOptions()
     {
-        BaseUrl = new(Urls.Api)
+        BaseUrl = new(Urls.Api),
+        MaxTimeout = 15000,
     })
     {
     }
 
-    public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request)
+    public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
-        var response = await ExecuteAsync(request);
+        var response = await ExecuteAsync(request, token);
         var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
         if (!string.IsNullOrEmpty(genericResponse?.Error))
@@ -38,13 +39,13 @@ public class SlackClient : RestClient
         return response;
     }
 
-    public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request)
+    public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
     {
-        var response = await ExecuteWithErrorHandling(request);
+        var response = await ExecuteWithErrorHandling(request, token);
         return JsonConvert.DeserializeObject<T>(response.Content!, JsonConfig.Settings)!;
     }
 
-    public async Task<List<T>> Paginate<TV, T>(RestRequest request) where TV : PaginationResponse<T>
+    public async Task<List<T>> Paginate<TV, T>(RestRequest request, CancellationToken token) where TV : PaginationResponse<T>
     {
         var result = new List<T>();
 
@@ -52,13 +53,13 @@ public class SlackClient : RestClient
 
         do
         {
-            request.AddQueryParameter("limit", 999);   
+            request.AddQueryParameter("limit", 200);   
             if (cursor is not null)
             {
                 request.AddQueryParameter("cursor", cursor);
-                Thread.Sleep(1000);
+                await Task.Delay(3000, token);
             }                          
-            var response = await ExecuteWithErrorHandling<TV>(request);
+            var response = await ExecuteWithErrorHandling<TV>(request, token);
             result.AddRange(response.Items);
             cursor = response.ResponseMetadata?.NextCursor;
             
