@@ -15,7 +15,8 @@ public class SlackClient : RestClient
     
     public SlackClient() : base(new RestClientOptions()
     {
-        BaseUrl = new(Urls.Api)
+        BaseUrl = new(Urls.Api),
+        MaxTimeout = 15000,
     })
     {
     }
@@ -52,11 +53,11 @@ public class SlackClient : RestClient
 
         do
         {
-            request.AddQueryParameter("limit", 999);   
+            request.AddQueryParameter("limit", 200);   
             if (cursor is not null)
             {
                 request.AddQueryParameter("cursor", cursor);
-                await Task.Delay(1000, token);
+                await Task.Delay(3000, token);
             }                          
             var response = await ExecuteWithErrorHandling<TV>(request, token);
             result.AddRange(response.Items);
