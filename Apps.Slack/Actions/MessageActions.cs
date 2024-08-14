@@ -17,6 +17,7 @@ using RestSharp;
 using System.IO;
 using System.Net.Mail;
 using System.Net.Mime;
+using Apps.Slack.Models.Requests;
 
 namespace Apps.Slack.Actions;
 
@@ -27,7 +28,8 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
 
     [Action("Send message", Description = "Send a message to a Slack channel")]
-    public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
+    public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input,
+        [ActionParameter] BotUsernameOptionalRequest usernameInput)
     {
         if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
@@ -54,13 +56,14 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                         uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
                 };
 
-                uploadFileResponse = Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest).Result;
-
+                uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
                 attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
             }
 
             if (input.Text == null)
+            {
                 return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
+            }
         }       
 
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
@@ -68,7 +71,8 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             {
                 Channel = input.ChannelId,
                 Text = input.Text + attachmentsSuffix,
-                Thread_ts = input.Timestamp
+                Thread_ts = input.Timestamp,
+                Username = usernameInput.Username
             });
 
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
