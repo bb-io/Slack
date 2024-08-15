@@ -23,14 +23,24 @@ public class ChannelUserHandler(InvocationContext invocationContext)
 
         var channelResult = channels.Where(el =>
                 context.SearchString is null ||
-                el.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(k => k.Id, v => $"[Channel] {v.Name}");
         
         var userResult = users.Where(el =>
                 context.SearchString is null ||
-                el.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(k => k.Id, v => $"[User] {v.Name}");
         
         return channelResult.Concat(userResult).ToDictionary(k => k.Key, v => v.Value);
+    }
+    
+    private string BuildReadableName(ChannelEntity channel)
+    {
+        return $"[Channel] {channel.Name}";
+    }
+    
+    private string BuildReadableName(UserDto user)
+    {
+        return $"[User] {user.Name}";
     }
 }
