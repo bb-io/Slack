@@ -1,8 +1,8 @@
 ﻿using Apps.Slack.Api;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Entities;
-using Apps.Slack.Models.Requests.User;
 using Apps.Slack.Models.Responses.Channel;
+using Apps.Slack.Models.Responses.User;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
@@ -14,31 +14,39 @@ public class ChannelUserHandler(InvocationContext invocationContext)
 {
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
-        var channelHandler = new ChannelHandler(InvocationContext);
-        var channels = await channelHandler.GetDataAsync(context, token);
+        var channelsRequest = new SlackRequest("/conversations.list", Method.Get, Creds);
+        channelsRequest.AddQueryParameter("exclude_archived", "true");
+        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(channelsRequest, token);
         
-        var userHandler = new UserHandler(InvocationContext);
-        var users = await userHandler.GetDataAsync(context, token);
+        var userRequest = new SlackRequest("/users.list", Method.Get, Creds);
+        var users = await Client.Paginate<UserPaginationResponse, UserEntity>(userRequest, token);
 
-        return MergeResults(channels, users)
-            .Where(x => context.SearchString == null || x.Key.Contains(context.SearchString))
-            .ToDictionary(x => x.Key, x => x.Value);
+        var channelResult = channels.Where(el =>
+                context.SearchString is null ||
+                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(k => k.Id, BuildReadableName);
+        
+        var userResult = users.Where(el =>
+                context.SearchString is null ||
+                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(k => k.Id, BuildReadableName);
+        
+        return channelResult.Concat(userResult).ToDictionary(k => k.Key, v => v.Value);
     }
     
-    private Dictionary<string, string> MergeResults(Dictionary<string, string> channels, Dictionary<string, string> users)
+    private string BuildReadableName(ChannelEntity channel)
     {
-        var result = new Dictionary<string, string>();
-        
-        foreach (var channel in channels)
+        return $"[Channel] {channel.Name}";
+    }
+    
+    private string BuildReadableName(UserEntity user)
+    {
+        var username = user.Profile.DisplayNameNormalized;
+        if (string.IsNullOrWhiteSpace(username))
         {
-            result.Add(channel.Key, $"[Channel] {channel.Value}");
+            username = user.Name;
         }
         
-        foreach (var user in users)
-        {
-            result.Add(user.Key, $"[User] {user.Value}");
-        }
-        
-        return result;
+        return $"[User] {username}";
     }
 }
