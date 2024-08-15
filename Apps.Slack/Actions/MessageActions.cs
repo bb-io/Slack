@@ -18,6 +18,7 @@ using System.IO;
 using System.Net.Mail;
 using System.Net.Mime;
 using Apps.Slack.Models.Requests;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Slack.Actions;
 
@@ -76,6 +77,12 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             });
 
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
+    }
+    
+    [Action("DEBUG: Get auth token", Description = "Debug action, can be used only in development environment")]
+    public List<AuthenticationCredentialsProvider> GetAuthToken()
+    {
+        return Creds.ToList();
     }
 
     [Action("Send scheduled message", Description = "Send a scheduled message to a Slack channel")]

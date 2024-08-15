@@ -8,7 +8,7 @@ namespace Apps.Slack.Models.Requests.Message;
 public class PostMessageParameters
 {
     [Display("Channel ID")]
-    [DataSource(typeof(ChannelHandler))]
+    [DataSource(typeof(ChannelUserHandler))]
     public string ChannelId { get; set; }
 
     [Display("Message")]
