@@ -13,4 +13,6 @@ public class PostMessageRequest
 
     [Display("Username", Description = "Bot's username. If not set, the bot's default username will be used.")]
     public string? Username { get; set; }
+
+    public bool AsUser { get; set; }
 }

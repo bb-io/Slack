@@ -73,7 +73,8 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 Channel = input.ChannelId,
                 Text = input.Text + attachmentsSuffix,
                 Thread_ts = input.Timestamp,
-                Username = usernameInput.Username
+                Username = usernameInput.Username,
+                AsUser = input.AsUser ?? false
             });
 
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
