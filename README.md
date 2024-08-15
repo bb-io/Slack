@@ -49,7 +49,7 @@ The second way:
 
 ### Messages
 
-- **Send message** sends a message to a Slack channel. Add a text message, attachments or both. Optionally send the message in a thread
+- **Send message** sends a message to a Slack channel. Add a text message, attachments or both. Optionally send the message in a thread. You can customize the username that appears in Slack when the bot sends a message. If this is not set, the bot's default username will be used. Send as user optional input allows you to send a message on behalf of another user instead of the bot. The message will appear as if it was sent by the selected user, with their profile photo beside it.
 - **Get message** returns message information, including attachments if it has any
 - **Delete message**
 - **Send scheduled message**
