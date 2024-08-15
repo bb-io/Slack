@@ -14,33 +14,29 @@ public class ChannelUserHandler(InvocationContext invocationContext)
 {
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
-        var channelsRequest = new SlackRequest("/conversations.list", Method.Get, Creds);
-        channelsRequest.AddQueryParameter("exclude_archived", "true");
-        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(channelsRequest, token);
+        var channelHandler = new ChannelHandler(InvocationContext);
+        var channels = await channelHandler.GetDataAsync(context, token);
         
-        var userRequest = new SlackRequest("/users.list", Method.Get, Creds);
-        var users = await Client.Paginate<UserPaginationResponse, UserDto>(userRequest, token);
-
-        var channelResult = channels.Where(el =>
-                context.SearchString is null ||
-                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(k => k.Id, v => $"[Channel] {v.Name}");
+        var userHandler = new UserHandler(InvocationContext);
+        var users = await userHandler.GetDataAsync(context, token);
         
-        var userResult = users.Where(el =>
-                context.SearchString is null ||
-                BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(k => k.Id, v => $"[User] {v.Name}");
-        
-        return channelResult.Concat(userResult).ToDictionary(k => k.Key, v => v.Value);
+        return MergeResults(channels, users);
     }
     
-    private string BuildReadableName(ChannelEntity channel)
+    private Dictionary<string, string> MergeResults(Dictionary<string, string> channels, Dictionary<string, string> users)
     {
-        return $"[Channel] {channel.Name}";
-    }
-    
-    private string BuildReadableName(UserDto user)
-    {
-        return $"[User] {user.Name}";
+        var result = new Dictionary<string, string>();
+        
+        foreach (var channel in channels)
+        {
+            result.Add(channel.Key, $"[Channel] {channel.Value}");
+        }
+        
+        foreach (var user in users)
+        {
+            result.Add(user.Key, $"[User] {user.Value}");
+        }
+        
+        return result;
     }
 }

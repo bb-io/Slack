@@ -18,6 +18,7 @@ using System.IO;
 using System.Net.Mail;
 using System.Net.Mime;
 using Apps.Slack.Models.Requests;
+using Apps.Slack.Models.Requests.User;
 using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Slack.Actions;
@@ -30,7 +31,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
     [Action("Send message", Description = "Send a message to a Slack channel")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input,
-        [ActionParameter] BotUsernameOptionalRequest usernameInput)
+        [ActionParameter] SendMessageOptionalParameters optionalInputs)
     {
         if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
@@ -65,18 +66,28 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             {
                 return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
             }
-        }       
+        }
+
+        string? iconUrl = null;
+        string? username = null;
+        if (optionalInputs.UserId is not null)
+        {
+            var userActions = new UserActions(invocationContext);
+            var user = await userActions.GetUserInfo(new GetUserInfoParameters() { UserId = optionalInputs.UserId });
+            iconUrl = user.Profile.Image72;
+            username = string.IsNullOrEmpty(user.Profile.DisplayNameNormalized) ? user.Name : user.Profile.DisplayNameNormalized;
+        }
 
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
-            .AddJsonBody(new PostMessageRequest
+            .WithJsonBody(new
             {
-                Channel = input.ChannelId,
-                Text = input.Text + attachmentsSuffix,
-                Thread_ts = input.Timestamp,
-                Username = usernameInput.Username,
-                AsUser = input.AsUser ?? false
+                channel = input.ChannelId,
+                text = input.Text + attachmentsSuffix,
+                thread_ts = input.Timestamp,
+                username = optionalInputs.Username ?? username,
+                icon_url = iconUrl ?? string.Empty,
             });
-
+        
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
