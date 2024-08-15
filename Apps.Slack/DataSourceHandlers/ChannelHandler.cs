@@ -8,12 +8,9 @@ using RestSharp;
 
 namespace Apps.Slack.DataSourceHandlers;
 
-public class ChannelHandler : SlackInvocable, IAsyncDataSourceHandler
+public class ChannelHandler(InvocationContext invocationContext)
+    : SlackInvocable(invocationContext), IAsyncDataSourceHandler
 {
-    public ChannelHandler(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
         var request = new SlackRequest("/conversations.list", Method.Get, Creds);
