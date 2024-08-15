@@ -19,8 +19,10 @@ public class ChannelUserHandler(InvocationContext invocationContext)
         
         var userHandler = new UserHandler(InvocationContext);
         var users = await userHandler.GetDataAsync(context, token);
-        
-        return MergeResults(channels, users);
+
+        return MergeResults(channels, users)
+            .Where(x => context.SearchString == null || x.Key.Contains(context.SearchString))
+            .ToDictionary(x => x.Key, x => x.Value);
     }
     
     private Dictionary<string, string> MergeResults(Dictionary<string, string> channels, Dictionary<string, string> users)
