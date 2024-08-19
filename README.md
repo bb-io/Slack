@@ -10,7 +10,7 @@ Slack is a messaging app for businesses that improves communication, teamwork, a
 
 ## Before setting up
 
-Before you can connect you need to make sure that you have a Slack account and you are part of a specific workspace.
+Before you can connect you need to make sure that you have a Slack account and you are part of a specific workspace. You need to be an Slack admin or have permission to connect external applications to your Slack channel. You can also [invite your Slack admin to Blackbird](https://docs.blackbird.io/concepts/nests/#users) in order for them to authorize the connection. 
 
 ### Enable webhooks
 
