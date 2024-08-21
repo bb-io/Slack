@@ -1,14 +1,7 @@
-﻿using System.Net.Mime;
-using Apps.Slack.Api;
-using Apps.Slack.Invocables;
-using Apps.Slack.Models.Requests.File;
-using Apps.Slack.Models.Responses.File;
-using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Slack.Invocables;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using RestSharp;
 
 namespace Apps.Slack.Actions;
 

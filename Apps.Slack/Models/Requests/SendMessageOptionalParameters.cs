@@ -11,4 +11,7 @@ public class SendMessageOptionalParameters
 
     [Display("Send as user", Description = "Send a message as a user. If not set, the message will be sent as a bot."), DataSource(typeof(UserHandler))]
     public string? UserId { get; set; }
+    
+    [Display("Manual user ID", Description = "Send a message as a user. If not set, the message will be sent as a bot. This is the value to set user ID manually.")]
+    public string? ManualUserId { get; set; }
 }

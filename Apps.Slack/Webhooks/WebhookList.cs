@@ -4,20 +4,14 @@ using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Net;
 using System.Text.RegularExpressions;
-using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Apps.Slack.Actions;
-using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
-using Apps.Slack.Models.Responses.Reaction;
-using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Slack.Api;
 using RestSharp;
 using Apps.Slack.Invocables;
-using Blackbird.Applications.Sdk.Common.Dynamic;
-using Apps.Slack.DataSourceHandlers.EnumDataHandlers;
+using Apps.Slack.Models.Requests.Channel;
 
 namespace Apps.Slack.Webhooks;
 
@@ -45,14 +39,15 @@ public class WebhookList : SlackInvocable
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
         Description = "Triggered when the app is mentioned (@Blackbird)")]
     public async Task<WebhookResponse<GetMessageResponse>> AppMentioned(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelInputParameter input)
+        [WebhookParameter] ChannelRequest input)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
-        if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
+        var channelId = input.ChannelId ?? input.ManualChannelId;
+        if (channelId != null && payload.Event.Channel != channelId)
             return new WebhookResponse<GetMessageResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -82,7 +77,7 @@ public class WebhookList : SlackInvocable
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
     public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest,
-        [WebhookParameter] OnMessageWebhookParameter input)
+        [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel)
     {
         var payload =
             JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
@@ -90,7 +85,8 @@ public class WebhookList : SlackInvocable
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
-        if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
+        var channelId = channel.ChannelId ?? channel.ManualChannelId;
+        if (channelId != null && payload.Event.Channel != channelId)
             return new WebhookResponse<GetMessageResponse>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -159,14 +155,15 @@ public class WebhookList : SlackInvocable
     [Webhook("On reaction added", typeof(MessageReactionHandler),
         Description = "Triggered whenever someone reacts to a message with an emoji")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelInputParameter input, [WebhookParameter] OptionalEmojiInput emoji)
+        [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
-        if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
+        var channelId = input.ChannelId ?? input.ManualChannelId;
+        if (channelId != null && payload.Event.Item.Channel != channelId)
             return new WebhookResponse<ChannelMessageWithReaction>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),

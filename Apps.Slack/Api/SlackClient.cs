@@ -1,6 +1,5 @@
 ﻿using Apps.Slack.Constants;
 using Apps.Slack.Models.Responses;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Newtonsoft.Json;
 using RestSharp;
 
