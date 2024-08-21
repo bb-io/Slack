@@ -1,7 +1,6 @@
 ﻿using Apps.Slack.Api;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Entities;
-using Apps.Slack.Models.Requests.User;
 using Apps.Slack.Models.Responses.User;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;

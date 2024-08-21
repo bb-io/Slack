@@ -11,15 +11,11 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
-using System.IO;
-using System.Net.Mail;
-using System.Net.Mime;
 using Apps.Slack.Models.Requests;
+using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Models.Requests.User;
-using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Slack.Actions;
 
@@ -33,11 +29,15 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input,
         [ActionParameter] SendMessageOptionalParameters optionalInputs)
     {
+        if (!(input.ChannelId == null ^ input.ManualChannelId == null))
+            throw new("You should specify one value: Channel ID or Manual channel ID");
+
         if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
 
+        var channelId = input.ChannelId ?? input.ManualChannelId;
         var attachmentsSuffix = string.Empty;
-        
+
         if (input.Attachments != null)
         {
             UploadFileResponse uploadFileResponse = null;
@@ -53,10 +53,12 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
                 if (input.Text == null)
                 {
-                    uploadFileRequest.AddParameter("channels", input.ChannelId);
+                    uploadFileRequest.AddParameter("channels", channelId);
                     if (input.Timestamp != null)
                         uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
-                };
+                }
+
+                ;
 
                 uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
                 attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
@@ -64,38 +66,45 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
             if (input.Text == null)
             {
-                return new PostMessageResponse { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = input.ChannelId };
+                return new PostMessageResponse
+                    { Timestamp = uploadFileResponse.File.Timestamp.ToString(), Channel = channelId };
             }
         }
 
         string? iconUrl = null;
         string? username = null;
-        if (optionalInputs.UserId is not null)
+        if (optionalInputs.UserId is not null || optionalInputs.ManualUserId is not null)
         {
             var userActions = new UserActions(invocationContext);
-            var user = await userActions.GetUserInfo(new GetUserInfoParameters() { UserId = optionalInputs.UserId });
+            var user = await userActions.GetUserInfo(new GetUserInfoParameters()
+                { UserId = optionalInputs.UserId ?? optionalInputs.ManualUserId });
             iconUrl = user.Profile.Image72;
-            username = string.IsNullOrEmpty(user.Profile.DisplayNameNormalized) ? user.Name : user.Profile.DisplayNameNormalized;
+            username = string.IsNullOrEmpty(user.Profile.DisplayNameNormalized)
+                ? user.Name
+                : user.Profile.DisplayNameNormalized;
         }
 
         var postMessageRequest = new SlackRequest("/chat.postMessage", Method.Post, Creds)
             .WithJsonBody(new
             {
-                channel = input.ChannelId,
+                channel = channelId,
                 text = input.Text + attachmentsSuffix,
                 thread_ts = input.Timestamp,
                 username = optionalInputs.Username ?? username,
                 icon_url = iconUrl ?? string.Empty,
             });
-        
+
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
     [Action("Send scheduled message", Description = "Send a scheduled message to a Slack channel")]
     public Task<ScheduledMessageResponse> SendScheduledMessage([ActionParameter] PostScheduledMessageParameters input)
     {
+        if (!(input.ChannelId == null ^ input.ManualChannelId == null))
+            throw new("You should specify one value: Channel ID or Manual channel ID");
+
         var request = new SlackRequest("/chat.scheduleMessage", Method.Post, Creds)
-            .AddParameter("channel", input.ChannelId)
+            .AddParameter("channel", input.ChannelId ?? input.ManualChannelId)
             .AddParameter("text", input.Text)
             .AddParameter("post_at", new DateTimeOffset(input.PostAt).ToUnixTimeSeconds());
 
@@ -103,14 +112,17 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     }
 
     [Action("Get message", Description = "Get message content and file URLs by timestamp")]
-    public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] GetMessageParameters input)
+    public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] ChannelRequest channel,
+        [ActionParameter] GetMessageParameters input)
     {
+        var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
+
         var endpoint =
-            $"/conversations.replies?channel={input.ChannelId}&ts={input.Timestamp}&limit=1&inclusive=true";
+            $"/conversations.replies?channel={channelId}&ts={input.Timestamp}&limit=1&inclusive=true";
         var request = new SlackRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
-        var message = response.Messages.Where(x => x.Ts == input.Timestamp).FirstOrDefault();
+        var message = response.Messages.FirstOrDefault(x => x.Ts == input.Timestamp);
 
         var fileReferences = new List<FileReference>();
         if (message?.Files != null)
@@ -127,16 +139,17 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 var fileResponse = Client.Get(fileRequest);
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
                 {
-                    var file = FileManagementClient.UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                    var file = FileManagementClient
+                        .UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
                     fileReferences.Add(file);
                 }
-            }            
+            }
         }
 
         return new()
         {
             MessageText = message?.Text,
-            ChannelId = input.ChannelId,
+            ChannelId = channelId,
             Timestamp = message.Ts,
             ThreadTimestamp = message.Thread_ts,
             User = message?.User,
@@ -154,12 +167,14 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     }
 
     [Action("Delete message", Description = "Delete a message from Slack a Slack channel")]
-    public Task DeleteMessage([ActionParameter] DeleteMessageParameters input)
+    public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
+        var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
+        
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)
             .AddJsonBody(new DeleteMessageRequest
             {
-                Channel = input.ChannelId,
+                Channel = channelId,
                 Ts = input.Ts
             });
 

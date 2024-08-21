@@ -1,15 +1,10 @@
-﻿using Apps.Slack.DataSourceHandlers;
-using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Slack.DataSourceHandlers.EnumDataHandlers;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.Models.Requests.Reaction;
 
 public class DeleteReactionParameters
 {
-    [Display("Channel ID")]
-    [DataSource(typeof(ChannelHandler))]
-    public string ChannelId { get; set; }
     public string Timestamp { get; set; }
 
     [StaticDataSource(typeof(EmojiHandler))]

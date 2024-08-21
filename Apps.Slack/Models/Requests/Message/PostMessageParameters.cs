@@ -9,8 +9,11 @@ public class PostMessageParameters
 {
     [Display("Channel or user ID")]
     [DataSource(typeof(ChannelUserHandler))]
-    public string ChannelId { get; set; }
-
+    public string? ChannelId { get; set; }
+    
+    [Display("Manual channel or user ID")]
+    public string? ManualChannelId { get; set; }
+    
     [Display("Message")]
     public string? Text { get; set; }
     

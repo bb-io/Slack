@@ -2,7 +2,6 @@
 using Apps.Slack.Models.Responses.Team;
 using Apps.Slack.Webhooks.Payload;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
 namespace Apps.Slack.Webhooks.Bridge;

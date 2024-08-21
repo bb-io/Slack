@@ -7,5 +7,8 @@ namespace Apps.Slack.Models.Requests.User;
 public class GetUserInfoParameters
 {
     [Display("User ID"), DataSource(typeof(UserHandler))]
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
+    
+    [Display("Manual user ID")]
+    public string? ManualUserId { get; set; }
 }

@@ -23,8 +23,11 @@ public class UserActions(InvocationContext invocationContext) : SlackInvocable(i
     [Action("Get user information", Description = "Get information about a user")]
     public async Task<UserEntity> GetUserInfo([ActionParameter] GetUserInfoParameters input)
     {
+        if (!(input.UserId == null ^ input.ManualUserId == null))
+            throw new("You should specify one value: User ID or Manual user ID");
+        
         var request = new SlackRequest("/users.info", Method.Get, Creds)
-            .AddParameter("user", input.UserId);
+            .AddParameter("user", input.UserId ?? input.ManualUserId);
 
         var response = await Client.ExecuteWithErrorHandling<GetUserInfoResponse>(request);
         return response.User;
