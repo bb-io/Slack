@@ -48,12 +48,6 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 {
                     using var fileStream = await FileManagementClient.DownloadAsync(attachment);
                     var fileAttachment = await fileStream.GetByteData();
-                    
-                    await Logger.LogAsync(new
-                    {
-                        attachment,
-                        fileAttachment
-                    });
 
                     var uploadFileRequest = new SlackRequest("/files.upload", Method.Post, Creds)
                         .AddFile("file", fileAttachment, attachment.Name)
@@ -65,10 +59,14 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                         if (input.Timestamp != null)
                             uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
                     }
-
-                    ;
-
+                    
                     uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
+                    await Logger.LogAsync(new
+                    {
+                        attachment,
+                        uploadFileResponse
+                    });
+                    
                     attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
                 }
 
