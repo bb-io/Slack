@@ -62,14 +62,6 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                     }
                     
                     var response = await Client.ExecuteWithErrorHandling(uploadFileRequest);
-                    await Logger.LogAsync(new
-                    {
-                        attachment,
-                        uploadFileResponse,
-                        response.Content,
-                        response.StatusCode,
-                    });
-
                     uploadFileResponse = JsonConvert.DeserializeObject<UploadFileResponse>(response.Content!)!;
                     attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
                 }
@@ -108,7 +100,14 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         }
         catch (Exception e)
         {
-            await Logger.LogAsync(e);
+            await Logger.LogAsync(new
+            {
+                Exception = e.Message,
+                e.StackTrace,
+                InnerException = e.InnerException?.Message,
+                ExceptionType = e.GetType().Name,
+                InvocationContext.Flight?.Id,
+            });            
             throw;
         }
     }

@@ -23,19 +23,34 @@ public class SlackClient : RestClient
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
         var response = await ExecuteAsync(request, token);
-        var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
-        if (!string.IsNullOrEmpty(genericResponse?.Error))
+        try
         {
-            if(ErrorMessages.TryGetValue(genericResponse.Error, out var message))
-            {
-                throw new Exception(message);
-            }
-            
-            throw new Exception($"Error: {genericResponse.Error}");
-        }
+            var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
-        return response;
+            if (!string.IsNullOrEmpty(genericResponse?.Error))
+            {
+                if (ErrorMessages.TryGetValue(genericResponse.Error, out var message))
+                {
+                    throw new Exception(message);
+                }
+
+                throw new Exception($"Error: {genericResponse.Error}");
+            }
+
+            return response;
+        }
+        catch (Exception e)
+        {
+            await Logger.LogAsync(new
+            {
+                Message = "Error handling",
+                Response = response.Content,
+                response.StatusCode,
+                Exception = e.Message
+            });
+            throw;
+        }
     }
 
     public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
