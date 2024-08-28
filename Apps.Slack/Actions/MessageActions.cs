@@ -168,7 +168,6 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
         var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
-
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)
             .AddJsonBody(new DeleteMessageRequest
             {
