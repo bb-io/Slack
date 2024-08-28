@@ -1,5 +1,6 @@
 ﻿using Apps.Slack.Constants;
 using Apps.Slack.Models.Responses;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -14,31 +15,33 @@ public class SlackClient() : RestClient(new RestClientOptions()
     private readonly Dictionary<string, string> _errorMessages = new()
     {
         { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." }
-    };
-
+    };  
+    
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
         var response = await ExecuteAsync(request, token);
+
         if (!string.IsNullOrEmpty(response.ErrorMessage))
         {
             throw new Exception(response.ErrorMessage);
         }
-            
-        var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
-        if (!string.IsNullOrEmpty(genericResponse?.Error))
+        try
         {
-            if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
-            {
-                throw new Exception(message);
-            }
-
-            throw new Exception($"Error: {genericResponse.Error}");
+            var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
+            HandleGenericResponseErrors(genericResponse);
+            return response;
         }
-
-        return response;
+        catch (JsonException)
+        {
+            throw HandleHtmlResponseError(response);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Status code: {response.StatusCode}, Error: {response.Content}, Message: {ex.Message}");
+        }
     }
-
+    
     public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
     {
         var response = await ExecuteWithErrorHandling(request, token);
@@ -66,5 +69,45 @@ public class SlackClient() : RestClient(new RestClientOptions()
         } while (!string.IsNullOrWhiteSpace(cursor));
 
         return result;
+    }
+    
+    private void HandleGenericResponseErrors(GenericResponse? genericResponse)
+    {
+        if (genericResponse == null || string.IsNullOrEmpty(genericResponse.Error))
+        {
+            return;
+        }
+
+        if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
+        {
+            throw new Exception(message);
+        }
+
+        throw new Exception($"Error: {genericResponse.Error}");
+    }
+
+    private Exception HandleHtmlResponseError(RestResponse response)
+    {
+        try
+        {
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(response.Content);
+
+            var issue = ExtractIssueFromHtml(htmlDoc) ?? "Unknown issue";
+            return new Exception($"{issue}. Status Code: {response.StatusCode}");
+        }
+        catch
+        {
+            return new Exception($"Failed to parse response. Status Code: {response.StatusCode}, Content: {response.Content}");
+        }
+    }
+
+    private string? ExtractIssueFromHtml(HtmlDocument htmlDoc)
+    {
+        var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
+        var h1Node = htmlDoc.DocumentNode.SelectSingleNode("//h1");
+        var pNode = htmlDoc.DocumentNode.SelectSingleNode("//p");
+
+        return titleNode?.InnerText ?? h1Node?.InnerText ?? pNode?.InnerText;
     }
 }
