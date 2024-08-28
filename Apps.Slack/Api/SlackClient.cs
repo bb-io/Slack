@@ -5,59 +5,38 @@ using RestSharp;
 
 namespace Apps.Slack.Api;
 
-public class SlackClient : RestClient
+public class SlackClient() : RestClient(new RestClientOptions()
 {
-    private readonly Dictionary<string, string> ErrorMessages = new()
+    BaseUrl = new(Urls.Api),
+    MaxTimeout = 35000,
+})
+{
+    private readonly Dictionary<string, string> _errorMessages = new()
     {
         { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." }
     };
-    
-    public SlackClient() : base(new RestClientOptions()
-    {
-        BaseUrl = new(Urls.Api),
-        MaxTimeout = 35000,
-    })
-    {
-    }
 
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
         var response = await ExecuteAsync(request, token);
-
-        try
+        if (!string.IsNullOrEmpty(response.ErrorMessage))
         {
-            if (!string.IsNullOrEmpty(response.ErrorMessage))
-            {
-                throw new Exception(response.ErrorMessage);
-            }
+            throw new Exception(response.ErrorMessage);
+        }
             
-            var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
+        var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
-            if (!string.IsNullOrEmpty(genericResponse?.Error))
+        if (!string.IsNullOrEmpty(genericResponse?.Error))
+        {
+            if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
             {
-                if (ErrorMessages.TryGetValue(genericResponse.Error, out var message))
-                {
-                    throw new Exception(message);
-                }
-
-                throw new Exception($"Error: {genericResponse.Error}");
+                throw new Exception(message);
             }
 
-            return response;
+            throw new Exception($"Error: {genericResponse.Error}");
         }
-        catch (Exception e)
-        {
-            await Logger.LogAsync(new
-            {
-                Message = "Error handling",
-                Response = response.Content,
-                response.StatusCode,
-                response.IsSuccessStatusCode,
-                response.ErrorMessage,
-                Exception = e.Message
-            });
-            throw;
-        }
+
+        return response;
     }
 
     public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
