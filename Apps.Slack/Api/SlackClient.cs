@@ -24,19 +24,25 @@ public class SlackClient() : RestClient(new RestClientOptions()
             throw new Exception(response.ErrorMessage);
         }
             
-        var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
-
-        if (!string.IsNullOrEmpty(genericResponse?.Error))
+        try
         {
-            if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
+            var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
+            if (!string.IsNullOrEmpty(genericResponse?.Error))
             {
-                throw new Exception(message);
+                if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
+                {
+                    throw new Exception(message);
+                }
+
+                throw new Exception($"Error: {genericResponse.Error}");
             }
 
-            throw new Exception($"Error: {genericResponse.Error}");
+            return response;
         }
-
-        return response;
+        catch (Exception e)
+        {
+            throw new Exception($"Error: {response.Content}, Message: {e.Message}");
+        }
     }
 
     public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
