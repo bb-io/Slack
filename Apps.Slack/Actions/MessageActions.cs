@@ -61,8 +61,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                             uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
                     }
                     
-                    var response = await Client.ExecuteWithErrorHandling(uploadFileRequest);
-                    uploadFileResponse = JsonConvert.DeserializeObject<UploadFileResponse>(response.Content!)!;
+                    uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
                     attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
                 }
 

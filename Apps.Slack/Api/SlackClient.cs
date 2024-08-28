@@ -45,8 +45,7 @@ public class SlackClient : RestClient
             await Logger.LogAsync(new
             {
                 Message = "Error handling",
-                Response = response.Content,
-                response.StatusCode,
+                Response = response,
                 Exception = e.Message
             });
             throw;
