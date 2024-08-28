@@ -15,7 +15,7 @@ public class SlackClient : RestClient
     public SlackClient() : base(new RestClientOptions()
     {
         BaseUrl = new(Urls.Api),
-        MaxTimeout = 15000,
+        MaxTimeout = 35000,
     })
     {
     }
@@ -26,6 +26,11 @@ public class SlackClient : RestClient
 
         try
         {
+            if (!string.IsNullOrEmpty(response.ErrorMessage))
+            {
+                throw new Exception(response.ErrorMessage);
+            }
+            
             var genericResponse = JsonConvert.DeserializeObject<GenericResponse>(response.Content!);
 
             if (!string.IsNullOrEmpty(genericResponse?.Error))
