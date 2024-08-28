@@ -16,6 +16,7 @@ using RestSharp;
 using Apps.Slack.Models.Requests;
 using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Models.Requests.User;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Actions;
 
@@ -40,8 +41,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
         if (input.Attachments != null)
         {
-            UploadFileResponse uploadFileResponse = null;
-
+            UploadFileResponse? uploadFileResponse = null;
             foreach (var attachment in input.Attachments)
             {
                 using var fileStream = await FileManagementClient.DownloadAsync(attachment);
@@ -57,8 +57,6 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                     if (input.Timestamp != null)
                         uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
                 }
-
-                ;
 
                 uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
                 attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
@@ -170,7 +168,6 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
         var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
-        
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)
             .AddJsonBody(new DeleteMessageRequest
             {
