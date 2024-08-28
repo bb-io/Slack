@@ -16,6 +16,7 @@ using RestSharp;
 using Apps.Slack.Models.Requests;
 using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Models.Requests.User;
+using Newtonsoft.Json;
 
 namespace Apps.Slack.Actions;
 
@@ -60,13 +61,16 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                             uploadFileRequest.AddParameter("thread_ts", input.Timestamp);
                     }
                     
-                    uploadFileResponse = await Client.ExecuteWithErrorHandling<UploadFileResponse>(uploadFileRequest);
+                    var response = await Client.ExecuteWithErrorHandling(uploadFileRequest);
                     await Logger.LogAsync(new
                     {
                         attachment,
-                        uploadFileResponse
+                        uploadFileResponse,
+                        response.Content,
+                        response.StatusCode,
                     });
-                    
+
+                    uploadFileResponse = JsonConvert.DeserializeObject<UploadFileResponse>(response.Content!)!;
                     attachmentsSuffix += $"<{uploadFileResponse.File.Permalink}| >";
                 }
 
