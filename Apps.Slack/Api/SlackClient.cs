@@ -8,7 +8,7 @@ namespace Apps.Slack.Api;
 public class SlackClient() : RestClient(new RestClientOptions()
 {
     BaseUrl = new(Urls.Api),
-    MaxTimeout = 35000,
+    MaxTimeout = 50000
 })
 {
     private readonly Dictionary<string, string> _errorMessages = new()
