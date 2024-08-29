@@ -12,6 +12,7 @@ using Apps.Slack.Api;
 using RestSharp;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Requests.Channel;
+using Apps.Slack.Extensions;
 
 namespace Apps.Slack.Webhooks;
 
@@ -190,6 +191,7 @@ public class WebhookList : SlackInvocable
                 User = completeMessage.User,
                 HasAttachments = completeMessage.Files != null && completeMessage.Files.Any(),
                 Reaction = payload.Event.Reaction,
+                EventTimestamp = payload.Event.EventTs.ToDateTime()
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
