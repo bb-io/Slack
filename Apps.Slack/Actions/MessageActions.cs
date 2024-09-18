@@ -46,7 +46,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 await using var fileStream = await FileManagementClient.DownloadAsync(attachment);
                 var getUploadUrlRequest = new SlackRequest("/files.getUploadURLExternal", Method.Get, Creds)
                     .AddParameter("filename", attachment.Name)
-                    .AddParameter("length", fileStream.Length);
+                    .AddParameter("length", attachment.Size);
 
                 var getUploadUrlResponse =
                     await Client.ExecuteWithErrorHandling<GetUploadUrlResponse>(getUploadUrlRequest);
