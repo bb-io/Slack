@@ -44,15 +44,20 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             foreach (var attachment in input.Attachments)
             {
                 await using var fileStream = await FileManagementClient.DownloadAsync(attachment);
+                var memoryStream = new MemoryStream();
+                await fileStream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+                
+                var length = attachment.Size == 0 ? memoryStream.Length : attachment.Size;
                 var getUploadUrlRequest = new SlackRequest("/files.getUploadURLExternal", Method.Get, Creds)
                     .AddParameter("filename", attachment.Name)
-                    .AddParameter("length", attachment.Size);
+                    .AddParameter("length", length);
 
                 var getUploadUrlResponse =
                     await Client.ExecuteWithErrorHandling<GetUploadUrlResponse>(getUploadUrlRequest);
                 var uploadUrl = getUploadUrlResponse.UploadUrl;
 
-                var fileAttachment = await fileStream.GetByteData();
+                var fileAttachment = await memoryStream.GetByteData();
                 var uploadFileRequest = new RestRequest(uploadUrl, Method.Post)
                     .AddFile("file", fileAttachment, attachment.Name);
 
