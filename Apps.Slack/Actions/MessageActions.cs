@@ -37,6 +37,12 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             throw new Exception("Please provide either a message text, attachments, or both.");
 
         var channelId = input.ChannelId ?? input.ManualChannelId!;
+        
+        await WebhookLogger.LogAsync(new
+        {
+            input,
+            optionalInputs
+        });
 
         var uploadedFiles = new List<object>();
         if (input.Attachments != null)
@@ -80,7 +86,12 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
             var completeUploadRequest = new SlackRequest("/files.completeUploadExternal", Method.Post, Creds)
                 .WithJsonBody(completeUploadBody);
 
-            await Client.ExecuteWithErrorHandling<UploadFilesResponse>(completeUploadRequest);
+            var response = await Client.ExecuteWithErrorHandling<UploadFilesResponse>(completeUploadRequest);
+            await WebhookLogger.LogAsync(new
+            {
+                response
+            });
+            
             return new PostMessageResponse
             { 
                 Timestamp = string.Empty, 
