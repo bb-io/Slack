@@ -64,14 +64,21 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 await Client.ExecuteAsync(uploadFileRequest);
                 uploadedFiles.Add(new { id = getUploadUrlResponse.FileId, title = attachment.Name });
             }
+            
+            var completeUploadBody = new Dictionary<string, object>()
+            {
+                { "files", uploadedFiles.ToArray() },
+                { "channel_id", channelId },
+                { "initial_comment", input.Text ?? string.Empty }
+            };
+
+            if (!string.IsNullOrEmpty(input.Timestamp))
+            {
+                completeUploadBody.Add("thread_ts", input.Timestamp);
+            }
 
             var completeUploadRequest = new SlackRequest("/files.completeUploadExternal", Method.Post, Creds)
-                .WithJsonBody(new
-                {
-                    files = uploadedFiles.ToArray(), 
-                    channel_id = channelId,
-                    initial_comment = input.Text ?? string.Empty
-                });
+                .WithJsonBody(completeUploadBody);
 
             await Client.ExecuteWithErrorHandling<UploadFilesResponse>(completeUploadRequest);
             return new PostMessageResponse
