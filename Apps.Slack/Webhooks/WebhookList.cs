@@ -13,6 +13,9 @@ using RestSharp;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Extensions;
+using Apps.Slack.Models.Requests.Thread;
+using Apps.Slack.Models.Requests.Message;
+using System.Threading;
 
 namespace Apps.Slack.Webhooks;
 
@@ -40,7 +43,7 @@ public class WebhookList : SlackInvocable
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
         Description = "Triggered when the app is mentioned (@Blackbird)")]
     public async Task<WebhookResponse<GetMessageResponse>> AppMentioned(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelRequest input)
+        [WebhookParameter] ChannelRequest input, [WebhookParameter] ThreadRequest thread)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
 
@@ -60,6 +63,13 @@ public class WebhookList : SlackInvocable
         var completeMessage = await GetMessage(payload.Event.Channel, payload.Event.Ts);
         completeMessage.Text = messageWithoutMentionedUser;
 
+        if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != completeMessage?.Thread_ts)
+            return new WebhookResponse<GetMessageResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
         return new WebhookResponse<GetMessageResponse>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -78,7 +88,7 @@ public class WebhookList : SlackInvocable
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
     public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest,
-        [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel)
+        [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel, [WebhookParameter] ThreadRequest thread)
     {
         var payload =
             JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
@@ -121,6 +131,13 @@ public class WebhookList : SlackInvocable
                 ReceivedWebhookRequestType = WebhookRequestType.Preflight
             };
 
+        if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != completeMessage?.Thread_ts)
+            return new WebhookResponse<GetMessageResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
         return new WebhookResponse<GetMessageResponse>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -156,7 +173,7 @@ public class WebhookList : SlackInvocable
     [Webhook("On reaction added", typeof(MessageReactionHandler),
         Description = "Triggered whenever someone reacts to a message with an emoji")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji)
+        [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji, [WebhookParameter] MessageRequest message)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -172,6 +189,13 @@ public class WebhookList : SlackInvocable
             };
 
         if (emoji.Reaction != null && payload.Event.Reaction != emoji.Reaction)
+            return new WebhookResponse<ChannelMessageWithReaction>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+
+        if (message.MessageTimestamp != null && message.MessageTimestamp != payload.Event.Item.Ts)
             return new WebhookResponse<ChannelMessageWithReaction>
             {
                 HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
