@@ -15,29 +15,22 @@ using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Extensions;
 using Apps.Slack.Models.Requests.Thread;
 using Apps.Slack.Models.Requests.Message;
-using System.Threading;
+using Blackbird.Applications.Sdk.Common.Files;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 
 namespace Apps.Slack.Webhooks;
 
 [WebhookList]
 public class WebhookList : SlackInvocable
 {
+    private readonly IFileManagementClient _fileManagementClient;
     private MessageActions MessageActions { get; set; }
 
-    public WebhookList(InvocationContext invocationContext) : base(invocationContext)
+    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
         MessageActions = new MessageActions(invocationContext, null);
-    }
-
-    private async Task<FileMessageDto?> GetMessage(string channel, string timestamp)
-    {
-        var endpoint =
-            $"/conversations.replies?channel={channel}&ts={timestamp}&limit=1&inclusive=true";
-        var request = new SlackRequest(endpoint, Method.Get, Creds);
-
-        var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
-
-        return response.Messages.Where(x => x.Ts == timestamp).FirstOrDefault();
     }
 
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
@@ -81,6 +74,7 @@ public class WebhookList : SlackInvocable
                 ThreadTimestamp = completeMessage.Thread_ts,
                 User = completeMessage.User,
                 HasAttachments = completeMessage.Files != null && completeMessage.Files.Any(),
+                Files = await GetMessageFiles(completeMessage)
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
@@ -88,7 +82,8 @@ public class WebhookList : SlackInvocable
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
     public async Task<WebhookResponse<GetMessageResponse>> ChannelMessage(WebhookRequest webhookRequest,
-        [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel, [WebhookParameter] ThreadRequest thread)
+        [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel,
+        [WebhookParameter] ThreadRequest thread)
     {
         var payload =
             JsonConvert.DeserializeObject<BasePayload<ChannelFileMessageEvent>>(webhookRequest.Body.ToString());
@@ -149,6 +144,7 @@ public class WebhookList : SlackInvocable
                 ThreadTimestamp = completeMessage.Thread_ts,
                 User = completeMessage.User,
                 HasAttachments = hasFiles,
+                Files = await GetMessageFiles(completeMessage)
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
@@ -173,7 +169,8 @@ public class WebhookList : SlackInvocable
     [Webhook("On reaction added", typeof(MessageReactionHandler),
         Description = "Triggered whenever someone reacts to a message with an emoji")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji, [WebhookParameter] MessageRequest message)
+        [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji,
+        [WebhookParameter] MessageRequest message)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -215,10 +212,42 @@ public class WebhookList : SlackInvocable
                 User = completeMessage.User,
                 HasAttachments = completeMessage.Files != null && completeMessage.Files.Any(),
                 Reaction = payload.Event.Reaction,
-                EventTimestamp = payload.Event.EventTs.ToDateTime()
+                EventTimestamp = payload.Event.EventTs.ToDateTime(),
+                Files = await GetMessageFiles(completeMessage)
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
+    }
+
+    private async Task<FileMessageDto?> GetMessage(string channel, string timestamp)
+    {
+        var endpoint =
+            $"/conversations.replies?channel={channel}&ts={timestamp}&limit=1&inclusive=true";
+        var request = new SlackRequest(endpoint, Method.Get, Creds);
+
+        var response = await Client.ExecuteWithErrorHandling<GetMessageDto>(request);
+
+        return response.Messages.FirstOrDefault(x => x.Ts == timestamp);
+    }
+
+    private async Task<IEnumerable<FileReference>> GetMessageFiles(FileMessageDto message)
+    {
+        var result = new List<FileReference>();
+
+        if (message.Files == null)
+            return result;
+
+        foreach (var file in message.Files)
+        {
+            var fileResponse = await Client.GetAsync(new SlackRequest(file.PrivateUrl, Method.Get, Creds));
+
+            var fileReference = await _fileManagementClient
+                .UploadAsync(new MemoryStream(fileResponse.RawBytes!), fileResponse.ContentType,
+                    new Uri(file.PrivateUrl).Segments.Last());
+            result.Add(fileReference);
+        }
+
+        return result;
     }
 
     // Todo: For some reason this doesn't trigger
