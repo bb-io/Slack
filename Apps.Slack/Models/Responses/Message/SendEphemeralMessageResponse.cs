@@ -7,6 +7,10 @@ namespace Apps.Slack.Models.Responses.Message
 {
     public class SendEphemeralMessageResponse
     {
+        [Display("Channel ID")]
+        [JsonProperty("channel")]
+        public string Channel { get; set; }
+
         [Display("Message time stamp", Description = "The channel-specific unique identifier for this message, also serves as a confirmation that the message was sent.")]
         [JsonProperty("message_ts")]
         public string MessageTs { get; set; }
