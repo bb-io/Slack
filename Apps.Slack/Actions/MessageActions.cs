@@ -196,4 +196,35 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
         return Client.ExecuteWithErrorHandling(request);
     }
+
+
+    [Action("Send ephemeral message", Description = "Send an ephemeral message one that only the recipient can see ")]
+    public async Task<SendEphemeralMessageResponse> SendEphemeralMessage([ActionParameter] SendEphemeralMessageRequest input)
+    {
+        if (string.IsNullOrEmpty(input.UserId))
+        {
+            throw new Exception("User ID is required.");
+        }
+        if (string.IsNullOrEmpty(input.ChannelId))
+        {
+            throw new Exception("Channel ID is required.");
+        }
+        if (string.IsNullOrEmpty(input.Message))
+        {
+            throw new Exception("Message text is required.");
+        }
+
+        var sendEphemeralMessage = new SlackRequest("/chat.postEphemeral", Method.Post, Creds).
+            WithJsonBody(new 
+            {
+                user= input.UserId,
+                channelId= input.ChannelId,
+                message= input.Message,
+                thread_ts=input.ThreadTs
+            });
+
+        var response = await Client.ExecuteWithErrorHandling<SendEphemeralMessageResponse>(sendEphemeralMessage);
+
+        return response;
+    }
 }
