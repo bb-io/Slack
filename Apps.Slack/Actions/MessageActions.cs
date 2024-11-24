@@ -217,9 +217,9 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         var sendEphemeralMessage = new SlackRequest("/chat.postEphemeral", Method.Post, Creds).
             WithJsonBody(new 
             {
-                user= input.UserId,
-                channelId= input.ChannelId,
-                message= input.Message,
+                user = input.UserId,
+                channel= input.ChannelId,
+                text= input.Message,
                 thread_ts=input.ThreadTs
             });
 
