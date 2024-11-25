@@ -1,5 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Apps.Slack.Extensions;
+using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Slack.Models.Responses.Message;
 
@@ -31,4 +32,6 @@ public class GetMessageResponse
 
     [Display("Has attachments?")]
     public bool HasAttachments { get; set; }
+    
+    public IEnumerable<FileReference> Files { get; set; }
 }

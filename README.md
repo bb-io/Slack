@@ -54,6 +54,7 @@ The second way:
 - **Delete message**
 - **Send scheduled message**
 - **Update message**
+- **Send ephemeral message**
 
 ### Reactions
 
