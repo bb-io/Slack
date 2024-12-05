@@ -5,6 +5,7 @@ using Apps.Slack.Models.Requests.User;
 using Apps.Slack.Models.Responses.User;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
@@ -24,7 +25,7 @@ public class UserActions(InvocationContext invocationContext) : SlackInvocable(i
     public async Task<UserEntity> GetUserInfo([ActionParameter] GetUserInfoParameters input)
     {
         if (!(input.UserId == null ^ input.ManualUserId == null))
-            throw new("You should specify one value: User ID or Manual user ID");
+            throw new PluginMisconfigurationException("You should specify one value: User ID or Manual user ID");
         
         var request = new SlackRequest("/users.info", Method.Get, Creds)
             .AddParameter("user", input.UserId ?? input.ManualUserId);

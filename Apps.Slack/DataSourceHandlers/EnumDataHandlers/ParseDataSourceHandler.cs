@@ -1,15 +1,16 @@
 using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.DataSourceHandlers.EnumDataHandlers;
 
-public class ParseDataSourceHandler : IStaticDataSourceHandler
+public class ParseDataSourceHandler : IStaticDataSourceItemHandler
 {
-    public Dictionary<string, string> GetData()
+    public IEnumerable<DataSourceItem> GetData()
     {
-        return new Dictionary<string, string>()
+        return new List<DataSourceItem>()
         {
-            ["none"] = "None",
-            ["full"] = "Full"
+            new ("none", "None"),
+            new ("full", "Full"),
         };
     }
 }

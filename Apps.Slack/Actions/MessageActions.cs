@@ -17,6 +17,7 @@ using Apps.Slack.Models.Requests;
 using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Models.Requests.User;
 using Newtonsoft.Json;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Slack.Actions;
 
@@ -31,7 +32,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         [ActionParameter] SendMessageOptionalParameters optionalInputs)
     {
         if (!(input.ChannelId == null ^ input.ManualChannelId == null))
-            throw new("You should specify one value: Channel ID or Manual channel ID");
+            throw new PluginMisconfigurationException("You should specify one value: Channel ID or Manual channel ID");
 
         if (input.Text == null && input.Attachments == null)
             throw new Exception("Please provide either a message text, attachments, or both.");
@@ -118,7 +119,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     public Task<ScheduledMessageResponse> SendScheduledMessage([ActionParameter] PostScheduledMessageParameters input)
     {
         if (!(input.ChannelId == null ^ input.ManualChannelId == null))
-            throw new("You should specify one value: Channel ID or Manual channel ID");
+            throw new PluginMisconfigurationException("You should specify one value: Channel ID or Manual channel ID");
 
         var request = new SlackRequest("/chat.scheduleMessage", Method.Post, Creds)
             .AddParameter("channel", input.ChannelId ?? input.ManualChannelId)
@@ -203,15 +204,15 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     {
         if (string.IsNullOrEmpty(input.UserId))
         {
-            throw new Exception("User ID is required.");
+            throw new PluginMisconfigurationException("User ID is required.");
         }
         if (string.IsNullOrEmpty(input.ChannelId))
         {
-            throw new Exception("Channel ID is required.");
+            throw new PluginMisconfigurationException("Channel ID is required.");
         }
         if (string.IsNullOrEmpty(input.Message))
         {
-            throw new Exception("Message text is required.");
+            throw new PluginMisconfigurationException("Message text is required.");
         }
 
         var sendEphemeralMessage = new SlackRequest("/chat.postEphemeral", Method.Post, Creds).

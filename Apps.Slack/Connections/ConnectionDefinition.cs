@@ -11,7 +11,6 @@ public class ConnectionDefinition : IConnectionDefinition
         {
             Name = "OAuth2",
             AuthenticationType = ConnectionAuthenticationType.OAuth2,
-            ConnectionUsage = ConnectionUsage.Actions,
             ConnectionProperties = new List<ConnectionProperty>()
             {
             }
@@ -22,7 +21,6 @@ public class ConnectionDefinition : IConnectionDefinition
         Dictionary<string, string> values)
     {
         yield return new AuthenticationCredentialsProvider(
-            AuthenticationCredentialsRequestLocation.None,
             "access_token",
             values["access_token"]
         );
