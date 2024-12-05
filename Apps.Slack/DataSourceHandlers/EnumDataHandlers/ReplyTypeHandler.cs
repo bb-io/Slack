@@ -1,16 +1,17 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.DataSourceHandlers.EnumDataHandlers
 {
-    public class ReplyTypeHandlerIDataSourceHandler : IStaticDataSourceHandler
+    public class ReplyTypeHandlerIDataSourceHandler : IStaticDataSourceItemHandler
     {
-        public Dictionary<string, string> GetData()
+        public IEnumerable<DataSourceItem> GetData()
         {
-            return new Dictionary<string, string>()
+            return new List<DataSourceItem>()
             {
-                ["only_replies"] = "Only on replies",
-                ["no_replies"] = "Only on regular messages",
-                ["both"] = "Both (default)",               
+                new("only_replies", "Only on replies"),
+                new("no_replies", "Only on regular messages"),
+                new("both", "Both (default)"),
             };
         }
     }

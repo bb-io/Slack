@@ -10,9 +10,9 @@ using RestSharp;
 namespace Apps.Slack.DataSourceHandlers;
 
 public class ChannelUserHandler(InvocationContext invocationContext)
-    : SlackInvocable(invocationContext), IAsyncDataSourceHandler
+    : SlackInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken token)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
         var channelsRequest = new SlackRequest("/conversations.list", Method.Get, Creds);
         channelsRequest.AddQueryParameter("exclude_archived", "true");
@@ -31,7 +31,7 @@ public class ChannelUserHandler(InvocationContext invocationContext)
                 BuildReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .ToDictionary(k => k.Id, BuildReadableName);
         
-        return channelResult.Concat(userResult).ToDictionary(k => k.Key, v => v.Value);
+        return channelResult.Concat(userResult).Select(x => new DataSourceItem(x.Key, x.Value));
     }
     
     private string BuildReadableName(ChannelEntity channel)
@@ -49,4 +49,5 @@ public class ChannelUserHandler(InvocationContext invocationContext)
         
         return $"[User] {username}";
     }
+
 }

@@ -9,9 +9,9 @@ using RestSharp;
 namespace Apps.Slack.DataSourceHandlers;
 
 public class UserHandler(InvocationContext invocationContext)
-    : SlackInvocable(invocationContext), IAsyncDataSourceHandler
+    : SlackInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken token)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
         var userRequest = new SlackRequest("/users.list", Method.Get, Creds);
         var users = await Client.Paginate<UserPaginationResponse, UserEntity>(userRequest, token);
@@ -19,7 +19,7 @@ public class UserHandler(InvocationContext invocationContext)
         return users.Where(el =>
                 context.SearchString is null ||
                 GetReadableName(el).Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(k => k.Id, GetReadableName);
+            .Select(x => new DataSourceItem(x.Id, GetReadableName(x)));
     }
 
     private string GetReadableName(UserEntity dto)

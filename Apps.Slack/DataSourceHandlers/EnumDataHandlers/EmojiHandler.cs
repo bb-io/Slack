@@ -3,9 +3,9 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Slack.DataSourceHandlers.EnumDataHandlers;
 
-public class EmojiHandler : IStaticDataSourceHandler
+public class EmojiHandler : IStaticDataSourceItemHandler
 {
-    public Dictionary<string, string> GetData(DataSourceContext context)
+    public Dictionary<string, string> GetDataDictionary()
     {
         var data = new Dictionary<string, string> {            
             { "bird", "🐦 Bird" },
@@ -1888,9 +1888,8 @@ public class EmojiHandler : IStaticDataSourceHandler
         return data;
     }
 
-    public Dictionary<string, string> GetData()
+    public IEnumerable<DataSourceItem> GetData()
     {
-        var data = GetData(new DataSourceContext());
-        return data;
+        return GetDataDictionary().Select(x => new DataSourceItem(x.Key, x.Value));
     }
 }

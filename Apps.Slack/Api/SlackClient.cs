@@ -1,5 +1,6 @@
 ﻿using Apps.Slack.Constants;
 using Apps.Slack.Models.Responses;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
@@ -23,7 +24,7 @@ public class SlackClient() : RestClient(new RestClientOptions()
 
         if (!string.IsNullOrEmpty(response.ErrorMessage))
         {
-            throw new Exception(response.ErrorMessage);
+            throw new PluginApplicationException(response.ErrorMessage);
         }
 
         try
@@ -38,7 +39,7 @@ public class SlackClient() : RestClient(new RestClientOptions()
         }
         catch (Exception ex)
         {
-            throw new Exception($"Status code: {response.StatusCode}, Error: {response.Content}, Message: {ex.Message}");
+            throw new PluginApplicationException($"Status code: {response.StatusCode}, Error: {response.Content}, Message: {ex.Message}");
         }
     }
     
@@ -80,10 +81,10 @@ public class SlackClient() : RestClient(new RestClientOptions()
 
         if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
         {
-            throw new Exception(message);
+            throw new PluginMisconfigurationException (message);
         }
 
-        throw new Exception($"Error: {genericResponse.Error}");
+        throw new PluginApplicationException($"Error: {genericResponse.Error}");
     }
 
     private Exception HandleHtmlResponseError(RestResponse response)
@@ -94,7 +95,7 @@ public class SlackClient() : RestClient(new RestClientOptions()
             htmlDoc.LoadHtml(response.Content);
 
             var issue = ExtractIssueFromHtml(htmlDoc) ?? "Unknown issue";
-            return new Exception($"{issue}. Status Code: {response.StatusCode}");
+            return new PluginApplicationException ($"{issue}. Status Code: {response.StatusCode}");
         }
         catch
         {
