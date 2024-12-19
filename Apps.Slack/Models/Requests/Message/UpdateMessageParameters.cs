@@ -6,7 +6,7 @@ namespace Apps.Slack.Models.Requests.Message;
 
 public class UpdateMessageParameters : DeleteMessageParameters
 {
-    [Display("Message")]
+    [Display("Message text")]
     public string? Text { get; set; }
     
     [Display("Reply broadcast")]
@@ -15,8 +15,8 @@ public class UpdateMessageParameters : DeleteMessageParameters
     [Display("Link names")]
     public bool? LinkNames { get; set; }
     
-    [Display("File IDs")]
-    public IEnumerable<string>? FileIds { get; set; }
+    //[Display("File IDs")]
+    //public IEnumerable<string>? FileIds { get; set; }
     
     [StaticDataSource(typeof(ParseDataSourceHandler))]
     public string? Parse { get; set; }

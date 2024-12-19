@@ -14,27 +14,24 @@ namespace Apps.Slack.Actions;
 [ActionList]
 public class UserActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    [Action("Get all users", Description = "Get all users in a Slack team")]
+    [Action("Search users", Description = "Get all users in a Slack team")]
     public Task<GetUsersResponse> GetUsers()
     {
         var request = new SlackRequest("/users.list", Method.Get, Creds);
         return Client.ExecuteWithErrorHandling<GetUsersResponse>(request);
     }
 
-    [Action("Get user information", Description = "Get information about a user")]
+    [Action("Get user", Description = "Get information about a user")]
     public async Task<UserEntity> GetUserInfo([ActionParameter] GetUserInfoParameters input)
-    {
-        if (!(input.UserId == null ^ input.ManualUserId == null))
-            throw new PluginMisconfigurationException("You should specify one value: User ID or Manual user ID");
-        
+    {        
         var request = new SlackRequest("/users.info", Method.Get, Creds)
-            .AddParameter("user", input.UserId ?? input.ManualUserId);
+            .AddParameter("user", input.UserId);
 
         var response = await Client.ExecuteWithErrorHandling<GetUserInfoResponse>(request);
         return response.User;
     }
 
-    [Action("Get user by email", Description = "Find a user with an email address")]
+    [Action("Find user by email", Description = "Find a user using an email address")]
     public async Task<UserEntity> GetUserByEmail([ActionParameter] GetUserByEmailParameters input)
     {
         var request = new SlackRequest("/users.lookupByEmail", Method.Get, Creds)
@@ -42,15 +39,5 @@ public class UserActions(InvocationContext invocationContext) : SlackInvocable(i
 
         var response = await Client.ExecuteWithErrorHandling<GetUserByEmailResponse>(request);
         return response.User;
-    }
-
-    [Action("Get user profile", Description = "Retrieve a user's profile information, including their custom status")]
-    public async Task<UserProfileEntity> GetUserProfile([ActionParameter] GetUserProfileParameters input)
-    {
-        var request = new SlackRequest("/users.profile.get", Method.Get, Creds)
-            .AddParameter("user", input.UserId);
-
-        var response = await Client.ExecuteWithErrorHandling<GetUserProfileResponse>(request);
-        return response.Profile;
     }
 }

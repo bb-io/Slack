@@ -6,6 +6,6 @@ namespace Apps.Slack.Webhooks.Payload
     public class OptionalEmojiInput
     {
         [StaticDataSource(typeof(EmojiHandler))]
-        public string? Reaction { get; set; }
+        public IEnumerable<string>? Reactions { get; set; }
     }
 }
