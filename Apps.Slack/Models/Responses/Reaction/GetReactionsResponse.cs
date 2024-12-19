@@ -23,16 +23,16 @@ public class Message
     public string Permalink { get; set; }
 
     [JsonProperty("reactions")]
-    public Reaction[] Reactions { get; set; }
+    public IEnumerable<ReactionData> Reactions { get; set; }
 }
 
-public class Reaction
+public class ReactionData
 {
     [JsonProperty("name")]
     public string Name { get; set; }
 
     [JsonProperty("users")]
-    public string[] Users { get; set; }
+    public IEnumerable<string> Users { get; set; }
 
     [JsonProperty("count")]
     public int Count { get; set; }

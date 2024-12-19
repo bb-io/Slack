@@ -387,3 +387,4 @@ FodyWeavers.xsd
 .DS_Store
 .editorconfig
 /Apps.Slack/Dev.cs
+/Tests.Slack/appsettings.json

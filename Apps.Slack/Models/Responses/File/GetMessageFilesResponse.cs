@@ -1,15 +1,16 @@
 ﻿using Apps.Slack.Extensions;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Files;
+using Apps.Slack.Models.Responses.Reaction;
 
 namespace Apps.Slack.Models.Responses.File;
 
 public class GetMessageFilesResponse
 {
-    [Display("Message")]
+    [Display("Message text")]
     public string? MessageText { get; set; }
 
-    [Display("User ID")]
+    [Display("Sender user ID")]
     public string User { get; set; }
 
     [Display("Message timestamp")]
@@ -29,5 +30,8 @@ public class GetMessageFilesResponse
 
     [Display("Files")]
     public IEnumerable<FileReference> Files { get; set; }
+
+    [Display("Reactions")]
+    public IEnumerable<ReactionData> Reactions { get; set; }
 
 }

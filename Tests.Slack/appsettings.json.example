@@ -1,0 +1,10 @@
+{
+  "ConnectionDefinition": {
+    "access_token": ""
+  },
+  "Variables": {
+    "testChannelId": "",
+    "testUserId":  ""
+  },
+  "TestFolder": "C:\\Users\\..."
+}

@@ -49,37 +49,50 @@ The second way:
 
 ### Messages
 
-- **Send message** sends a message to a Slack channel. Add a text message, attachments or both. Optionally send the message in a thread. You can customize the username that appears in Slack when the bot sends a message. If this is not set, the bot's default username will be used. Send as user optional input allows you to send a message on behalf of another user instead of the bot. The message will appear as if it was sent by the selected user, with their profile photo beside it. Also, if you specify attachments the `Timestamp` output will be empty, because Slack does not return a timestamp for messages with [attachments](https://api.slack.com/methods/files.completeUploadExternal#facts);
-- **Get message** returns message information, including attachments if it has any
-- **Delete message**
-- **Send scheduled message**
-- **Update message**
-- **Send ephemeral message**
+- **Send message** sends a message to a Slack channel or directly to a user. Additional optional inputs:
+  - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
+  - **Schedule at**: If set, the message will be sent at this time.
+  - **Ephemeral user ID**: If set, the message will only be visible to this user. Only works inside channels. Does not work together with 'Schedule at'.
+  - **Bot's username**: If set, the username of the bot will be displayed as this text.
+  - **Send as user**: If set, the message will be sent as this user, instead of the bot.
+
+- **Send files** sends files to a Slack channel. Additional optional inputs:
+  - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
+  - **Message**: Set the message to be sent along with the files.
+  
+- **Get message** given a channel ID and timestamp, this will return:
+  - **Message text** the text of the message
+  - **Sender user ID** the user ID of the Sender
+  - **Message timestamp** the timestamp of this message. Can be used in other Slack actions and checkpoints.
+  - **Message timestamp (Datetime)** the message timestamp as Date format.
+  - **Thread timestamp** if the message was part of a thread, this is the thread timestamp that can be used in other Slack actions and checkpoints.
+  - **Message timestamp (Datetime)** the thread timestamp as Date format.
+  - **Channel ID** the ID of the channel this message was sent in.
+  - **Files** all the files that were attached to this message.
+  - **Reactions** all the reactions this message has
+
+- **Update message** updates an existing message with new texts.
+- **Delete message** deletes a message
 
 ### Reactions
 
-- **Add reaction** adds a reaction to a message.
+- **Add reaction** adds a reaction to a message. Provides a dropdown of all possible reaction emojis.
 - **Remove reaction** removes a reaction from a message. Note: The Slack bot can only remove reactions it has added.
-- **Get reactions** lists all reactions for a single message.
-
-### Channels
-
-- **Create channel**
 
 ### Users
 
-- **Get all users** retrieves a list of users in a Slack team.
-- **Get user information**.
-- **Get user by email**.
-- **Get user profile**.
-- **Get team**.
+- **Search users** returns all the users in this Slack team.
+- **Get user** returns general and profile data about the user including but not limited to team ID, name, timezone, status and email.
+- **Find user by email** returns the user associated with this email on this Slack instance.
 
 ## Events
 
 - **On message** is triggered when any new message is sent to a channel. This event has a parameter _Trigger on message replies_ which is _False_ by default. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. If you use **On channel message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ or leave it unspecified to avoid an infinite loop. If you want your bird to trigger only when a message has file attachments, set the _Trigger only when message has files_ to _True_, default is _False_.
 - **On app mentioned** is triggered when the app is mentioned (@Blackbird). Useful to create workflow triggers that only start when specifically invoked by a user through Slack.
+- **On reaction added**. Can be configured to a specific channel and a list of emojis it needs to trigger on. Also returns the "Reaction user ID" which is the user who added the reaction.
 - **On member joined channel**.
-- **On reaction added**. Can be configured to a specific channel and a specific emoji.
+
+> All message related events return the same output as the "Get message" action, so it also includes files and reactions.
 
 ## Example
 

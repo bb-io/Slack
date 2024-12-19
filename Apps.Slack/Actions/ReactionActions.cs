@@ -17,13 +17,11 @@ public class ReactionActions(InvocationContext invocationContext) : SlackInvocab
     [Action("Add reaction", Description = "Add a reaction to a message")]
     public Task AddReaction([ActionParameter] ChannelRequest channel, [ActionParameter] AddReactionParameters input)
     {
-        var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
-
         var request = new SlackRequest("/reactions.add", Method.Post, Creds)
             .AddJsonBody(
                 new AddReactionRequest
                 {
-                    Channel = channelId,
+                    Channel = channel.ChannelId,
                     Timestamp = input.Timestamp,
                     Name = input.Reaction
                 });
@@ -36,31 +34,15 @@ public class ReactionActions(InvocationContext invocationContext) : SlackInvocab
     public Task DeleteReaction([ActionParameter] ChannelRequest channel,
         [ActionParameter] DeleteReactionParameters input)
     {
-        var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
-
         var request = new SlackRequest("/reactions.remove", Method.Post, Creds)
             .AddJsonBody(
                 new DeleteReactionRequest
                 {
-                    Channel = channelId,
+                    Channel = channel.ChannelId,
                     Timestamp = input.Timestamp,
                     Name = input.Reaction
                 });
 
         return Client.ExecuteWithErrorHandling(request);
-    }
-
-    [Action("Get reactions", Description = "Get reactions for a message")]
-    public async Task<Message> GetReactions([ActionParameter] ChannelRequest channel,
-        [ActionParameter] GetReactionsParameters input)
-    {
-        var channelId = (channel.ChannelId, channel.ManualChannelId).GetChannelId();
-
-        var request = new SlackRequest("/reactions.get", Method.Get, Creds)
-            .AddParameter("channel", channelId)
-            .AddParameter("timestamp", input.Timestamp);
-
-        var response = await Client.ExecuteWithErrorHandling<GetReactionsResponse>(request);
-        return response.Message;
     }
 }

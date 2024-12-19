@@ -5,6 +5,7 @@ namespace Apps.Slack.Models.Entities;
 
 public class UserEntity
 {
+    [Display("User ID")]
     [JsonProperty("id")]
     public string Id { get; set; }
 
@@ -15,6 +16,7 @@ public class UserEntity
     [JsonProperty("name")]
     public string Name { get; set; }
 
+    [Display("Is deleted")]
     [JsonProperty("deleted")]
     public bool Deleted { get; set; }
 
@@ -25,15 +27,15 @@ public class UserEntity
     [JsonProperty("real_name")]
     public string RealName { get; set; }
 
-    [Display("Time zone")]
+    [Display("Timezone")]
     [JsonProperty("tz")]
     public string TimeZone { get; set; }
 
-    [Display("Time zone label")]
+    [Display("Timezone label")]
     [JsonProperty("tz_label")]
     public string TimeZoneLabel { get; set; }
 
-    [Display("Time zone offset")]
+    [Display("Timezone offset")]
     [JsonProperty("tz_offset")]
     public int TimeZoneOffset { get; set; }
 
@@ -64,9 +66,6 @@ public class UserEntity
     [JsonProperty("is_bot")]
     public bool IsBot { get; set; }
 
-    [JsonProperty("updated")]
-    public long Updated { get; set; }
-
     [Display("Is app user")]
     [JsonProperty("is_app_user")]
     public bool IsAppUser { get; set; }
@@ -78,10 +77,6 @@ public class UserEntity
 
 public class Profile
 {
-    [Display("Avatar hash")]
-    [JsonProperty("avatar_hash")]
-    public string AvatarHash { get; set; }
-
     [Display("Status text")]
     [JsonProperty("status_text")]
     public string StatusText { get; set; }
@@ -109,34 +104,8 @@ public class Profile
     [JsonProperty("email")]
     public string Email { get; set; }
 
-    [JsonProperty("team")]
-    public string Team { get; set; }
-
-    [Display("Original image")]
-    [JsonProperty("image_original")]
-    public string ImageOriginal { get; set; }
-
-    [Display("Image 24")]
-    [JsonProperty("image_24")]
-    public string Image24 { get; set; }
-
-    [Display("Image 32")]
-    [JsonProperty("image_32")]
-    public string Image32 { get; set; }
-
-    [Display("Image 48")]
-    [JsonProperty("image_48")]
-    public string Image48 { get; set; }
-
-    [Display("Image 72")]
+    [DefinitionIgnore]
     [JsonProperty("image_72")]
     public string Image72 { get; set; }
 
-    [Display("Image 192")]
-    [JsonProperty("image_192")]
-    public string Image192 { get; set; }
-
-    [Display("Image 512")]
-    [JsonProperty("image_512")]
-    public string Image512 { get; set; }
 }

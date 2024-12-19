@@ -15,7 +15,9 @@ public class SlackClient() : RestClient(new RestClientOptions()
 {
     private readonly Dictionary<string, string> _errorMessages = new()
     {
-        { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." }
+        { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." },
+        { "thread_not_found", "The value entered at 'Timestamp' is incorrect." },
+        { "time_in_past", "The scheduled time is in the past. Please update the scheduled time for this message." }
     };  
     
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
@@ -36,10 +38,6 @@ public class SlackClient() : RestClient(new RestClientOptions()
         catch (JsonException)
         {
             throw HandleHtmlResponseError(response);
-        }
-        catch (Exception ex)
-        {
-            throw new PluginApplicationException($"Status code: {response.StatusCode}, Error: {response.Content}, Message: {ex.Message}");
         }
     }
     

@@ -8,8 +8,5 @@ public class ChannelRequest
 {
     [Display("Channel ID")]
     [DataSource(typeof(ChannelHandler))]
-    public string? ChannelId { get; set; }
-    
-    [Display("Manual channel ID")]
-    public string? ManualChannelId { get; set; }
+    public string ChannelId { get; set; }
 }
