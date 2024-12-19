@@ -96,11 +96,9 @@ The second way:
 
 ## Example
 
-![Example](image/README/example-1.png)
+![Example](image/README/1734624290730.png)
 
-![Example-2](image/README/example-2.png)
-
-Here, whenever a new message with attachments is sent, we receive files by `Get message` action, iterate over them and send them to **Google Drive** using `Upload file` action.
+In this example, we respond to reactions on Slack messages. These reactions will correspond to country flags. When triggered, the Bird will translate all the files the reactionw as added to into the requested language and respond with the translated files in a thread reply.
 
 ## Missing features
 
