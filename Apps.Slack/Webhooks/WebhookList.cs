@@ -140,6 +140,13 @@ public class WebhookList : SlackInvocable
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
+
+        if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
+        {
+            var index = payload.Event.Reaction.IndexOf("::skin-tone-", StringComparison.OrdinalIgnoreCase);
+            payload.Event.Reaction = payload.Event.Reaction[..index];
+        }
+
         var noFlightResponse = new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
