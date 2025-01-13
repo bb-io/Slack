@@ -17,7 +17,8 @@ public class SlackClient() : RestClient(new RestClientOptions()
     {
         { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." },
         { "thread_not_found", "The value entered at 'Timestamp' is incorrect." },
-        { "time_in_past", "The scheduled time is in the past. Please update the scheduled time for this message." }
+        { "time_in_past", "The scheduled time is in the past. Please update the scheduled time for this message." },
+        { "not_in_channel", "Check the integrations, ensure that your integrations are added to the channel" }
     };  
     
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
