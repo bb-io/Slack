@@ -13,14 +13,20 @@ public class SlackClient() : RestClient(new RestClientOptions()
     MaxTimeout = 50000
 })
 {
-    private readonly Dictionary<string, string> _errorMessages = new()
+    private readonly Dictionary<string, string> _errorMisconfigurationMessages = new()
     {
         { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." },
         { "thread_not_found", "The value entered at 'Timestamp' is incorrect." },
         { "time_in_past", "The scheduled time is in the past. Please update the scheduled time for this message." },
         { "not_in_channel", "Check the integrations, ensure that your integrations are added to the channel" }
-    };  
-    
+    };
+
+    private readonly Dictionary<string, string> _errorApplicationMessages = new()
+    {
+        { "message_limit_exceeded", "The application has exceeded the rate limit for sending messages. Please try again in a while" }
+    };
+
+
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
         var response = await ExecuteAsync(request, token);
@@ -78,9 +84,14 @@ public class SlackClient() : RestClient(new RestClientOptions()
             return;
         }
 
-        if (_errorMessages.TryGetValue(genericResponse.Error, out var message))
+        if (_errorApplicationMessages.TryGetValue(genericResponse.Error, out var message))
         {
-            throw new PluginMisconfigurationException (message);
+            throw new PluginApplicationException($"Error: {message}");
+        }
+
+        if (_errorMisconfigurationMessages.TryGetValue(genericResponse.Error, out var messages))
+        {
+            throw new PluginMisconfigurationException (messages);
         }
 
         throw new PluginApplicationException($"Error: {genericResponse.Error}");
