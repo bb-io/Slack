@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Slack", "Apps.Slack\Apps.Slack.csproj", "{E694EA4C-7DDF-408A-8A0F-F156C985EE0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Slack", "Tests.Slack\Tests.Slack.csproj", "{F961F480-4C1B-44C7-9B9A-11C46AB140B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Slack", "Tests.Slack\Tests.Slack.csproj", "{F961F480-4C1B-44C7-9B9A-11C46AB140B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackbird.Applications.SDK.Blueprints", "Blackbird.Applications.SDK.Blueprints\Blackbird.Applications.SDK.Blueprints.csproj", "{0A87FDC6-3B34-4726-8A1C-E40E63D86A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F961F480-4C1B-44C7-9B9A-11C46AB140B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F961F480-4C1B-44C7-9B9A-11C46AB140B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F961F480-4C1B-44C7-9B9A-11C46AB140B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A87FDC6-3B34-4726-8A1C-E40E63D86A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A87FDC6-3B34-4726-8A1C-E40E63D86A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A87FDC6-3B34-4726-8A1C-E40E63D86A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A87FDC6-3B34-4726-8A1C-E40E63D86A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

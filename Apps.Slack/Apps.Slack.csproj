@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Slack</Product>
-    <Version>1.4.4</Version>
+    <Version>1.4.5</Version>
     <Description>The messaging app</Description>
     <AssemblyName>Apps.Slack</AssemblyName>
   </PropertyGroup>
@@ -25,5 +25,8 @@
     <Content Include="..\README.md">
       <Link>README.md</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Blackbird.Applications.SDK.Blueprints\Blackbird.Applications.SDK.Blueprints.csproj" />
   </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Apps.Slack.Actions;
 using Apps.Slack.Models.Responses.File;
+using Blackbird.Applications.SDK.Blueprints;
 
 namespace Apps.Slack.Webhooks;
 
@@ -67,6 +68,7 @@ public class WebhookList : SlackInvocable
         };
     }
 
+    [BlueprintEventDefinition(BlueprintEvent.TestWebhookEvent)]
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> ChannelMessage(WebhookRequest webhookRequest,
         [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel,
