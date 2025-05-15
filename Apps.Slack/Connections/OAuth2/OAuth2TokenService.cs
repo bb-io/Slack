@@ -11,11 +11,10 @@ namespace Apps.Slack.Connections.OAuth2;
 
 public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 {
-    private readonly ILogger<OAuth2TokenService> _logger;
-    public OAuth2TokenService(InvocationContext invocationContext, ILogger<OAuth2TokenService> logger) : base(invocationContext)
+    private readonly InvocationContext _invocationContext;
+    public OAuth2TokenService(InvocationContext invocationContext) : base(invocationContext)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _logger.LogInformation("OAuth2TokenService is initialized.");
+        _invocationContext = invocationContext;
     }
 
     public bool IsRefreshToken(Dictionary<string, string> values)
@@ -61,29 +60,31 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         CancellationToken cancellationToken)
     {
         using var httpClient = new HttpClient();
-        _logger.LogInformation("Requesting token with parameters: {Parameters}",
-            string.Join(", ", bodyParameters.Select(kv => $"{kv.Key}: {kv.Value}")));
+        _invocationContext.Logger.LogInformation("Requesting token with parameters: {Parameters}",
+         new object[] { string.Join(", ", bodyParameters.Select(kv => $"{kv.Key}: {kv.Value}")) });
 
         using var httpContent = new FormUrlEncodedContent(bodyParameters);
         using var response = await httpClient.PostAsync(Urls.Token, httpContent, cancellationToken);
-        _logger.LogInformation("Response status: {StatusCode}", response.StatusCode);
+        _invocationContext.Logger.LogInformation("Response status: {StatusCode}",
+        new object[] { response.StatusCode });
 
         var responseContent = await response.Content.ReadAsStringAsync();
-        _logger.LogInformation("Response content: {ResponseContent}", responseContent);
+        _invocationContext.Logger.LogInformation("Response content: {ResponseContent}", new object[] { responseContent });
 
        var tokenResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent);
             
         if (tokenResponse == null)
         {
-            _logger.LogError("Failed to deserialize response: response is null");
             throw new InvalidOperationException($"Invalid response content: {responseContent}");
         }
-            
-        _logger.LogInformation("Response keys: {Keys}", string.Join(", ", tokenResponse.Keys));
-            
+
+        _invocationContext.Logger.LogInformation("Response keys: {Keys}",
+            new object[] { string.Join(", ", tokenResponse.Keys) });
+
         if (!tokenResponse.ContainsKey("access_token"))
         {
-            _logger.LogError("access_token not found in response: {ResponseContent}", responseContent);
+            _invocationContext.Logger.LogError("access_token not found in response: {ResponseContent}",
+            new object[] { responseContent });
             throw new InvalidOperationException($"access_token not found in response: {responseContent}");
         }
             
