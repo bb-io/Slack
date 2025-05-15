@@ -3,6 +3,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Metadata;
+using Microsoft.Extensions.Logging;
 
 namespace Apps.Slack;
 
@@ -15,9 +16,11 @@ public class SlackApplication : BaseInvocable, IApplication, ICategoryProvider
     }
 
     private readonly Dictionary<Type, object> _typesInstances;
+    private readonly ILoggerFactory _loggerFactory;
 
-    public SlackApplication(InvocationContext invocationContext) : base(invocationContext)
+    public SlackApplication(InvocationContext invocationContext, ILoggerFactory loggerFactory) : base(invocationContext)
     {
+        _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         _typesInstances = CreateTypesInstances();
     }
 
@@ -33,10 +36,11 @@ public class SlackApplication : BaseInvocable, IApplication, ICategoryProvider
 
     private Dictionary<Type, object> CreateTypesInstances()
     {
+        var logger = _loggerFactory.CreateLogger<OAuth2TokenService>();
         return new Dictionary<Type, object>
         {
             { typeof(IOAuth2AuthorizeService), new OAuth2AuthorizationService(InvocationContext) },
-            { typeof(IOAuth2TokenService), new OAuth2TokenService(InvocationContext) }
+            { typeof(IOAuth2TokenService), new OAuth2TokenService(InvocationContext,logger) }
         };
     }
 }
