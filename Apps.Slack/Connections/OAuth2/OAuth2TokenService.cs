@@ -5,13 +5,17 @@ using Apps.Slack.Constants;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Microsoft.Extensions.Logging;
 
 namespace Apps.Slack.Connections.OAuth2;
 
 public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 {
-    public OAuth2TokenService(InvocationContext invocationContext) : base(invocationContext)
+    private readonly ILogger<OAuth2TokenService> _logger;
+    public OAuth2TokenService(InvocationContext invocationContext, ILogger<OAuth2TokenService> logger) : base(invocationContext)
     {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger.LogInformation("OAuth2TokenService is initialized.");
     }
 
     public bool IsRefreshToken(Dictionary<string, string> values)
@@ -57,14 +61,32 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         CancellationToken cancellationToken)
     {
         using var httpClient = new HttpClient();
+        _logger.LogInformation("Requesting token with parameters: {Parameters}",
+            string.Join(", ", bodyParameters.Select(kv => $"{kv.Key}: {kv.Value}")));
 
         using var httpContent = new FormUrlEncodedContent(bodyParameters);
         using var response = await httpClient.PostAsync(Urls.Token, httpContent, cancellationToken);
+        _logger.LogInformation("Response status: {StatusCode}", response.StatusCode);
 
         var responseContent = await response.Content.ReadAsStringAsync();
+        _logger.LogInformation("Response content: {ResponseContent}", responseContent);
 
-        return JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent)
-                   ?.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty)
-               ?? throw new InvalidOperationException($"Invalid response content: {responseContent}");
+       var tokenResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent);
+            
+        if (tokenResponse == null)
+        {
+            _logger.LogError("Failed to deserialize response: response is null");
+            throw new InvalidOperationException($"Invalid response content: {responseContent}");
+        }
+            
+        _logger.LogInformation("Response keys: {Keys}", string.Join(", ", tokenResponse.Keys));
+            
+        if (!tokenResponse.ContainsKey("access_token"))
+        {
+            _logger.LogError("access_token not found in response: {ResponseContent}", responseContent);
+            throw new InvalidOperationException($"access_token not found in response: {responseContent}");
+        }
+            
+        return tokenResponse.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty);
     }
 }
