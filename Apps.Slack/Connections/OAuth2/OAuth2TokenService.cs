@@ -5,7 +5,6 @@ using Apps.Slack.Constants;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Microsoft.Extensions.Logging;
 
 namespace Apps.Slack.Connections.OAuth2;
 
@@ -44,7 +43,7 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code }
         };
-        
+
         return RequestToken(bodyParameters, cancellationToken);
     }
 
@@ -60,34 +59,25 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         CancellationToken cancellationToken)
     {
         using var httpClient = new HttpClient();
-        _invocationContext.Logger.LogInformation("Requesting token with parameters: {Parameters}",
-         new object[] { string.Join(", ", bodyParameters.Select(kv => $"{kv.Key}: {kv.Value}")) });
-
         using var httpContent = new FormUrlEncodedContent(bodyParameters);
         using var response = await httpClient.PostAsync(Urls.Token, httpContent, cancellationToken);
-        _invocationContext.Logger.LogInformation("Response status: {StatusCode}",
-        new object[] { response.StatusCode });
-
         var responseContent = await response.Content.ReadAsStringAsync();
-        _invocationContext.Logger.LogInformation("Response content: {ResponseContent}", new object[] { responseContent });
+        var tokenResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent);
 
-       var tokenResponse = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseContent);
-            
         if (tokenResponse == null)
         {
             throw new InvalidOperationException($"Invalid response content: {responseContent}");
         }
 
-        _invocationContext.Logger.LogInformation("Response keys: {Keys}",
-            new object[] { string.Join(", ", tokenResponse.Keys) });
-
         if (!tokenResponse.ContainsKey("access_token"))
         {
-            _invocationContext.Logger.LogError("access_token not found in response: {ResponseContent}",
-            new object[] { responseContent });
+            var parameters = string.Join(", ", bodyParameters.Select(kv => $"{kv.Key}: {kv.Value}"));
+            _invocationContext.Logger?.LogError(
+                $"Access token not found in response. Parameters: {parameters}, Status code: {response.StatusCode}, Response: {responseContent}", []);
+
             throw new InvalidOperationException($"access_token not found in response: {responseContent}");
         }
-            
+
         return tokenResponse.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty);
     }
 }
