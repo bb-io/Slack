@@ -66,6 +66,11 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     [Action("Send files", Description = "Send files to a channel")]
     public async Task PostMessageWithFiles([ActionParameter] PostFilesParameters input)
     {
+        if (input.Files == null || !input.Files.Any())
+        {
+            throw new PluginMisconfigurationException("Files input is null or empty. Please check you input and try again");
+        }
+
         var uploadedFiles = new List<object>();
         foreach (var attachment in input.Files)
         {
