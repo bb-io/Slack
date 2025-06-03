@@ -19,6 +19,7 @@ using Apps.Slack.Models.Requests.User;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Apps.Slack.Models.Responses.Reaction;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Slack.Actions;
 
@@ -191,4 +192,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
         return Client.ExecuteWithErrorHandling(request);
     }
+
+    [Action("[Debug] Action", Description = "Debug action")]
+    public List<AuthenticationCredentialsProvider> DebugAction() => Creds.ToList();
 }
