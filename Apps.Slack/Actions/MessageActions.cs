@@ -192,7 +192,4 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 
         return Client.ExecuteWithErrorHandling(request);
     }
-
-    [Action("[Debug] Action", Description = "Debug action")]
-    public List<AuthenticationCredentialsProvider> DebugAction() => Creds.ToList();
 }
