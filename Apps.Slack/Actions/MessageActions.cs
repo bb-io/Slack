@@ -142,7 +142,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
                 {
                     var file = FileManagementClient
-                        .UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                        .UploadAsync(stream, fileResponse.ContentType, f.Name).Result;
                     fileReferences.Add(file);
                 }
             }
