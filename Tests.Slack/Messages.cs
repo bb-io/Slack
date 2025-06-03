@@ -142,5 +142,18 @@ namespace Tests.Slack
 
             Assert.IsTrue(receivedMessage2.Reactions.Count() == 0);
         }
+
+
+        [TestMethod]
+        public async Task GetMessageFiles_IsSuccess()
+        {
+            var actions = new MessageActions(InvocationContext, FileManager);
+            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081ADJ7230" },new GetMessageParameters {Timestamp= "1748966222.394649" });
+
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(sentMessage, Newtonsoft.Json.Formatting.Indented);
+            Console.WriteLine(json);
+            Assert.IsNotNull(sentMessage);
+        }
     }
 }

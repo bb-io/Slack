@@ -19,6 +19,7 @@ using Apps.Slack.Models.Requests.User;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Apps.Slack.Models.Responses.Reaction;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Slack.Actions;
 
@@ -141,7 +142,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
                 {
                     var file = FileManagementClient
-                        .UploadAsync(stream, fileResponse.ContentType, new Uri(f.PrivateUrl).Segments.Last()).Result;
+                        .UploadAsync(stream, fileResponse.ContentType, f.Name).Result;
                     fileReferences.Add(file);
                 }
             }
