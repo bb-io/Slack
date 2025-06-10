@@ -13,6 +13,9 @@ public class GetMessageFilesResponse
     [Display("Sender user ID")]
     public string User { get; set; }
 
+    [Display("Mention user")]
+    public string MentionUser => $"<@{User}>";
+
     [Display("Message timestamp")]
     public string Timestamp { get; set; }
     
