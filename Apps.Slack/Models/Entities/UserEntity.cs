@@ -9,6 +9,9 @@ public class UserEntity
     [JsonProperty("id")]
     public string Id { get; set; }
 
+    [Display("Mention user")]
+    public string? MentionUser { get { return $"<@{Id}>"; } }
+
     [Display("Team ID")]
     [JsonProperty("team_id")]
     public string TeamId { get; set; }

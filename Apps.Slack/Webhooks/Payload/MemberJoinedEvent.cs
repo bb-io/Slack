@@ -12,6 +12,9 @@ public class MemberJoinedEvent
     [JsonProperty("user")]
     public string User { get; set; }
 
+    [Display("Mention user")]
+    public string MentionUser => $"<@{User}>";
+
     [Display("Channel ID")]
     [JsonProperty("channel")]
     public string Channel { get; set; }

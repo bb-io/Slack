@@ -11,6 +11,9 @@ namespace Apps.Slack.Webhooks.Output
         [Display("Reaction user ID")]
         public string ReactionUserId { get; set; }
 
+        [Display("Mention user")]
+        public string? MentionUser => $"<@{ReactionUserId}>";
+
         [Display("Message")]
         public GetMessageFilesResponse Message { get; set; }
     }
