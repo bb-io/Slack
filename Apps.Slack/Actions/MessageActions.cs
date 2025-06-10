@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Apps.Slack.Models.Responses.Reaction;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.SDK.Blueprints;
 
 namespace Apps.Slack.Actions;
 
@@ -29,6 +30,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 {
     private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
 
+    [BlueprintActionDefinition(BlueprintAction.TestAction)]
     [Action("Send message", Description = "Send a message to a channel or user")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {

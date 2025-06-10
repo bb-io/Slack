@@ -9,9 +9,9 @@
     <AssemblyName>Apps.Slack</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Blackbird.Applications.SDK.Blueprints" Version="0.0.1-rc.9319" />
     <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.0.1" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.23" />
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.11.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.64" />
     <PackageReference Include="MimeTypes" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
