@@ -6,15 +6,10 @@ using System.Net;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Apps.Slack.Models.Responses.Message;
-using Apps.Slack.Api;
-using RestSharp;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Requests.Channel;
-using Apps.Slack.Extensions;
 using Apps.Slack.Models.Requests.Thread;
 using Apps.Slack.Models.Requests.Message;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Apps.Slack.Actions;
 using Apps.Slack.Models.Responses.File;
@@ -22,49 +17,53 @@ using Apps.Slack.Models.Responses.File;
 namespace Apps.Slack.Webhooks;
 
 [WebhookList]
-public class WebhookList : SlackInvocable
+public class WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : SlackInvocable(invocationContext)
 {
-    private readonly IFileManagementClient _fileManagementClient;
-
-    public WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
-        invocationContext)
-    {
-        _fileManagementClient = fileManagementClient; 
-    }
-
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
         Description = "Triggered when the app is mentioned (@Blackbird)")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest,
         [WebhookParameter] ChannelRequest input, [WebhookParameter] ThreadRequest thread)
     {
-        var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString());
-
-        if (payload == null)
-            throw new Exception("No serializable payload was found in incoming request.");
-
-        var noFlightResponse = new WebhookResponse<GetMessageFilesResponse>
+        try
         {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            ReceivedWebhookRequestType = WebhookRequestType.Preflight
-        };
+            var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString()!);
+            if (payload == null)
+            {
+                throw new Exception("No serializable payload was found in incoming request.");
+            }
 
-        if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
-            return noFlightResponse;
+            var noFlightResponse = new WebhookResponse<GetMessageFilesResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
-        var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
+            if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
+                return noFlightResponse;
 
-        var message = await GetMessage(payload.Event.Channel, payload.Event.Ts);
-        message.MessageText = messageWithoutMentionedUser;
+            var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
-        if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != message?.ThreadTimestamp)
-            return noFlightResponse;
+            var message = await GetMessage(payload.Event.Channel, payload.Event.Ts);
+            message.MessageText = messageWithoutMentionedUser;
 
-        return new WebhookResponse<GetMessageFilesResponse>
+            if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != message?.ThreadTimestamp)
+                return noFlightResponse;
+
+            return new WebhookResponse<GetMessageFilesResponse>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                Result = message,
+                ReceivedWebhookRequestType = WebhookRequestType.Default,
+            };
+        }
+        catch (Exception e)
         {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = message,
-            ReceivedWebhookRequestType = WebhookRequestType.Default,
-        };
+            InvocationContext.Logger?.LogError($"[SlackAppMentioned] Error: {e.Message}; " +
+                                               $"Body: {webhookRequest.Body}; " +
+                                               $"Stack trace: {e.StackTrace}", []);
+            throw;
+        }
     }
 
     [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
@@ -178,7 +177,7 @@ public class WebhookList : SlackInvocable
 
     private async Task<GetMessageFilesResponse> GetMessage(string channel, string timestamp)
     {
-        var actions = new MessageActions(InvocationContext, _fileManagementClient);
+        var actions = new MessageActions(InvocationContext, fileManagementClient);
         return await actions.GetMessageFiles(new ChannelRequest { ChannelId = channel }, new GetMessageParameters { Timestamp = timestamp });       
     }
 }
