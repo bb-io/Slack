@@ -148,7 +148,7 @@ namespace Tests.Slack
         public async Task GetMessageFiles_IsSuccess()
         {
             var actions = new MessageActions(InvocationContext, FileManager);
-            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081ADJ7230" },new GetMessageParameters {Timestamp= "1748966222.394649" });
+            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1759421259.250689" });
 
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(sentMessage, Newtonsoft.Json.Formatting.Indented);

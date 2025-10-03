@@ -191,7 +191,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             }
             catch (Exception e)
             {
-                InvocationContext.Logger?.LogError($"[SlackReaction] Error in get message: {e.Message}; Body: {webhookRequest.Body}; Stack: {e.StackTrace}", Array.Empty<object>());
+                InvocationContext.Logger?.LogError($"[SlackReaction] Error in get message: {e.Message} - {e.InnerException};", Array.Empty<object>());
                 throw;
             }
            
