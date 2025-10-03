@@ -134,17 +134,32 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji,
         [WebhookParameter] MessageRequest messageInput)
     {
-        var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
+        try
+        {
+            InvocationContext.Logger?.LogInformation(
+                $"[SlackReaction] Received. BodyLength={webhookRequest.Body?.ToString()?.Length ?? 0}", null);
+
+            InvocationContext.Logger?.LogError($"[SlackReaction] Body: {webhookRequest.Body}", Array.Empty<object>());
+            
+            var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
+            InvocationContext.Logger?.LogInformation(
+             $"[SlackReaction] Event ctx: type={payload.Event?.Type}, channel={payload.Event?.Item?.Channel}, ts={payload.Event?.Item?.Ts}, reaction={payload.Event?.Reaction}, user={payload.Event?.User}",
+             Array.Empty<object>());
 
-        if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
+
+            if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
         {
             var index = payload.Event.Reaction.IndexOf("::skin-tone-", StringComparison.OrdinalIgnoreCase);
             payload.Event.Reaction = payload.Event.Reaction[..index];
-        }
+                var orig = payload.Event.Reaction;
+                InvocationContext.Logger?.LogInformation(
+               $"[SlackReaction] Normalized reaction: {orig} -> {payload.Event.Reaction}",
+               Array.Empty<object>());
+            }
 
         var noFlightResponse = new WebhookResponse<ChannelMessageWithReaction>
         {
@@ -152,16 +167,34 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             ReceivedWebhookRequestType = WebhookRequestType.Preflight
         };
 
-        if (input.ChannelId != null && payload.Event.Item.Channel != input.ChannelId)
-            return noFlightResponse;
+            if (emoji?.Reactions != null && emoji.Reactions.Any() &&
+                !emoji.Reactions.Contains(payload.Event?.Reaction))
+            {
+                InvocationContext.Logger?.LogInformation($"[SlackReaction] Filter: Emoji not allowed. Allowed=[{string.Join(",", emoji.Reactions)}]; Actual={payload.Event?.Reaction}", null);
+                return noFlightResponse;
+            }
 
-        if (emoji.Reactions != null && !emoji.Reactions.Contains(payload.Event.Reaction))
+            if (emoji.Reactions != null && !emoji.Reactions.Contains(payload.Event.Reaction))
             return noFlightResponse;
 
         if (messageInput.MessageTimestamp != null && messageInput.MessageTimestamp != payload.Event.Item.Ts)
             return noFlightResponse;
 
-        var message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+            InvocationContext.Logger?.LogInformation($"[SlackReaction] Start get message", null);
+
+
+            GetMessageFilesResponse? message = null;
+
+            try
+            {
+                message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+            }
+            catch (Exception e)
+            {
+                InvocationContext.Logger?.LogError($"[SlackReaction] Error in get message: {e.Message} - {e.InnerException};", Array.Empty<object>());
+                throw;
+            }
+           
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
@@ -173,6 +206,12 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             },
             ReceivedWebhookRequestType = WebhookRequestType.Default,
         };
+        }
+        catch (Exception e)
+        {
+            InvocationContext.Logger?.LogError($"[SlackReaction] Error: {e.Message}; Body: {webhookRequest.Body}; Stack: {e.StackTrace}", Array.Empty<object>());
+            throw;
+        }
     }
 
     private async Task<GetMessageFilesResponse> GetMessage(string channel, string timestamp)
