@@ -139,7 +139,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             InvocationContext.Logger?.LogInformation(
                 $"[SlackReaction] Received. BodyLength={webhookRequest.Body?.ToString()?.Length ?? 0}", null);
 
-            InvocationContext.Logger?.LogError($"[SlackReaction]Body: {webhookRequest.Body}", Array.Empty<object>());
+            InvocationContext.Logger?.LogError($"[SlackReaction] Body: {webhookRequest.Body}", Array.Empty<object>());
             
             var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
@@ -182,7 +182,19 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
 
             InvocationContext.Logger?.LogInformation($"[SlackReaction] Start get message", null);
 
-            var message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+
+            GetMessageFilesResponse? message = null;
+
+            try
+            {
+                message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+            }
+            catch (Exception e)
+            {
+                InvocationContext.Logger?.LogError($"[SlackReaction] Error in get message: {e.Message}; Body: {webhookRequest.Body}; Stack: {e.StackTrace}", Array.Empty<object>());
+                throw;
+            }
+           
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
