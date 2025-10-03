@@ -139,17 +139,27 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             InvocationContext.Logger?.LogInformation(
                 $"[SlackReaction] Received. BodyLength={webhookRequest.Body?.ToString()?.Length ?? 0}", null);
 
+            InvocationContext.Logger?.LogError($"[SlackReaction]Body: {webhookRequest.Body}", Array.Empty<object>());
+            
             var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
 
         if (payload == null)
             throw new Exception("No serializable payload was found in incoming request.");
 
+            InvocationContext.Logger?.LogInformation(
+             $"[SlackReaction] Event ctx: type={payload.Event?.Type}, channel={payload.Event?.Item?.Channel}, ts={payload.Event?.Item?.Ts}, reaction={payload.Event?.Reaction}, user={payload.Event?.User}",
+             Array.Empty<object>());
 
-        if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
+
+            if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
         {
             var index = payload.Event.Reaction.IndexOf("::skin-tone-", StringComparison.OrdinalIgnoreCase);
             payload.Event.Reaction = payload.Event.Reaction[..index];
-        }
+                var orig = payload.Event.Reaction;
+                InvocationContext.Logger?.LogInformation(
+               $"[SlackReaction] Normalized reaction: {orig} -> {payload.Event.Reaction}",
+               Array.Empty<object>());
+            }
 
         var noFlightResponse = new WebhookResponse<ChannelMessageWithReaction>
         {
