@@ -180,7 +180,9 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         if (messageInput.MessageTimestamp != null && messageInput.MessageTimestamp != payload.Event.Item.Ts)
             return noFlightResponse;
 
-        var message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+            InvocationContext.Logger?.LogInformation($"[SlackReaction] Start get message", null);
+
+            var message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
         return new WebhookResponse<ChannelMessageWithReaction>
         {
             HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
