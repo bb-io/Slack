@@ -3,21 +3,21 @@ using Apps.Slack.Constants;
 using Apps.Slack.Extensions;
 using Apps.Slack.Invocables;
 using Apps.Slack.Models.Entities;
+using Apps.Slack.Models.Requests.Channel;
 using Apps.Slack.Models.Requests.Message;
+using Apps.Slack.Models.Requests.User;
 using Apps.Slack.Models.Responses.File;
 using Apps.Slack.Models.Responses.Message;
+using Apps.Slack.Models.Responses.Reaction;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using RestSharp;
-using Apps.Slack.Models.Requests.Channel;
-using Apps.Slack.Models.Requests.User;
 using Newtonsoft.Json;
-using Blackbird.Applications.Sdk.Common.Exceptions;
-using Apps.Slack.Models.Responses.Reaction;
+using RestSharp;
 
 namespace Apps.Slack.Actions;
 
@@ -26,7 +26,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     : SlackInvocable(invocationContext)
 {
     private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
-    
+
     [Action("Send message", Description = "Send a message to a channel or user")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
@@ -36,7 +36,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         {
             var userActions = new UserActions(invocationContext);
             var user = await userActions.GetUserInfo(new GetUserInfoParameters()
-                { UserId = input.SendAsUserId });
+            { UserId = input.SendAsUserId });
             iconUrl = user.Profile.Image72;
             username = string.IsNullOrEmpty(user.Profile.DisplayNameNormalized)
                 ? user.Name
@@ -56,7 +56,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 thread_ts = input.Timestamp,
                 username = input.Username ?? username,
                 icon_url = iconUrl ?? string.Empty,
-                post_at = input.PostAt.HasValue ? (long?) new DateTimeOffset(input.PostAt.Value).ToUnixTimeSeconds() : null,
+                post_at = input.PostAt.HasValue ? (long?)new DateTimeOffset(input.PostAt.Value).ToUnixTimeSeconds() : null,
             }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
@@ -168,7 +168,8 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
     public Task<MessageEntity> UpdateMessage([ActionParameter] ChannelRequest channel, [ActionParameter] UpdateMessageParameters input)
     {
         var request = new SlackRequest("/chat.update", Method.Post, Creds)
-            .WithJsonBody(new { 
+            .WithJsonBody(new
+            {
                 Channel = channel.ChannelId,
                 Ts = input.Ts,
                 text = input.Text

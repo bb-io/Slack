@@ -104,13 +104,13 @@ namespace Tests.Slack
         public async Task CanSendFiles()
         {
             var actions = new MessageActions(InvocationContext, FileManager);
-            var channelId = GetChannelId();
+            //var channelId = GetChannelId();
 
             var attachment = new FileReference { Name = "example.txt", ContentType = "text/plain" };
 
             await actions.PostMessageWithFiles(new PostFilesParameters
             {
-                ChannelId = channelId,
+                ChannelId = "C081ADJ7230",
                 Files = new[] { attachment }
             });
         }
@@ -148,7 +148,8 @@ namespace Tests.Slack
         public async Task GetMessageFiles_IsSuccess()
         {
             var actions = new MessageActions(InvocationContext, FileManager);
-            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1759421259.250689" });
+            //var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1759421259.250689" });
+            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1764687281.798739" });
 
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(sentMessage, Newtonsoft.Json.Formatting.Indented);
