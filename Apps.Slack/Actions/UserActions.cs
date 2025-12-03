@@ -14,14 +14,14 @@ namespace Apps.Slack.Actions;
 [ActionList]
 public class UserActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    [Action("Search users", Description = "Get all users in a Slack team. Requires scope: users:read")]
+    [Action("Search users", Description = "Get all users in a Slack team. Requires scope: users:read, users.profile:read")]
     public Task<GetUsersResponse> GetUsers()
     {
         var request = new SlackRequest("/users.list", Method.Get, Creds);
         return Client.ExecuteWithErrorHandling<GetUsersResponse>(request);
     }
 
-    [Action("Get user", Description = "Get information about a user. Requires scope: users:read")]
+    [Action("Get user", Description = "Get information about a user. Requires scope: users:read, users.profile:read")]
     public async Task<UserEntity> GetUserInfo([ActionParameter] GetUserInfoParameters input)
     {        
         var request = new SlackRequest("/users.info", Method.Get, Creds)
@@ -31,7 +31,7 @@ public class UserActions(InvocationContext invocationContext) : SlackInvocable(i
         return response.User;
     }
 
-    [Action("Find user by email", Description = "Find a user using an email address. Requires scopes: users:read.email, users:read")]
+    [Action("Find user by email", Description = "Find a user using an email address. Requires scopes: users:read.email, users:read, users.profile:read")]
     public async Task<UserEntity> GetUserByEmail([ActionParameter] GetUserByEmailParameters input)
     {
         var request = new SlackRequest("/users.lookupByEmail", Method.Get, Creds)

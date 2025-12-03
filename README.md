@@ -49,18 +49,18 @@ The second way:
 
 ### Messages
 
-- **Send message** sends a message to a Slack channel or directly to a user. Additional optional inputs:
+- **Send message** (Requires scopes: chat:write, chat:write.customize, users:read) sends a message to a Slack channel or directly to a user. Additional optional inputs:
   - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
   - **Schedule at**: If set, the message will be sent at this time.
   - **Ephemeral user ID**: If set, the message will only be visible to this user. Only works inside channels. Does not work together with 'Schedule at'.
   - **Bot's username**: If set, the username of the bot will be displayed as this text.
   - **Send as user**: If set, the message will be sent as this user, instead of the bot.
 
-- **Send files** sends files to a Slack channel. Additional optional inputs:
+- **Send files** (Requires scope: files:write) sends files to a Slack channel. Additional optional inputs:
   - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
   - **Message**: Set the message to be sent along with the files.
   
-- **Get message** given a channel ID and timestamp, this will return:
+- **Get message** (Requires scopes: channels:history, groups:history, files:read, reactions:read) given a channel ID and timestamp, this will return:
   - **Message text** the text of the message
   - **Sender user ID** the user ID of the Sender
   - **Message timestamp** the timestamp of this message. Can be used in other Slack actions and checkpoints.
@@ -71,26 +71,26 @@ The second way:
   - **Files** all the files that were attached to this message.
   - **Reactions** all the reactions this message has
 
-- **Update message** updates an existing message with new texts.
-- **Delete message** deletes a message
+- **Update message** (Requires scope: chat:write) updates an existing message with new texts.
+- **Delete message** (Requires scope: chat:write, channels:manage) deletes a message
 
 ### Reactions
 
-- **Add reaction** adds a reaction to a message. Provides a dropdown of all possible reaction emojis.
-- **Remove reaction** removes a reaction from a message. Note: The Slack bot can only remove reactions it has added.
+- **Add reaction** (Requires scope: reactions:write) adds a reaction to a message. Provides a dropdown of all possible reaction emojis.
+- **Remove reaction** (Requires scope: reactions:write) removes a reaction from a message. Note: The Slack bot can only remove reactions it has added.
 
 ### Users
 
-- **Search users** returns all the users in this Slack team.
-- **Get user** returns general and profile data about the user including but not limited to team ID, name, timezone, status and email.
-- **Find user by email** returns the user associated with this email on this Slack instance.
+- **Search users** (Requires scope: users:read, users.profile:read) returns all the users in this Slack team.
+- **Get user** (Requires scope: users:read, users.profile:read) returns general and profile data about the user including but not limited to team ID, name, timezone, status and email.
+- **Find user by email** (Requires scopes: users:read.email, users:read, users.profile:read) returns the user associated with this email on this Slack instance.
 
 ## Events
 
-- **On message** is triggered when any new message is sent to a channel. This event has a parameter _Trigger on message replies_ which is _False_ by default. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. If you use **On channel message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ or leave it unspecified to avoid an infinite loop. If you want your bird to trigger only when a message has file attachments, set the _Trigger only when message has files_ to _True_, default is _False_.
-- **On app mentioned** is triggered when the app is mentioned (@Blackbird). Useful to create workflow triggers that only start when specifically invoked by a user through Slack.
-- **On reaction added**. Can be configured to a specific channel and a list of emojis it needs to trigger on. Also returns the "Reaction user ID" which is the user who added the reaction.
-- **On member joined channel**.
+- **On message** (Requires scopes: channels:history, groups:history, files:read, reactions:read) is triggered when any new message is sent to a channel. This event has a parameter _Trigger on message replies_ which is _False_ by default. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. If you use **On channel message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ or leave it unspecified to avoid an infinite loop. If you want your bird to trigger only when a message has file attachments, set the _Trigger only when message has files_ to _True_, default is _False_.
+- **On app mentioned** (Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read) is triggered when the app is mentioned (@Blackbird). Useful to create workflow triggers that only start when specifically invoked by a user through Slack.
+- **On reaction added** (Requires scopes: reactions:read, channels:history, groups:history, files:read) Can be configured to a specific channel and a list of emojis it needs to trigger on. Also returns the "Reaction user ID" which is the user who added the reaction.
+- **On member joined channel** (Requires scopes: channels:read, groups:read)
 
 > All message related events return the same output as the "Get message" action, so it also includes files and reactions.
 
