@@ -27,7 +27,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
 {
     private IFileManagementClient FileManagementClient { get; set; } = fileManagementClient;
 
-    [Action("Send message", Description = "Send a message to a channel or user")]
+    [Action("Send message", Description = "Send a message to a channel or user. Requires scopes: chat:write, chat:write.customize, users:read")]
     public async Task<PostMessageResponse> PostMessage([ActionParameter] PostMessageParameters input)
     {
         string? iconUrl = null;
@@ -62,7 +62,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
-    [Action("Send files", Description = "Send files to a channel")]
+    [Action("Send files", Description = "Send files to a channel. Requires scope: files:write")]
     public async Task PostMessageWithFiles([ActionParameter] PostFilesParameters input)
     {
         if (input.Files == null || !input.Files.Any())
@@ -113,7 +113,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         await Client.ExecuteWithErrorHandling<UploadFilesResponse>(completeUploadRequest);
     }
 
-    [Action("Get message", Description = "Get message metadata, content, reactions and and attachments")]
+    [Action("Get message", Description = "Get message metadata, content, reactions and and attachments. Requires scopes: channels:history, groups:history, files:read, reactions:read")]
     public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] ChannelRequest channel,
         [ActionParameter] GetMessageParameters input)
     {
@@ -164,7 +164,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         };
     }
 
-    [Action("Update message", Description = "Update a specific message in a Slack channel")]
+    [Action("Update message", Description = "Update a specific message in a Slack channel. Requires scope: chat:write")]
     public Task<MessageEntity> UpdateMessage([ActionParameter] ChannelRequest channel, [ActionParameter] UpdateMessageParameters input)
     {
         var request = new SlackRequest("/chat.update", Method.Post, Creds)
@@ -179,7 +179,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return Client.ExecuteWithErrorHandling<MessageEntity>(request);
     }
 
-    [Action("Delete message", Description = "Delete a message from Slack a Slack channel")]
+    [Action("Delete message", Description = "Delete a message from Slack a Slack channel. Requires scope: chat:write, channels:manage")]
     public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)

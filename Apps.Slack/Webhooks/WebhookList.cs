@@ -21,7 +21,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
     : SlackInvocable(invocationContext)
 {
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
-        Description = "Triggered when the app is mentioned (@Blackbird)")]
+        Description = "Triggered when the app is mentioned (@Blackbird). Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest,
         [WebhookParameter] ChannelRequest input, [WebhookParameter] ThreadRequest thread)
     {
@@ -66,7 +66,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         }
     }
 
-    [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted")]
+    [Webhook("On message", typeof(ChannelMessageHandler), Description = "Triggered whenever any new message is posted. Requires scopes: channels:history, groups:history, files:read, reactions:read")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> ChannelMessage(WebhookRequest webhookRequest,
         [WebhookParameter] OnMessageWebhookParameter input, [WebhookParameter] ChannelRequest channel,
         [WebhookParameter] ThreadRequest thread)
@@ -113,7 +113,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Webhook("On member joined channel", typeof(MemberJoinedChannelHandler),
-        Description = "Triggered when a member joins a channel")]
+        Description = "Triggered when a member joins a channel. Requires scopes: channels:read, groups:read")]
     public Task<WebhookResponse<MemberJoinedEvent>> MemberJoinedChannel(WebhookRequest webhookRequest)
     {
         var payload = JsonConvert.DeserializeObject<BasePayload<MemberJoinedEvent>>(webhookRequest.Body.ToString());
@@ -129,7 +129,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Webhook("On reaction added", typeof(MessageReactionHandler),
-        Description = "Triggered whenever someone reacts to a message with an emoji")]
+        Description = "Triggered whenever someone reacts to a message with an emoji. Requires scopes: reactions:read, channels:history, groups:history, files:read ")]
     public async Task<WebhookResponse<ChannelMessageWithReaction>> MessageReaction(WebhookRequest webhookRequest,
         [WebhookParameter] ChannelRequest input, [WebhookParameter] OptionalEmojiInput emoji,
         [WebhookParameter] MessageRequest messageInput)

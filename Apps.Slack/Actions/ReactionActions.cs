@@ -14,7 +14,7 @@ namespace Apps.Slack.Actions;
 [ActionList]
 public class ReactionActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    [Action("Add reaction", Description = "Add a reaction to a message")]
+    [Action("Add reaction", Description = "Add a reaction to a message. Requires scope: reactions:write")]
     public Task AddReaction([ActionParameter] ChannelRequest channel, [ActionParameter] AddReactionParameters input)
     {
         var request = new SlackRequest("/reactions.add", Method.Post, Creds)
@@ -30,7 +30,7 @@ public class ReactionActions(InvocationContext invocationContext) : SlackInvocab
     }
 
     [Action("Remove reaction",
-        Description = "Remove a reaction from a message. Note: The Slack bot can only remove reactions it has added.")]
+        Description = "Remove a reaction from a message. Note: The Slack bot can only remove reactions it has added. Requires scope: reactions:write")]
     public Task DeleteReaction([ActionParameter] ChannelRequest channel,
         [ActionParameter] DeleteReactionParameters input)
     {
