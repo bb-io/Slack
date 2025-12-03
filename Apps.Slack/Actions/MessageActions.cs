@@ -179,7 +179,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return Client.ExecuteWithErrorHandling<MessageEntity>(request);
     }
 
-    [Action("Delete message", Description = "Delete a message from Slack a Slack channel. Requires scope: chat:write")]
+    [Action("Delete message", Description = "Delete a message from Slack a Slack channel. Requires scope: chat:write, channels:manage")]
     public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)
