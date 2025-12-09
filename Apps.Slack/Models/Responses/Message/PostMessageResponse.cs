@@ -26,5 +26,5 @@ public class PostMessageResponse
     public string? PostedAt { get; set; }
 
     [Display("Scheduled at")]
-    public DateTime? ScheduledAt => PostedAt.ToDateTime();
+    public DateTime ScheduledAt => PostedAt?.ToDateTime() ?? DateTime.MinValue;
 }
