@@ -1,10 +1,11 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
-using RestSharp;
-using Apps.Slack.Api;
+﻿using Apps.Slack.Api;
 using Apps.Slack.Constants;
-using Newtonsoft.Json;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Newtonsoft.Json;
+using RestSharp;
 
 namespace Apps.Slack.Connections.OAuth2;
 
@@ -66,7 +67,24 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 
         if (tokenResponse == null)
         {
+            _invocationContext.Logger?.LogError(
+                "[SlackOAuth2TokenService] Null/Empty token response. Status: {StatusCode}, Body: {Body}",
+                [(int)response.StatusCode, responseContent]);
             throw new InvalidOperationException($"Invalid response content: {responseContent}");
+        }
+
+        if (tokenResponse.TryGetValue("ok", out var okObj) &&
+           bool.TryParse(okObj?.ToString(), out var ok) &&
+           !ok)
+        {
+            var error = tokenResponse.TryGetValue("error", out var errObj) ? errObj?.ToString() : "unknown_error";
+
+            _invocationContext.Logger?.LogError(
+                "[SlackOAuth2TokenService] Token request failed. Error: {Error}, Status: {StatusCode}, Body: {Body}",
+                [error ?? "null", (int)response.StatusCode, responseContent]);
+
+            throw new PluginMisconfigurationException(
+                $"Slack authorization failed: {error}. Please reconnect the Slack connection.");
         }
 
         if (!tokenResponse.ContainsKey("access_token"))
@@ -75,7 +93,7 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
             _invocationContext.Logger?.LogError(
                 $"Access token not found in response. Parameters: {parameters}, Status code: {response.StatusCode}, Response: {responseContent}", []);
 
-            throw new InvalidOperationException($"access_token not found in response: {responseContent}");
+            throw new PluginMisconfigurationException("Slack didn't return an access token. Please try again or reconnect the Slack connection.");
         }
 
         return tokenResponse.ToDictionary(r => r.Key, r => r.Value?.ToString() ?? string.Empty);
