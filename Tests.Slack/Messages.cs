@@ -149,7 +149,7 @@ namespace Tests.Slack
         {
             var actions = new MessageActions(InvocationContext, FileManager);
             //var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1759421259.250689" });
-            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C081KBWQ2TW" },new GetMessageParameters {Timestamp= "1764687281.798739" });
+            var sentMessage = await actions.GetMessageFiles(new ChannelRequest { ChannelId= "C03RJ69LR5H" },new GetMessageParameters {Timestamp= "1765206839.102739" });
 
 
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(sentMessage, Newtonsoft.Json.Formatting.Indented);
