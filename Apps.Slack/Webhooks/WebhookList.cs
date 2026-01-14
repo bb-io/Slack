@@ -137,79 +137,112 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         try
         {
             InvocationContext.Logger?.LogInformation(
-                $"[SlackReaction] Received. BodyLength={webhookRequest.Body?.ToString()?.Length ?? 0}", null);
+                $"[SlackReaction] Received. BodyLength={webhookRequest.Body?.ToString()?.Length ?? 0}",
+                Array.Empty<object>());
 
-            InvocationContext.Logger?.LogError($"[SlackReaction] Body: {webhookRequest.Body}", Array.Empty<object>());
-            
-            var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body.ToString());
+            InvocationContext.Logger?.LogError(
+                $"[SlackReaction] Body: {webhookRequest.Body}",
+                Array.Empty<object>());
 
-        if (payload == null)
-            throw new Exception("No serializable payload was found in incoming request.");
+            var payload = JsonConvert.DeserializeObject<BasePayload<MessageReactionEvent>>(webhookRequest.Body?.ToString() ?? string.Empty);
+
+            if (payload == null)
+                throw new Exception("No serializable payload was found in incoming request.");
+
+            var noFlightResponse = new WebhookResponse<ChannelMessageWithReaction>
+            {
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
 
             InvocationContext.Logger?.LogInformation(
-             $"[SlackReaction] Event ctx: type={payload.Event?.Type}, channel={payload.Event?.Item?.Channel}, ts={payload.Event?.Item?.Ts}, reaction={payload.Event?.Reaction}, user={payload.Event?.User}",
-             Array.Empty<object>());
+                $"[SlackReaction] Event ctx: type={payload.Event?.Type}, channel={payload.Event?.Item?.Channel}, ts={payload.Event?.Item?.Ts}, reaction={payload.Event?.Reaction}, user={payload.Event?.User}",
+                Array.Empty<object>());
 
-
-            if (payload.Event.Reaction?.Contains("::skin-tone-") == true)
-        {
-            var index = payload.Event.Reaction.IndexOf("::skin-tone-", StringComparison.OrdinalIgnoreCase);
-            payload.Event.Reaction = payload.Event.Reaction[..index];
-                var orig = payload.Event.Reaction;
+            if (!string.Equals(payload.Event?.Type, "reaction_added", StringComparison.OrdinalIgnoreCase))
+            {
                 InvocationContext.Logger?.LogInformation(
-               $"[SlackReaction] Normalized reaction: {orig} -> {payload.Event.Reaction}",
-               Array.Empty<object>());
+                    $"[SlackReaction] Filter: Unexpected event type. type={payload.Event?.Type}",
+                    Array.Empty<object>());
+                return noFlightResponse;
             }
 
-        var noFlightResponse = new WebhookResponse<ChannelMessageWithReaction>
-        {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            ReceivedWebhookRequestType = WebhookRequestType.Preflight
-        };
+            if (!string.IsNullOrWhiteSpace(input?.ChannelId) &&
+                !string.Equals(input.ChannelId, payload.Event?.Item?.Channel, StringComparison.Ordinal))
+            {
+                InvocationContext.Logger?.LogInformation(
+                    $"[SlackReaction] Filter: Channel mismatch. Config={input.ChannelId}; Event={payload.Event?.Item?.Channel}",
+                    Array.Empty<object>());
+                return noFlightResponse;
+            }
+
+            if (payload.Event?.Reaction?.Contains("::skin-tone-") == true)
+            {
+                var orig = payload.Event.Reaction;
+                var index = payload.Event.Reaction.IndexOf("::skin-tone-", StringComparison.OrdinalIgnoreCase);
+                payload.Event.Reaction = payload.Event.Reaction[..index];
+
+                InvocationContext.Logger?.LogInformation(
+                    $"[SlackReaction] Normalized reaction: {orig} -> {payload.Event.Reaction}",
+                    Array.Empty<object>());
+            }
 
             if (emoji?.Reactions != null && emoji.Reactions.Any() &&
                 !emoji.Reactions.Contains(payload.Event?.Reaction))
             {
-                InvocationContext.Logger?.LogInformation($"[SlackReaction] Filter: Emoji not allowed. Allowed=[{string.Join(",", emoji.Reactions)}]; Actual={payload.Event?.Reaction}", null);
+                InvocationContext.Logger?.LogInformation(
+                    $"[SlackReaction] Filter: Emoji not allowed. Allowed=[{string.Join(",", emoji.Reactions)}]; Actual={payload.Event?.Reaction}",
+                    Array.Empty<object>());
                 return noFlightResponse;
             }
 
-            if (emoji.Reactions != null && !emoji.Reactions.Contains(payload.Event.Reaction))
-            return noFlightResponse;
+            if (emoji?.Reactions != null && !emoji.Reactions.Contains(payload.Event.Reaction))
+                return noFlightResponse;
 
-        if (messageInput.MessageTimestamp != null && messageInput.MessageTimestamp != payload.Event.Item.Ts)
-            return noFlightResponse;
+            if (!string.IsNullOrWhiteSpace(messageInput?.MessageTimestamp) &&
+                messageInput.MessageTimestamp != payload.Event?.Item?.Ts)
+                return noFlightResponse;
 
-            InvocationContext.Logger?.LogInformation($"[SlackReaction] Start get message", null);
-
+            InvocationContext.Logger?.LogInformation("[SlackReaction] Start get message", Array.Empty<object>());
 
             GetMessageFilesResponse? message = null;
-
             try
             {
+                if (payload.Event?.Item?.Channel == null || payload.Event?.Item?.Ts == null)
+                {
+                    InvocationContext.Logger?.LogInformation(
+                        "[SlackReaction] Filter: Missing event channel or timestamp",
+                        Array.Empty<object>());
+                    return noFlightResponse;
+                }
+
                 message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
             }
             catch (Exception e)
             {
-                InvocationContext.Logger?.LogError($"[SlackReaction] Error in get message: {e.Message} - {e.InnerException};", Array.Empty<object>());
+                InvocationContext.Logger?.LogError(
+                    $"[SlackReaction] Error in get message: {e.Message} - {e.InnerException};",
+                    Array.Empty<object>());
                 throw;
             }
-           
-        return new WebhookResponse<ChannelMessageWithReaction>
-        {
-            HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
-            Result = new ChannelMessageWithReaction
+
+            return new WebhookResponse<ChannelMessageWithReaction>
             {
-                ReactionUserId = payload.Event.User,
-                Reaction = payload.Event.Reaction,
-                Message = message,
-            },
-            ReceivedWebhookRequestType = WebhookRequestType.Default,
-        };
+                HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK),
+                Result = new ChannelMessageWithReaction
+                {
+                    ReactionUserId = payload.Event.User,
+                    Reaction = payload.Event.Reaction,
+                    Message = message,
+                },
+                ReceivedWebhookRequestType = WebhookRequestType.Default,
+            };
         }
         catch (Exception e)
         {
-            InvocationContext.Logger?.LogError($"[SlackReaction] Error: {e.Message}; Body: {webhookRequest.Body}; Stack: {e.StackTrace}", Array.Empty<object>());
+            InvocationContext.Logger?.LogError(
+                $"[SlackReaction] Error: {e.Message}; Body: {webhookRequest.Body}; Stack: {e.StackTrace}",
+                Array.Empty<object>());
             throw;
         }
     }
