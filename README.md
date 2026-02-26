@@ -45,6 +45,10 @@ The second way:
 
 ![Connecting](image/README/connecting.png)
 
+
+> Note: For correct data handlers functioning, the BlackBird app has to be added to the channels that you want to use in your workflows.
+
+
 ## Actions
 
 ### Messages

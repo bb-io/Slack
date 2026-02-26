@@ -14,7 +14,7 @@ public class ChannelHandler(InvocationContext invocationContext)
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var request = new SlackRequest("/conversations.list", Method.Get, Creds);
+        var request = new SlackRequest("/users.conversations", Method.Get, Creds);
         request.AddQueryParameter("types", "public_channel,private_channel");
         request.AddQueryParameter("exclude_archived", "true");
         var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(request, cancellationToken);
