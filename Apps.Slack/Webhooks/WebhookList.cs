@@ -25,6 +25,8 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest,
         [WebhookParameter] ChannelRequest input, [WebhookParameter] ThreadRequest thread)
     {
+        InvocationContext.Logger?.LogInformation($"[SlackAppMentioned] Received. {Newtonsoft.Json.JsonConvert.SerializeObject(webhookRequest)}",
+            Array.Empty<object>());
         try
         {
             var payload = JsonConvert.DeserializeObject<BasePayload<AppMentionedEvent>>(webhookRequest.Body.ToString()!);

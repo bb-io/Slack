@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Product>Slack</Product>
-    <Version>1.4.19</Version>
+    <Version>1.4.20</Version>
     <Description>The messaging app</Description>
     <AssemblyName>Apps.Slack</AssemblyName>
   </PropertyGroup>
@@ -21,8 +21,9 @@
     <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png"></EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\README.md">
+    <EmbeddedResource Include="..\README.md">
       <Link>README.md</Link>
-    </Content>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
