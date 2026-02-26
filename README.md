@@ -49,7 +49,7 @@ The second way:
 ## Actions
 
 
-> Note: For correct data handlers functioning, the BlackBird app has to be added to the channels that you want to use in your workflows.
+> Note: For correct data handlers functioning, the Blackbird app has to be added to the channels that you want to use in your workflows.
 
 
 ### Messages
