@@ -54,50 +54,49 @@ The second way:
 
 ### Messages
 
-- **Send message** (Requires scopes: chat:write, chat:write.customize, users:read) sends a message to a Slack channel or directly to a user. Additional optional inputs:
-  - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
-  - **Schedule at**: If set, the message will be sent at this time.
-  - **Ephemeral user ID**: If set, the message will only be visible to this user. Only works inside channels. Does not work together with 'Schedule at'.
-  - **Bot's username**: If set, the username of the bot will be displayed as this text.
-  - **Send as user**: If set, the message will be sent as this user, instead of the bot.
-
-- **Send files** (Requires scope: files:write) sends files to a Slack channel. Additional optional inputs:
-  - **Thread timestamp**: Set this value to the timestamp of a different message to reply to that message in a thread.
-  - **Message**: Set the message to be sent along with the files.
-  
-- **Get message** (Requires scopes: channels:history, groups:history, files:read, reactions:read) given a channel ID and timestamp, this will return:
-  - **Message text** the text of the message
-  - **Sender user ID** the user ID of the Sender
-  - **Message timestamp** the timestamp of this message. Can be used in other Slack actions and checkpoints.
-  - **Message timestamp (Datetime)** the message timestamp as Date format.
-  - **Thread timestamp** if the message was part of a thread, this is the thread timestamp that can be used in other Slack actions and checkpoints.
-  - **Message timestamp (Datetime)** the thread timestamp as Date format.
-  - **Channel ID** the ID of the channel this message was sent in.
-  - **Files** all the files that were attached to this message.
-  - **Reactions** all the reactions this message has
-
-- **Update message** (Requires scope: chat:write) updates an existing message with new texts.
-- **Delete message** (Requires scope: chat:write, channels:manage) deletes a message
+- **Send message** Sends a message to a channel or user. Requires scopes: chat:write, chat:write.customize, users:read Advanced settings:
+  - **Thread timestamp**: If you are sending a message as part of a thread, set the timestamp of the primary message.
+  - **Schedule at**: If used, creates a scheduled message.
+  - **Ephemeral user ID**: If set, the message will only be visible to this user.
+  - **Bot's username**: If not set, the bot's default username will be used.
+  - **Send as user**: Send a message as a user.
+- **Send files** Send files to a channel. Requires scope: files:write Advanced settings:
+  - **Message**: Message text to send with the files.
+- **Get message** Gets message metadata, text, reactions, and attachments. Requires scopes: channels:history, groups:history, files:read, reactions:read
+- **Update message** Updates a specific message in a channel. Requires scope: chat:write Advanced settings:
+  - **Message text**: New text for the message.
+  - **Reply broadcast**: Select whether to broadcast the reply to the channel.
+  - **Link names**: Select whether to parse and link @mentions and channel names.
+  - **Parse**: Choose how message formatting is parsed.
+- **Delete message** Deletes a message from a channel. Requires scopes: chat:write, channels:manage
 
 ### Reactions
 
-- **Add reaction** (Requires scope: reactions:write) adds a reaction to a message. Provides a dropdown of all possible reaction emojis.
-- **Remove reaction** (Requires scope: reactions:write) removes a reaction from a message. Note: The Slack bot can only remove reactions it has added.
+- **Add reaction** Adds a reaction to a message. Requires scope: reactions:write
+- **Remove reaction** Removes a reaction from a message. Requires scope: reactions:write
 
 ### Users
 
-- **Search users** (Requires scope: users:read, users.profile:read) returns all the users in this Slack team.
-- **Get user** (Requires scope: users:read, users.profile:read) returns general and profile data about the user including but not limited to team ID, name, timezone, status and email.
-- **Find user by email** (Requires scopes: users:read.email, users:read, users.profile:read) returns the user associated with this email on this Slack instance.
+- **Search users** Searches all users in a workspace. Requires scopes: users:read, users.profile:read
+- **Get user** Gets information about a user. Requires scopes: users:read, users.profile:read
+- **Find user by email** Finds a user using an email address. Requires scopes: users:read.email, users:read, users.profile:read
 
 ## Events
 
-- **On message** (Requires scopes: channels:history, groups:history, files:read, reactions:read) is triggered when any new message is sent to a channel. This event has a parameter _Trigger on message replies_ which is _False_ by default. If you want your bird to trigger on channel messages and message replies, set this parameter to _True_. If you use **On channel message** with **Send message in thread** in a single flow, you should set _Trigger on message replies_ to _False_ or leave it unspecified to avoid an infinite loop. If you want your bird to trigger only when a message has file attachments, set the _Trigger only when message has files_ to _True_, default is _False_.
-- **On app mentioned** (Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read) is triggered when the app is mentioned (@Blackbird). Useful to create workflow triggers that only start when specifically invoked by a user through Slack.
-- **On reaction added** (Requires scopes: reactions:read, channels:history, groups:history, files:read) Can be configured to a specific channel and a list of emojis it needs to trigger on. Also returns the "Reaction user ID" which is the user who added the reaction.
-- **On member joined channel** (Requires scopes: channels:read, groups:read)
+### Messages
 
-> All message related events return the same output as the "Get message" action, so it also includes files and reactions.
+- **On app mentioned** Triggers when the app is mentioned. Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read Advanced settings:
+  - **Thread timestamp**: To filter messages only if they are part of a thread, use the message timestamp of the top thread message.
+- **On message** Triggers whenever a new message is posted. Requires scopes: channels:history, groups:history, files:read, reactions:read Advanced settings:
+  - **Message reply handling**: Choose whether to trigger on non-replies, only replies, or both.
+  - **Trigger only when message has files**: Select whether to trigger only when messages include file attachments.
+- **On reaction added** Triggers when someone adds a reaction to a message. Requires scopes: reactions:read, channels:history, groups:history, files:read Advanced settings:
+  - **Reactions**: Filter to specific reactions.
+  - **Message timestamp**: Filter on a specific message.
+
+### Members
+
+- **On member joined channel** Triggers when a member joins a channel. Requires scopes: channels:read, groups:read
 
 ## Example
 

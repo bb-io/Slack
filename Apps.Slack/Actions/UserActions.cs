@@ -14,7 +14,7 @@ namespace Apps.Slack.Actions;
 [ActionList]
 public class UserActions(InvocationContext invocationContext) : SlackInvocable(invocationContext)
 {
-    [Action("Search users", Description = "Get all users in a Slack team. Requires scope: users:read, users.profile:read")]
+    [Action("Search users", Description = "Search all users in a workspace. Requires scopes: users:read, users.profile:read")]
     public Task<GetUsersResponse> GetUsers()
     {
         var request = new SlackRequest("/users.list", Method.Get, Creds);

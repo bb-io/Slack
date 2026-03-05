@@ -113,7 +113,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         await Client.ExecuteWithErrorHandling<UploadFilesResponse>(completeUploadRequest);
     }
 
-    [Action("Get message", Description = "Get message metadata, content, reactions and and attachments. Requires scopes: channels:history, groups:history, files:read, reactions:read")]
+    [Action("Get message", Description = "Get message metadata, text, reactions, and attachments. Requires scopes: channels:history, groups:history, files:read, reactions:read")]
     public async Task<GetMessageFilesResponse> GetMessageFiles([ActionParameter] ChannelRequest channel,
         [ActionParameter] GetMessageParameters input)
     {
@@ -164,7 +164,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         };
     }
 
-    [Action("Update message", Description = "Update a specific message in a Slack channel. Requires scope: chat:write")]
+    [Action("Update message", Description = "Update a specific message in a channel. Requires scope: chat:write")]
     public Task<MessageEntity> UpdateMessage([ActionParameter] ChannelRequest channel, [ActionParameter] UpdateMessageParameters input)
     {
         var request = new SlackRequest("/chat.update", Method.Post, Creds)
@@ -179,7 +179,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return Client.ExecuteWithErrorHandling<MessageEntity>(request);
     }
 
-    [Action("Delete message", Description = "Delete a message from Slack a Slack channel. Requires scope: chat:write, channels:manage")]
+    [Action("Delete message", Description = "Delete a message from a channel. Requires scopes: chat:write, channels:manage")]
     public Task DeleteMessage([ActionParameter] ChannelRequest channel, [ActionParameter] DeleteMessageParameters input)
     {
         var request = new SlackRequest("/chat.delete", Method.Post, Creds)
