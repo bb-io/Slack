@@ -14,11 +14,11 @@ public class ChannelUserHandler(InvocationContext invocationContext)
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken token)
     {
-        var channelsRequest = new SlackRequest("/conversations.list", Method.Get, Creds);
-        channelsRequest.AddQueryParameter("types", "public_channel,private_channel");
-        channelsRequest.AddQueryParameter("exclude_archived", "true");
-        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(channelsRequest, token);
-        
+        var request = new SlackRequest("/users.conversations", Method.Get, Creds);
+        request.AddQueryParameter("types", "public_channel,private_channel");
+        request.AddQueryParameter("exclude_archived", "true");
+        var channels = await Client.Paginate<ChannelPaginationResponse, ChannelEntity>(request, token);
+
         var userRequest = new SlackRequest("/users.list", Method.Get, Creds);
         var users = await Client.Paginate<UserPaginationResponse, UserEntity>(userRequest, token);
 
