@@ -104,13 +104,13 @@ namespace Tests.Slack
         public async Task CanSendFiles()
         {
             var actions = new MessageActions(InvocationContext, FileManager);
-            //var channelId = GetChannelId();
+            var userId = GetUserId();
 
             var attachment = new FileReference { Name = "example.txt", ContentType = "text/plain" };
 
             await actions.PostMessageWithFiles(new PostFilesParameters
             {
-                ChannelId = "C081ADJ7230",
+                ChannelId = userId,
                 Files = new[] { attachment }
             });
         }

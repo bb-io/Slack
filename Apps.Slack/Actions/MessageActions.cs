@@ -62,7 +62,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return await Client.ExecuteWithErrorHandling<PostMessageResponse>(postMessageRequest);
     }
 
-    [Action("Send files", Description = "Send files to a channel. Requires scope: files:write")]
+    [Action("Send files", Description = "Send files to a channel or user. Requires scope: files:write")]
     public async Task PostMessageWithFiles([ActionParameter] PostFilesParameters input)
     {
         if (input.Files == null || !input.Files.Any())
@@ -98,7 +98,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         var completeUploadBody = new Dictionary<string, object>()
             {
                 { "files", uploadedFiles.ToArray() },
-                { "channel_id", input.ChannelId },
+                { "channels", input.ChannelId },
                 { "initial_comment", input.Text ?? string.Empty }
             };
 
