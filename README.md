@@ -60,7 +60,7 @@ The second way:
   - **Ephemeral user ID**: If set, the message will only be visible to this user.
   - **Bot's username**: If not set, the bot's default username will be used.
   - **Send as user**: Send a message as a user.
-- **Send files** Send files to a channel. Requires scope: files:write Advanced settings:
+- **Send files** Send files to a channel or user. Requires scope: files:write Advanced settings:
   - **Message**: Message text to send with the files.
 - **Get message** Gets message metadata, text, reactions, and attachments. Requires scopes: channels:history, groups:history, files:read, reactions:read
 - **Update message** Updates a specific message in a channel. Requires scope: chat:write Advanced settings:

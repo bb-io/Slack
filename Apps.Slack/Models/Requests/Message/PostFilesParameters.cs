@@ -12,8 +12,8 @@ namespace Apps.Slack.Models.Requests.Message
 {
     public class PostFilesParameters
     {
-        [Display("Channel ID")]
-        [DataSource(typeof(ChannelHandler))]
+        [Display("Channel or user ID")]
+        [DataSource(typeof(ChannelUserHandler))]
         public string ChannelId { get; set; }
 
         [Display("Files")]

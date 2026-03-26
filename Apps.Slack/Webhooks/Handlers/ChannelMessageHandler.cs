@@ -7,10 +7,12 @@ namespace Apps.Slack.Webhooks.Handlers;
 
 public class ChannelMessageHandler : BaseWebhookHandler
 {
-    const string SubscriptionEvent = "message.channels";
+    private const string PublicChannelEvent = "message.channels";
+    private const string PrivateChannelEvent = "message.groups";
 
     public ChannelMessageHandler(InvocationContext invocationContext,
-        [WebhookParameter] OnMessageWebhookParameter parameter) : base(invocationContext, SubscriptionEvent)
+        [WebhookParameter] OnMessageWebhookParameter parameter)
+        : base(invocationContext, parameter.IsPrivateChannel == true ? PrivateChannelEvent : PublicChannelEvent)
     {
     }
 }

@@ -12,4 +12,7 @@ public class OnMessageWebhookParameter
 
     [Display("Trigger only when message has files")]
     public bool? TriggerOnlyOnFiles { get; set; }
+
+    [Display("Is private channel")]
+    public bool? IsPrivateChannel { get; set; }
 }
