@@ -13,6 +13,7 @@ using Apps.Slack.Models.Requests.Message;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Apps.Slack.Actions;
 using Apps.Slack.Models.Responses.File;
+using System.Linq;
 
 namespace Apps.Slack.Webhooks;
 
@@ -23,7 +24,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
         Description = "Triggered when the app is mentioned (@Blackbird). Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest,
-        [WebhookParameter] ChannelRequest input, [WebhookParameter] ThreadRequest thread)
+        [WebhookParameter] WebhookChannelRequest input, [WebhookParameter] ThreadRequest thread)
     {
         InvocationContext.Logger?.LogInformation($"[SlackAppMentioned] Received. {Newtonsoft.Json.JsonConvert.SerializeObject(webhookRequest)}",
             Array.Empty<object>());
@@ -41,7 +42,7 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
                 ReceivedWebhookRequestType = WebhookRequestType.Preflight
             };
 
-            if (input.ChannelId != null && payload.Event.Channel != input.ChannelId)
+            if (input.ChannelIds?.Any() == true && !input.ChannelIds.Contains(payload.Event.Channel))
                 return noFlightResponse;
 
             var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
