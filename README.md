@@ -86,6 +86,7 @@ The second way:
 ### Messages
 
 - **On app mentioned** Triggers when the app is mentioned. Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read Advanced settings:
+  - **Channel IDs**: If set, triggers only for mentions from the selected channels. If empty, triggers for any channel where the app is installed.
   - **Thread timestamp**: To filter messages only if they are part of a thread, use the message timestamp of the top thread message.
 - **On message** Triggers whenever a new message is posted. Requires scopes: channels:history, groups:history, files:read, reactions:read Advanced settings:
   - **Message reply handling**: Choose whether to trigger on non-replies, only replies, or both.
