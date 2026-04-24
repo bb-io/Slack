@@ -35,5 +35,17 @@ namespace Tests.Slack
             Assert.IsNotNull(response);
 
         }
+
+        [TestMethod]
+        public async Task FindUserTest()
+        {
+            var userActions = new UserActions(InvocationContext);
+            var response = await userActions.GetUserByEmail(new GetUserByEmailParameters { Email = "user@example.com" });
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented);
+            Console.WriteLine(json);
+
+            Assert.IsNotNull(response);
+
+        }
     }
 }

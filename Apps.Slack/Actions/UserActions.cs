@@ -31,13 +31,21 @@ public class UserActions(InvocationContext invocationContext) : SlackInvocable(i
         return response.User;
     }
 
+
     [Action("Find user by email", Description = "Find a user using an email address. Requires scopes: users:read.email, users:read, users.profile:read")]
     public async Task<UserEntity> GetUserByEmail([ActionParameter] GetUserByEmailParameters input)
     {
         var request = new SlackRequest("/users.lookupByEmail", Method.Get, Creds)
             .AddParameter("email", input.Email);
 
-        var response = await Client.ExecuteWithErrorHandling<GetUserByEmailResponse>(request);
-        return response.User;
+        try
+        {
+            var response = await Client.ExecuteWithErrorHandling<GetUserByEmailResponse>(request);
+            return response.User;
+        }
+        catch (PluginApplicationException ex) when (ex.Message.Contains("users_not_found"))
+        {
+            return new UserEntity();
+        }
     }
 }
