@@ -155,6 +155,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
         return new()
         {
             MessageText = message?.Text,
+            Permalink = reactionsResponse?.Message?.Permalink,
             ChannelId = channel.ChannelId,
             Timestamp = message?.Ts,
             ThreadTimestamp = message?.Thread_ts,

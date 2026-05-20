@@ -10,6 +10,9 @@ public class GetMessageFilesResponse
     [Display("Message text")]
     public string? MessageText { get; set; }
 
+    [Display("Message permalink")]
+    public string? Permalink { get; set; }
+
     [Display("Sender user ID")]
     public string User { get; set; }
 
