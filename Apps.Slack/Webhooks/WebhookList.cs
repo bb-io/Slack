@@ -21,6 +21,23 @@ namespace Apps.Slack.Webhooks;
 public class WebhookList(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : SlackInvocable(invocationContext)
 {
+    private static readonly HashSet<string> ThreadableSubtypes = new()
+    {
+        "bot_message",
+        "file_share",
+        "me_message",
+        "thread_broadcast",
+    };
+
+    public static bool IsThreadable(ChannelFileMessageEvent messageEvent)
+    {
+        // No subtype = a normal user/bot message, always threadable
+        if (string.IsNullOrEmpty(messageEvent.Subtype))
+            return true;
+
+        return ThreadableSubtypes.Contains(messageEvent.Subtype);
+    }
+
     [Webhook("On app mentioned", typeof(AppMentionedHandler),
         Description = "Triggered when the app is mentioned (@Blackbird). Requires scopes: app_mentions:read, channels:history, groups:history, files:read, reactions:read")]
     public async Task<WebhookResponse<GetMessageFilesResponse>> AppMentioned(WebhookRequest webhookRequest,
@@ -48,6 +65,9 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
             var messageWithoutMentionedUser = Regex.Replace(payload.Event.Text, "<@.+> ", "");
 
             var message = await GetMessage(payload.Event.Channel, payload.Event.Ts);
+            if (message == null)
+                return noFlightResponse;
+
             message.MessageText = messageWithoutMentionedUser;
 
             if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != message?.ThreadTimestamp)
@@ -89,7 +109,12 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         if (channel.ChannelId != null && payload.Event.Channel != channel.ChannelId)
             return noFlightResponse;
 
+        if (!IsThreadable(payload.Event))
+            return noFlightResponse;
+
         var message = await GetMessage(payload.Event.Channel, payload.Event.Ts);
+        if (message == null)
+            return noFlightResponse;
 
         var isReply = message.ThreadTimestamp != null;
 
@@ -99,12 +124,12 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         if (input.ReplyHandling == "only_replies" && !isReply)
             return noFlightResponse;
 
-        var hasFiles = message?.Files != null && message.Files.Any();
+        var hasFiles = message.Files != null && message.Files.Any();
 
         if (input.TriggerOnlyOnFiles is true && !hasFiles)
             return noFlightResponse;
 
-        if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != message?.ThreadTimestamp)
+        if (thread.ThreadTimestamp != null && thread.ThreadTimestamp != message.ThreadTimestamp)
             return noFlightResponse;
 
         return new WebhookResponse<GetMessageFilesResponse>
@@ -220,6 +245,8 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
                 }
 
                 message = await GetMessage(payload.Event.Item.Channel, payload.Event.Item.Ts);
+                if (message == null)
+                    return noFlightResponse;
             }
             catch (Exception e)
             {
@@ -250,9 +277,36 @@ public class WebhookList(InvocationContext invocationContext, IFileManagementCli
         }
     }
 
-    private async Task<GetMessageFilesResponse> GetMessage(string channel, string timestamp)
+    private async Task<GetMessageFilesResponse?> GetMessage(string channel, string timestamp)
     {
         var actions = new MessageActions(InvocationContext, fileManagementClient);
-        return await actions.GetMessageFiles(new ChannelRequest { ChannelId = channel }, new GetMessageParameters { Timestamp = timestamp });       
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        const int maxRetries = 3;
+
+        for (var attempt = 0; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                var message = await actions.GetMessageFiles(
+                    new ChannelRequest { ChannelId = channel },
+                    new GetMessageParameters { Timestamp = timestamp });
+
+                if (message != null)
+                    return message;
+            }
+            catch
+            {
+            }
+
+            if (attempt < maxRetries)
+                await Task.Delay(TimeSpan.FromSeconds(1));
+        }
+
+        InvocationContext.Logger?.LogInformation(
+            $"[SlackWebhooks] Message could not be found after retrying. Channel={channel}; Timestamp={timestamp}",
+            Array.Empty<object>());
+
+        return null;
     }
 }
