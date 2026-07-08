@@ -8,6 +8,9 @@ public class ChannelFileMessageEvent
     [JsonProperty("type")]
     public string Type { get; set; }
 
+    [JsonProperty("subtype")]
+    public string Subtype { get; set; }
+
     [JsonProperty("text")]
     public string Text { get; set; }
 
