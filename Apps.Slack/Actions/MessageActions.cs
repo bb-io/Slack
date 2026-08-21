@@ -136,7 +136,7 @@ public class MessageActions(InvocationContext invocationContext, IFileManagement
                 //fileReferences.Add(reference);
 
                 var fileRequest = new SlackRequest(f.PrivateUrl, Method.Get, Creds);
-                var fileResponse = Client.Get(fileRequest);
+                var fileResponse = await Client.ExecuteWithRateLimitRetry(fileRequest);
                 using (var stream = new MemoryStream(fileResponse.RawBytes!))
                 {
                     var file = FileManagementClient

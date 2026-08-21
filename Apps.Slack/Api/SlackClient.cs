@@ -3,7 +3,9 @@ using Apps.Slack.Models.Responses;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Polly;
 using RestSharp;
+using System.Net;
 
 namespace Apps.Slack.Api;
 
@@ -13,6 +15,9 @@ public class SlackClient() : RestClient(new RestClientOptions()
     MaxTimeout = 50000
 })
 {
+    private static readonly ResiliencePipeline<RestResponse> RateLimitPipeline =
+        SlackPollyPolicies.CreateRateLimitPipeline();
+
     private readonly Dictionary<string, string> _errorMisconfigurationMessages = new()
     {
         { "no_reaction", "The specified reaction does not exist, or the requestor is not the original reaction author." },
@@ -29,7 +34,7 @@ public class SlackClient() : RestClient(new RestClientOptions()
 
     public async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request, CancellationToken token = default)
     {
-        var response = await ExecuteAsync(request, token);
+        var response = await ExecuteWithRateLimitRetry(request, token);
 
         if (!string.IsNullOrEmpty(response.ErrorMessage))
         {
@@ -46,6 +51,31 @@ public class SlackClient() : RestClient(new RestClientOptions()
         {
             throw HandleHtmlResponseError(response);
         }
+    }
+
+    public async Task<RestResponse> ExecuteWithRateLimitRetry(RestRequest request,
+        CancellationToken token = default)
+    {
+        RestResponse response;
+        try
+        {
+            response = await RateLimitPipeline.ExecuteAsync(
+                cancellationToken => new ValueTask<RestResponse>(ExecuteAsync(request, cancellationToken)),
+                token);
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            throw new PluginApplicationException(
+                "Slack rate limit was exceeded after retrying. Please try again later.", exception);
+        }
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            throw new PluginApplicationException(
+                "Slack rate limit was exceeded after retrying. Please try again later.");
+        }
+
+        return response;
     }
     
     public async Task<T> ExecuteWithErrorHandling<T>(RestRequest request, CancellationToken token = default)
