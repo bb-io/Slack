@@ -1,3 +1,4 @@
+using Apps.Slack.Models.Converters;
 using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 
@@ -6,10 +7,12 @@ namespace Apps.Slack.Models.Entities;
 public class ChannelInfoEntity : ChannelEntity
 {
     [JsonProperty("topic")]
-    public ChannelTextEntity? Topic { get; set; }
+    [JsonConverter(typeof(ChannelTextValueConverter))]
+    public string? Topic { get; set; }
 
     [JsonProperty("purpose")]
-    public ChannelTextEntity? Purpose { get; set; }
+    [JsonConverter(typeof(ChannelTextValueConverter))]
+    public string? Purpose { get; set; }
 
     [Display("Creator ID")]
     [JsonProperty("creator")]
